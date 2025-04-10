@@ -1,0 +1,78 @@
+name: Build PROD
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        id: buildx
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        id: docker_build
+        with:
+          context: ./
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.DOCKERHUB_APPNAME}}.prod
+
+      - name: Verify
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  Success:
+    runs-on: ubuntu-latest
+    needs: Build
+    if: success()
+    steps:
+      - name: Notify telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
+          message: |
+            🛠️ Build: ✅✅✅ Success
+            💠 PROD - ${{ github.repository }}
+
+            🤖🤖🤖 Actor: ${{ github.actor }} created commit:
+            Commit message: "${{ github.event.commits[0].message }}"
+
+            💡 See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
+            💡 See build log: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  Failure:
+    runs-on: ubuntu-latest
+    needs: Build
+    if: failure()
+    steps:
+      - name: Notify telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
+          message: |
+            🛠️ Build: 🔴🔴🔴 Failed
+            💠 PROD - ${{ github.repository }}
+
+            🤖🤖🤖 Actor: ${{ github.actor }} created commit:
+            Commit message: "${{ github.event.commits[0].message }}"
+
+            💡 See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
+            💡 See build log: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
