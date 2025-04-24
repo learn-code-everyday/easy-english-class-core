@@ -17,12 +17,14 @@ const schema = gql`
   input CreateContactInput {
     name: String
     phone: String
+    email: String
     notice: String
   }
 
   input UpdateContactInput {
     name: String
     phone: String
+    email: String
     notice: String
   }
 
@@ -33,6 +35,7 @@ const schema = gql`
 
     name: String
     phone: String
+    email: String
     notice: String
     status: String
   }

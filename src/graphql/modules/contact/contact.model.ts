@@ -10,6 +10,7 @@ export enum ContactStatuses {
 export type Contact = {
   name?: string;
   phone?: string;
+  email?: string;
   notice?: string;
   status?: ContactStatuses;
 };
@@ -22,6 +23,7 @@ const contactSchema = new Schema(
   {
     name: { type: String },
     phone: { type: String },
+    email: { type: String },
     notice: { type: String },
     status: { type: String, enum: ContactStatuses, default: ContactStatuses.ACTIVE },
   },
