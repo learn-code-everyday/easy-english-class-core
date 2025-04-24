@@ -18,7 +18,6 @@ const Mutation = {
     return await productService.create(data);
   },
   updateProduct: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
     const { id, data } = args;
     return await productService.updateOne(id, data);
   },

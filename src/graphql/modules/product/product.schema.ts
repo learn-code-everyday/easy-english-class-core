@@ -76,6 +76,8 @@ const schema = gql`
 
   type Description {
     price: Float
+    discountPrice: Float
+    discount: Float
     subscription: String
     poweredBy: String
     shippingTime: String
