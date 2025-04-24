@@ -14,6 +14,8 @@ export type Product = {
     status?: ProductStatuses;
     description: {
         price: number,
+        discountPrice: number,
+        discount: number,
         subscription: string,
         poweredBy: string,
         shippingTime: string,
@@ -54,6 +56,8 @@ const productSchema = new Schema(
         status: {type: String, enum: ProductStatuses, default: ProductStatuses.ACTIVE},
         description: {
             price: {type: String},
+            discountPrice: {type: String},
+            discount: {type: String},
             subscription: {type: String},
             poweredBy: {type: String},
             shippingTime: {type: String},

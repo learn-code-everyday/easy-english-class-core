@@ -16,6 +16,8 @@ const schema = gql`
 
   input DescriptionInput {
     price: Float
+    discountPrice: Float
+    discount: Float
     subscription: String
     poweredBy: String
     shippingTime: String
