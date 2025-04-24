@@ -26,7 +26,6 @@ const Mutation = {
     context.auth([ROLES.ADMIN]);
     const { data } = args;
     data.code = await UserHelper.generateCode();
-    // console.log("data", data);
 
     data.status = UserStatuses.ACTIVE;
     const password = md5(data.password).toString();
