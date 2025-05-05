@@ -50,4 +50,10 @@ export default {
   },
   googleClientId: process.env.YOUR_CLIENT_ID,
   googleClientSecret: process.env.YOUR_CLIENT_SECRET,
+  smtpHost: process.env.SMTP_HOST,
+  smtpPort: process.env.SMTP_PORT,
+  smtpUser: process.env.SMTP_USER,
+  smtpPassword: process.env.SMTP_PASSWORD,
+  mailerFrom: process.env.MAILER_FROM,
+  adminMail: process.env.ADMIN_MAIL,
 };

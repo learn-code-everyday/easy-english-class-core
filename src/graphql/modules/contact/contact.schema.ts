@@ -15,10 +15,10 @@ const schema = gql`
   }
 
   input CreateContactInput {
-    name: String
+    name: String!
     phone: String
     email: String
-    notice: String
+    notice: String!
   }
 
   input UpdateContactInput {

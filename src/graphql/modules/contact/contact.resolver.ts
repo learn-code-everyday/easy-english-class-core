@@ -1,6 +1,7 @@
 import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { contactService } from "./contact.service";
+import {mailService} from "../mails/mails.service";
 
 const Query = {
   getAllContact: async (root: any, args: any, context: Context) => {
@@ -15,6 +16,11 @@ const Query = {
 const Mutation = {
   createContact: async (root: any, args: any, context: Context) => {
     const { data } = args;
+    try {
+      await mailService.notificationForContactRequest(data);
+    } catch (error) {
+      console.error('Error sending contact request notification email:', error);
+    }
     return await contactService.create(data);
   },
   updateContact: async (root: any, args: any, context: Context) => {
