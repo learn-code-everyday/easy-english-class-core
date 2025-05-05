@@ -28,15 +28,17 @@ class MailService {
     async notificationForContactRequest(data: {
         name: string;
         phone: string;
+        email: string;
         notice: string;
     }) {
         try {
             const template = {
                 to: `${configs.adminMail}`,
-                subject: `New Contact Request from ${data.name}`,
+                subject: `New contact request from ${data.name}`,
                 html: buildContactEmailTemplate({
                     name: data.name,
                     phone: data.phone,
+                    email: data.email,
                     notice: data.notice,
                 }),
             };
@@ -70,23 +72,34 @@ const mailService = new MailService();
 
 export {mailService};
 
-const buildContactEmailTemplate = ({name, phone, notice}) => `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd;">
-            <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Contact Submission</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Name</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${name}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Phone</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${phone}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Notice</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${notice}</td>
-                </tr>
-            </table>
-            <p style="margin-top: 20px; color: #777; font-size: 12px;">This message was generated automatically from your website contact form.</p>
-        </div>
-    `;
+const buildContactEmailTemplate = ({ name, phone, email, notice }) => {
+    const contactMethod = phone
+        ? `<tr>
+         <td style="padding: 8px; border: 1px solid #ddd;"><strong>Phone</strong></td>
+         <td style="padding: 8px; border: 1px solid #ddd;">${phone}</td>
+       </tr>`
+        : email
+            ? `<tr>
+         <td style="padding: 8px; border: 1px solid #ddd;"><strong>Email</strong></td>
+         <td style="padding: 8px; border: 1px solid #ddd;">${email}</td>
+       </tr>`
+            : '';
+
+    return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd;">
+      <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Contact Request</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Name</strong></td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${name}</td>
+        </tr>
+        ${contactMethod}
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Message</strong></td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${notice}</td>
+        </tr>
+      </table>
+      <p style="margin-top: 20px; color: #777; font-size: 12px;">This message was automatically generated from the contact form on your website.</p>
+    </div>
+  `;
+};
