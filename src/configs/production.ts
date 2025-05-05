@@ -7,5 +7,11 @@ export default {
   app1db: process.env["APP1_DB_URI"],
   adminUsername: process.env["ADMIN_USERNAME"],
   adminPassword: process.env["ADMIN_PASSWORD"],
+  smtpHost: process.env['SMTP_HOST'],
+  smtpPort: process.env['SMTP_PORT'],
+  smtpUser: process.env['SMTP_USER'],
+  smtpPassword: process.env['SMTP_PASSWORD'],
+  mailerFrom: process.env['MAILER_FROM'],
+  adminMail: process.env['ADMIN_MAIL'],
   debug: false,
 };
