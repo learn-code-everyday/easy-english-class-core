@@ -21,10 +21,10 @@ export const GoogleCallback = async (req: Request, res: Response): Promise<any> 
     });
     const { access_token } = tokenResponse?.data;
     const customer = await customerService.loginGoogle(access_token);
-    console.log(9999, customer)
     const {token} = customer;
+    console.log(999, configs.domainFe)
 
-    return res.redirect(`${configs.domain}/auth-callback?token=${token}`);
+    return res.redirect(`${configs.domainFe}/auth-callback?token=${token}`);
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     return res.status(500).send('Authentication failed');
