@@ -10,6 +10,5 @@ export const GoogleLogin = async (
     const scope = 'openid profile email';
     const responseType = 'code';
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
-    console.log(99999, authUrl)
     return res.redirect(authUrl);
 }

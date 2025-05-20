@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { configs } from "../configs";
 import { LogHelper } from "../core/logger";
 import router from "../routers";
+import cors from "cors";
 
 class ExpressLoader {
   public app: express.Express;
@@ -16,6 +17,15 @@ class ExpressLoader {
   }
 
   private configure(): void {
+    this.app.use(
+        cors({
+          origin: '*',
+          methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+          allowedHeaders: ['Content-Type', 'Authorization'],
+          credentials: true,
+        })
+    );
+
     this.app.use(compression());
     this.app.use(express.json({ limit: "10mb" }));
     this.app.use(express.urlencoded({ extended: true, limit: "10mb" }));
