@@ -39,6 +39,7 @@ export type Customer = {
   bloodType?: string;
   citizenId?: string;
   gmail?: string
+  googleId?: string
 
 
   status?: CustomerStatuses;
@@ -73,6 +74,7 @@ const customerSchema = new Schema(
     school: { type: String },
     bloodType: { type: String },
     citizenId: { type: String },
+    googleId: { type: String },
 
 
     referralCode: { type: String },

@@ -12,7 +12,6 @@ extend type Mutation {
   updateCustomer(id: ID!, data: UpdateCustomerInput!): Customer
   deleteOneCustomer(id: ID!): Customer
   # Mutation
-  loginByGoogle(idToken: String!): CustomerLoginData
 }
 
 type CountRef {
@@ -27,19 +26,9 @@ type SummaryReferralAmountData {
   amount: Float
 }
 
-type CustomerLoginData {
-  token: String
-  customer: Customer
-}
-
 input UpdateCustomerInput {
   status: String
   approved: Boolean
-}
-
-type CustomerLoginData {
-  customer: Customer
-  token: String
 }
 
 type Customer {
@@ -74,7 +63,6 @@ type Customer {
   referrenceId: String
 
   status: String
-
 }
 
 type CustomerPageData {
