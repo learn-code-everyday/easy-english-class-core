@@ -4,11 +4,11 @@ import { minerErrorLogsService } from "./minerErrorLogs.service";
 
 const Query = {
   getAllMinerErrorLogs: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     return minerErrorLogsService.fetch(args.q);
   },
   getOneMinerErrorLogs: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await minerErrorLogsService.findOne({ _id: id });
   },
@@ -16,17 +16,17 @@ const Query = {
 
 const Mutation = {
   createMinerErrorLogs: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
     return await minerErrorLogsService.create(data);
   },
   updateMinerErrorLogs: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id, data } = args;
     return await minerErrorLogsService.updateOne(id, data);
   },
   deleteOneMinerErrorLogs: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await minerErrorLogsService.deleteOne(id);
   },

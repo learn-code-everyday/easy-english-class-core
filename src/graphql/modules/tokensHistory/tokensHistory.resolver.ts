@@ -4,11 +4,11 @@ import { tokensHistoryService } from "./tokensHistory.service";
 
 const Query = {
   getAllTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     return tokensHistoryService.fetch(args.q);
   },
   getOneTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await tokensHistoryService.findOne({ _id: id });
   },
@@ -16,17 +16,17 @@ const Query = {
 
 const Mutation = {
   createTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDADMIN_EDITOR_CUSTOMERITOR);
     const { data } = args;
     return await tokensHistoryService.create(data);
   },
   updateTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id, data } = args;
     return await tokensHistoryService.updateOne(id, data);
   },
   deleteOneTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await tokensHistoryService.deleteOne(id);
   },
