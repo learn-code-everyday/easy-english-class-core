@@ -5,7 +5,7 @@ import { MinerStatuses} from "../../modules/miner/miner.model";
 
 const Query = {
   getAllMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    // context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     return minerService.fetch(args.q);
   },
   getOneMiner: async (root: any, args: any, context: Context) => {
@@ -35,6 +35,17 @@ const Mutation = {
     };
 
     return await minerService.create(dataInsert);
+  },
+  connectMiner: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    const { data } = args;
+    const { code } = data;
+
+    const miner = await minerService.findOne({ code });
+    return await minerService.updateOne(miner._id.toString(), {
+      ...miner,
+      customerId: context.id
+    });
   },
   createMiner: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);

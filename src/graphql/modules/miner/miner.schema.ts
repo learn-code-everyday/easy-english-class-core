@@ -9,6 +9,7 @@ const schema = gql`
 
   extend type Mutation {
     scanMiner(data: ScanMinerInput!): Miner
+    connectMiner(data: ConnectMinerInput!): Miner
     createMiner(data: CreateMinerInput!): Miner
     updateMiner(id: ID!, data: UpdateMinerInput!): Miner
     deleteOneMiner(id: ID!): Miner
@@ -16,6 +17,10 @@ const schema = gql`
   }
   
   input ScanMinerInput {
+    code: String
+  }
+  
+  input ConnectMinerInput {
     code: String
   }
 
