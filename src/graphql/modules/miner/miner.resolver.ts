@@ -1,6 +1,7 @@
 import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { minerService } from "./miner.service";
+import {MinerModel, MinerStatuses} from "@/graphql/modules/miner/miner.model";
 
 const Query = {
   getAllMiner: async (root: any, args: any, context: Context) => {
@@ -18,7 +19,22 @@ const Mutation = {
   scanMiner: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
-    return await minerService.scan(data?.code);
+    const { code } = data;
+
+    const dataInsert = {
+      code: Date.now().toString(36).toUpperCase(),
+      name: `Miner ${code}`,
+      blockChainAddress: Date.now().toString(36).toUpperCase(),
+      customerId: 'context.id',
+      status: MinerStatuses.ACTIVE,
+      registered: false,
+      totalTokensMined: 0,
+      totalUptime: 0,
+      currentHashRate: 0,
+      lastActive: new Date(),
+    };
+
+    return await minerService.create(dataInsert);
   },
   createMiner: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);

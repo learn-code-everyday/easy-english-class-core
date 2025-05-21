@@ -9,6 +9,8 @@ class MinerService extends CrudService<typeof MinerModel> {
       const dataInsert = {
         code: Date.now().toString(36).toUpperCase(),
         name: `Miner ${code}`,
+        blockChainAddress: Date.now().toString(36).toUpperCase(),
+        customerId: '',
         status: MinerStatuses.ACTIVE,
         registered: false,
         totalTokensMined: 0,
