@@ -4,11 +4,11 @@ import { minerService } from "./miner.service";
 
 const Query = {
   getAllMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     return minerService.fetch(args.q);
   },
   getOneMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await minerService.findOne({ _id: id });
   },
@@ -16,12 +16,12 @@ const Query = {
 
 const Mutation = {
   createMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
     return await minerService.create(data);
   },
   updateMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id, data } = args;
     return await minerService.updateOne(id, data);
   },
