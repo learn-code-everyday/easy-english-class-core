@@ -1,7 +1,7 @@
 import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { minerService } from "./miner.service";
-import {MinerModel, MinerStatuses} from "@/graphql/modules/miner/miner.model";
+import { MinerStatuses} from "../../modules/miner/miner.model";
 
 const Query = {
   getAllMiner: async (root: any, args: any, context: Context) => {
