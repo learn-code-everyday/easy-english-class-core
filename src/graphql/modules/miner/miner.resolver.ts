@@ -47,6 +47,17 @@ const Mutation = {
       customerId: context.id
     });
   },
+  disConnectMiner: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    const { data } = args;
+    const { code } = data;
+
+    const miner = await minerService.findOne({ code });
+    return await minerService.updateOne(miner._id.toString(), {
+      ...miner,
+      customerId: ''
+    });
+  },
   createMiner: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
