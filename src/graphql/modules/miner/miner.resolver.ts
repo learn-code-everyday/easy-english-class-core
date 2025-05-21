@@ -15,6 +15,11 @@ const Query = {
 };
 
 const Mutation = {
+  scanMiner: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    const { data } = args;
+    return await minerService.scan(data?.code);
+  },
   createMiner: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
