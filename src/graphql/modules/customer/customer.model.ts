@@ -42,7 +42,7 @@ export type Customer = {
   googleId?: string
   status?: CustomerStatuses;
 
-  };
+};
 
 export type ICustomer = BaseDocument & Customer;
 
