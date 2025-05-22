@@ -14,6 +14,10 @@ const Query = {
     const { id } = args;
     return await customerService.findOne({ _id: id });
   },
+  customerGetMe: async (root: any, args: any, context: Context) => {
+    context.auth([ROLES.CUSTOMER]);
+    return await customerService.findOne({ _id: context.id });
+  },
 };
 
 const Mutation = {
