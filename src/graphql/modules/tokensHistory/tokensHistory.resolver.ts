@@ -16,7 +16,7 @@ const Query = {
 
 const Mutation = {
   createTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDADMIN_EDITOR_CUSTOMERITOR);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
     return await tokensHistoryService.create(data);
   },

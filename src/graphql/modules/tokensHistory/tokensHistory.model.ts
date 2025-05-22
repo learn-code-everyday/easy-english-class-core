@@ -2,14 +2,10 @@ import mongoose from "mongoose";
 import { MainConnection } from "../../../loaders/database.loader";
 import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
 
-export enum TokensHistoryStatuses {
-    ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
-}
-
 export type TokensHistory = {
-  name?: string;
-  status?: TokensHistoryStatuses;
+  minerId?: string;
+  tokenAmount?: number;
+  transactionId?: string;
 };
 
 const Schema = mongoose.Schema;
@@ -18,8 +14,9 @@ export type ITokensHistory = BaseDocument & TokensHistory;
 
 const tokensHistorySchema = new Schema(
   {
-    name: { type: String },
-    status: { type: String, enum: TokensHistoryStatuses, default: TokensHistoryStatuses.ACTIVE },
+      minerId: { type: Schema.Types.ObjectId, ref: "Miner", required: true },
+      tokenAmount: { type: Number, required: true },
+      transactionId: { type: String },
   },
   { timestamps: true }
 );

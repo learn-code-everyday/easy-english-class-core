@@ -19,6 +19,7 @@ export type IMiner = BaseDocument & Miner;
 const minerSchema = new Schema(
   {
     name: { type: String },
+    name: { type: String },
     code: { type: String, unique: true },
     blockChainAddress: { type: String },
     customerId: { type: Schema.Types.ObjectId, ref: "Customer" },

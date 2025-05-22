@@ -15,11 +15,15 @@ const schema = gql`
   }
 
   input CreateTokensHistoryInput {
-    name: String
+    minerId: String
+    tokenAmount: Float
+    transactionId: String
   }
 
   input UpdateTokensHistoryInput {
-    name: String
+    minerId: String
+    tokenAmount: Float
+    transactionId: String
   }
 
   type TokensHistory {
@@ -27,8 +31,9 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
-    name: String
-    status: String
+    minerId: String
+    tokenAmount: Float
+    transactionId: String
   }
 
   type TokensHistoryPageData {

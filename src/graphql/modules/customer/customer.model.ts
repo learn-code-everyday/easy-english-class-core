@@ -40,8 +40,6 @@ export type Customer = {
   citizenId?: string;
   gmail?: string
   googleId?: string
-
-
   status?: CustomerStatuses;
 
   };

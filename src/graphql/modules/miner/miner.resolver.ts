@@ -43,7 +43,6 @@ const Mutation = {
 
     const miner = await minerService.findOne({ code });
     return await minerService.updateOne(miner._id.toString(), {
-      ...miner,
       customerId: context.id
     });
   },
@@ -54,8 +53,7 @@ const Mutation = {
 
     const miner = await minerService.findOne({ code });
     return await minerService.updateOne(miner._id.toString(), {
-      ...miner,
-      customerId: ''
+      customerId: null
     });
   },
   createMiner: async (root: any, args: any, context: Context) => {
