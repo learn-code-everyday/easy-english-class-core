@@ -11,6 +11,7 @@ export type Notification = {
   title: string;
   description?: string;
   customerId: string;
+  isRead: boolean;
   status?: NotificationStatuses;
 };
 
@@ -23,6 +24,7 @@ const notificationSchema = new Schema(
       title: { type: String, required: true},
       description: { type: String },
       customerId: { type: Schema.Types.ObjectId, required: true, ref: "Customer" },
+      isRead: { type: Boolean },
       status: { type: String, enum: NotificationStatuses, default: NotificationStatuses.ACTIVE },
   },
   { timestamps: true }

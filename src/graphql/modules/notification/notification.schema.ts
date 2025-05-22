@@ -18,12 +18,14 @@ const schema = gql`
     title: String
     description: String
     customerId: String
+    isRead: Boolean
   }
 
   input UpdateNotificationInput {
     title: String
     description: String
     customerId: String
+    isRead: Boolean
   }
 
   type Notification {
@@ -34,6 +36,7 @@ const schema = gql`
     title: String
     description: String
     status: String
+    isRead: Boolean
   }
 
   type NotificationPageData {
