@@ -1,6 +1,7 @@
 import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { notificationService } from "./notification.service";
+import {set} from "lodash";
 
 const Query = {
   getAllNotification: async (root: any, args: any, context: Context) => {

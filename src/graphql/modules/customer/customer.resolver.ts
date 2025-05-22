@@ -1,8 +1,9 @@
-import { ROLES } from "../../../constants/role.const";
-import { onActivity } from "../../../events/onActivity.event";
-import { Context } from "../../../core/context";
-import { customerService } from "./customer.service";
-import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
+import {ROLES} from "../../../constants/role.const";
+import {onActivity} from "../../../events/onActivity.event";
+import {Context} from "../../../core/context";
+import {customerService} from "./customer.service";
+import {ActivityTypes, ChangedFactors} from "../activity/activity.model";
+import {MinerModel} from "../../modules/miner/miner.model";
 
 const Query = {
   getAllCustomer: async (root: any, args: any, context: Context) => {
@@ -49,8 +50,36 @@ const Mutation = {
   },
 };
 
-const Customer = {};
-
+const Customer = {
+  totalMiners: async (parent: { id: any; }) => {
+    console.log(9999, parent)
+    return MinerModel.countDocuments({customerId: parent.id});
+  },
+  totalTokensMined: async (parent: { id: any; }) => {
+    const result = await MinerModel.aggregate([
+      { $match: { customerId: parent.id } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$totalTokensMined' }
+        }
+      }
+    ]);
+    return result[0]?.total || 0;
+  },
+  totalUptime: async (parent: { id: any; }) => {
+    const result = await MinerModel.aggregate([
+      { $match: { customerId: parent.id } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$totalUptime' }
+        }
+      }
+    ]);
+    return result[0]?.total || 0;
+  },
+};
 export default {
   Query,
   Mutation,

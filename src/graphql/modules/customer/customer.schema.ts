@@ -61,6 +61,9 @@ type Customer {
 
   referralCode: String
   referrenceId: String
+  totalMiners: Float
+  totalTokensMined: Float
+  totalUptime: Float
 
   status: String
 }
