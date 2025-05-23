@@ -2,10 +2,14 @@ import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { minerService } from "./miner.service";
 import { MinerStatuses} from "../../modules/miner/miner.model";
+import {set} from "lodash";
 
 const Query = {
   getAllMiner: async (root: any, args: any, context: Context) => {
     // context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    if (context.isCustomer()) {
+      set(args, "q.filter.customerId", context.id)
+    }
     return minerService.fetch(args.q);
   },
   getOneMiner: async (root: any, args: any, context: Context) => {

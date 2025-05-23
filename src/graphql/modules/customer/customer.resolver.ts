@@ -52,7 +52,6 @@ const Mutation = {
 
 const Customer = {
   totalMiners: async (parent: { id: any; }) => {
-    console.log(9999, parent)
     return MinerModel.countDocuments({customerId: parent.id});
   },
   totalTokensMined: async (parent: { id: any; }) => {
