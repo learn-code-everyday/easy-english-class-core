@@ -1,90 +1,110 @@
-import { ROLES } from "../../../constants/role.const";
-import { Context } from "../../../core/context";
-import { minerService } from "./miner.service";
-import { MinerStatuses} from "../../modules/miner/miner.model";
+import {ROLES} from "../../../constants/role.const";
+import {Context} from "../../../core/context";
+import {minerService} from "./miner.service";
+import {MinerStatuses} from "../../modules/miner/miner.model";
 import {set} from "lodash";
+import minerSchema from "@/graphql/modules/miner/miner.schema";
 
 const Query = {
-  getAllMiner: async (root: any, args: any, context: Context) => {
-    // context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    if (context.isCustomer()) {
-      set(args, "q.filter.customerId", context.id)
-    }
-    return minerService.fetch(args.q);
-  },
-  getOneMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    const { id } = args;
-    return await minerService.findOne({ _id: id });
-  },
+    getAllMiner: async (root: any, args: any, context: Context) => {
+        // context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        if (context.isCustomer()) {
+            set(args, "q.filter.customerId", context.id)
+        }
+        return minerService.fetch(args.q);
+    },
+    getOneMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        const {id} = args;
+        return await minerService.findOne({_id: id});
+    },
+    getTotalMinerForAdmin: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_MEMBER_EDITOR);
+        const totalMiners = await minerService.count();
+        const activeMiners = await minerService.count({status: MinerStatuses.ACTIVE});
+        const totalTokensResult = await minerSchema.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalTokensMined: {$sum: "$totalTokensMined"},
+                },
+            },
+        ]);
+
+        const totalTokensMined = totalTokensResult[0]?.totalTokensMined || 0;
+
+        return {
+            totalMiners,
+            activeMiners,
+            totalTokensMined,
+        };
+    },
 };
 
 const Mutation = {
-  scanMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    const { data } = args;
-    const { code } = data;
+    scanMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        const {data} = args;
+        const {code} = data;
 
-    const dataInsert = {
-      code: Date.now().toString(36).toUpperCase(),
-      name: `Miner ${code}`,
-      blockChainAddress: Date.now().toString(36).toUpperCase(),
-      customerId: context.id,
-      status: MinerStatuses.ACTIVE,
-      registered: false,
-      totalTokensMined: 0,
-      totalUptime: 0,
-      currentHashRate: 0,
-      lastActive: new Date(),
-    };
+        const dataInsert = {
+            code: Date.now().toString(36).toUpperCase(),
+            name: `Miner ${code}`,
+            blockChainAddress: Date.now().toString(36).toUpperCase(),
+            customerId: context.id,
+            status: MinerStatuses.ACTIVE,
+            registered: false,
+            totalTokensMined: 0,
+            totalUptime: 0,
+            currentHashRate: 0,
+            lastActive: new Date(),
+        };
 
-    return await minerService.create(dataInsert);
-  },
-  connectMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    const { data } = args;
-    const { code } = data;
+        return await minerService.create(dataInsert);
+    },
+    connectMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        const {data} = args;
+        const {code} = data;
 
-    const miner = await minerService.findOne({ code });
-    return await minerService.updateOne(miner._id.toString(), {
-      customerId: context.id,
-      registered: true,
-    });
-  },
-  disConnectMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    const { data } = args;
-    const { code } = data;
+        const miner = await minerService.findOne({code});
+        return await minerService.updateOne(miner._id.toString(), {
+            customerId: context.id,
+            registered: true,
+        });
+    },
+    disConnectMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        const {data} = args;
+        const {code} = data;
 
-    const miner = await minerService.findOne({ code });
-    return await minerService.updateOne(miner._id.toString(), {
-      customerId: null,
-      registered: false,
-    });
-  },
-  createMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    const { data } = args;
-    return await minerService.create(data);
-  },
-  updateMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-    const { id, data } = args;
-    return await minerService.updateOne(id, data);
-  },
-  deleteOneMiner: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
-    const { id } = args;
-    return await minerService.deleteOne(id);
-  },
+        const miner = await minerService.findOne({code});
+        return await minerService.updateOne(miner._id.toString(), {
+            customerId: null,
+            registered: false,
+        });
+    },
+    createMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        const {data} = args;
+        return await minerService.create(data);
+    },
+    updateMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+        const {id, data} = args;
+        return await minerService.updateOne(id, data);
+    },
+    deleteOneMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR);
+        const {id} = args;
+        return await minerService.deleteOne(id);
+    },
 };
 
-const Miner = {
-  
-};
+const Miner = {};
 
 export default {
-  Query,
-  Mutation,
-  Miner,
+    Query,
+    Mutation,
+    Miner,
 };

@@ -13,13 +13,19 @@ const schema = gql`
     deleteOneMinerErrorLogs(id: ID!): MinerErrorLogs
     # Add Mutation
   }
-
+    
   input CreateMinerErrorLogsInput {
-    name: String
+    minerId: String
+    errorCode: String
+    errorMessage: String
+    severity: String
   }
 
   input UpdateMinerErrorLogsInput {
-    name: String
+    minerId: String
+    errorCode: String
+    errorMessage: String
+    severity: String
   }
 
   type MinerErrorLogs {
@@ -27,8 +33,10 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
-    name: String
-    status: String
+    minerId: String
+    errorCode: String
+    errorMessage: String
+    severity: String
   }
 
   type MinerErrorLogsPageData {
