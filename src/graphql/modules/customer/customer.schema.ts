@@ -30,6 +30,7 @@ type SummaryReferralAmountData {
 input UpdateCustomerInput {
   status: String
   approved: Boolean
+  referralCode: String
 }
 
 type Customer {
