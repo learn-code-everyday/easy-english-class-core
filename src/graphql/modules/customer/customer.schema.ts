@@ -10,6 +10,7 @@ const schema = gql`
 
 extend type Mutation {
   updateCustomer(id: ID!, data: UpdateCustomerInput!): Customer
+  updateMyProfile(data: UpdateCustomerInput!): Customer
   deleteOneCustomer(id: ID!): Customer
   # Mutation
 }

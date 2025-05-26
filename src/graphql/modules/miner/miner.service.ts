@@ -4,6 +4,32 @@ class MinerService extends CrudService<typeof MinerModel> {
   constructor() {
     super(MinerModel);
   }
+  async getDataMinerForAdmin() {
+    try {
+      const totalMiners = await MinerModel.countDocuments();
+      const activeMiners = await MinerModel.countDocuments({status: MinerStatuses.ACTIVE});
+      const totalTokensResult = await MinerModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalTokensMined: {$sum: "$totalTokensMined"},
+          },
+        },
+      ]);
+      const totalTokensMined = totalTokensResult[0]?.totalTokensMined || 0;
+
+      return  {
+        totalMiners,
+        activeMiners,
+        totalTokensMined,
+      };
+    } catch (error) {
+      console.error("Error fetch miner:", error);
+      throw error;
+    }
+  }
+
+
   async scan(code: string) {
     try {
       const dataInsert = {

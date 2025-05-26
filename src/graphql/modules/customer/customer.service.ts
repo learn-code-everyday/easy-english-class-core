@@ -40,6 +40,7 @@ class CustomerService extends CrudService<typeof CustomerModel> {
           gmail: email,
           googleId,
           username: name,
+          referralCode: `User-${Date.now()}`,
           activeAt: new Date(),
           role: ROLES.CUSTOMER,
         };
@@ -58,6 +59,23 @@ class CustomerService extends CrudService<typeof CustomerModel> {
         customer,
         token: new CustomerHelper(customer).getToken(),
       };
+    } catch (error) {
+      console.error("Error during Google login:", error);
+      throw error; // Optionally rethrow the error to be handled upstream
+    }
+  }
+  async updateCustomer(customerId: string, data: any) {
+    try {
+      const { referralCode } = data;
+      let customer = await CustomerModel.findById(customerId);
+
+      if (customer) {
+        return CustomerModel.findByIdAndUpdate(
+            customerId,
+            { $set: { referralCode: referralCode } },
+            { upsert: true, new: true },
+        )
+      }
     } catch (error) {
       console.error("Error during Google login:", error);
       throw error; // Optionally rethrow the error to be handled upstream

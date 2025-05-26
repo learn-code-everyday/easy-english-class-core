@@ -22,6 +22,11 @@ const Query = {
 };
 
 const Mutation = {
+  updateMyProfile: async (root: any, args: any, context: Context) => {
+    context.auth([ROLES.CUSTOMER]);
+    const { data } = args;
+    return await customerService.updateCustomer(context.id, data);
+  },
   updateCustomer: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN]);
     const { id, data } = args;

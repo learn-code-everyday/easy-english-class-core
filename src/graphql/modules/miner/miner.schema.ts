@@ -5,6 +5,7 @@ const schema = gql`
     getAllMiner(q: QueryGetListInput): MinerPageData
     getOneMiner(id: ID!): Miner
     # Add Query
+    getDataMinerForAdmin: DataMinerForAdmin
   }
 
   extend type Mutation {
@@ -53,6 +54,12 @@ const schema = gql`
     totalUptime: Float
     currentHashRate: Float
     lastActive: DateTime
+  }
+  
+  type DataMinerForAdmin {
+    totalMiners: Float
+    activeMiners: Float
+    totalTokensMined: Float
   }
 
   type Miner {
