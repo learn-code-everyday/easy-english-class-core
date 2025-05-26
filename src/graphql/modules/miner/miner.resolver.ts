@@ -18,27 +18,27 @@ const Query = {
         const {id} = args;
         return await minerService.findOne({_id: id});
     },
-    getTotalMinerForAdmin: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_MEMBER_EDITOR);
-        const totalMiners = await minerService.count();
-        const activeMiners = await minerService.count({status: MinerStatuses.ACTIVE});
-        const totalTokensResult = await minerSchema.aggregate([
-            {
-                $group: {
-                    _id: null,
-                    totalTokensMined: {$sum: "$totalTokensMined"},
-                },
-            },
-        ]);
-
-        const totalTokensMined = totalTokensResult[0]?.totalTokensMined || 0;
-
-        return {
-            totalMiners,
-            activeMiners,
-            totalTokensMined,
-        };
-    },
+    // getTotalMinerForAdmin: async (root: any, args: any, context: Context) => {
+    //     context.auth(ROLES.ADMIN_MEMBER_EDITOR);
+    //     const totalMiners = await minerService.count();
+    //     const activeMiners = await minerService.count({status: MinerStatuses.ACTIVE});
+    //     const totalTokensResult = await minerSchema.aggregate([
+    //         {
+    //             $group: {
+    //                 _id: null,
+    //                 totalTokensMined: {$sum: "$totalTokensMined"},
+    //             },
+    //         },
+    //     ]);
+    //
+    //     const totalTokensMined = totalTokensResult[0]?.totalTokensMined || 0;
+    //
+    //     return {
+    //         totalMiners,
+    //         activeMiners,
+    //         totalTokensMined,
+    //     };
+    // },
 };
 
 const Mutation = {
