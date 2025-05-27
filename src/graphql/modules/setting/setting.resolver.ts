@@ -16,12 +16,12 @@ const Query = {
     return settingService.fetch(args.q);
   },
   getOneSetting: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await settingService.findOne({ _id: id });
   },
   getOneSettingByKey: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { key } = args;
     return await settingService.findOne({ key: key });
   },
@@ -29,7 +29,7 @@ const Query = {
 
 const Mutation = {
   createSetting: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { data } = args;
     set(data, "editMode", EditModes.USER);
     return await settingService.create(data).then((res) => {
@@ -43,7 +43,7 @@ const Mutation = {
     });
   },
   updateSetting: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id, data } = args;
     // console.log('data', data);
     return await settingService.updateOne(id, data).then((res) => {
@@ -57,7 +57,7 @@ const Mutation = {
     });
   },
   deleteOneSetting: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     const { id } = args;
     return await settingService.deleteOne(id).then((res) => {
       onActivity.next({
@@ -70,7 +70,7 @@ const Mutation = {
     });
   },
   deleteManySetting: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     const { ids } = args;
     let result = await settingService.deleteMany(ids);
     return result;
