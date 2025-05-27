@@ -6,6 +6,8 @@ export enum UserRoles {
   ADMIN = "ADMIN",
   EDITOR = "EDITOR",
   MEMBER = "MEMBER",
+  MERCHANT = "MERCHANT",
+  SALES = "SALES",
 }
 
 export enum UserStatuses {
@@ -23,9 +25,13 @@ export type User = {
   code?: string;
   name?: string;
   email?: string;
+  phone?: string;
+  wallet?: string;
+  telegramLink?: string;
   password?: string;
   role?: UserRoles;
   avatar?: string;
+  level?: number;
   lastLoginAt?: Date;
   status?: UserStatuses;
 };
@@ -37,7 +43,11 @@ const userSchema = new Schema(
     code: { type: String, unique: true },
     name: { type: String },
     email: { type: String },
+    phone: { type: String },
+    wallet: { type: String },
+    telegramLink: { type: String },
     password: { type: String },
+    level: { type: Number },
     role: { type: String, enum: Object.values(UserRoles) },
     avatar: { type: String },
     lastLoginAt: { type: Date },

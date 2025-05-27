@@ -54,18 +54,14 @@ const customerSchema = new Schema(
     addressIp: { type: String },
     avatarUrl: { type: String, default: "/images/customer/avatar.png" },
     gmail: { type: String },
-
     displayName: { type: String },
     phoneNumber: { type: String },
     gender: { type: String, enum: CustomerGenders },
     birthday: { type: Date },
     address: { type: String },
-
     district:{type: String},
     ward:{type: String},
-    
     city: { type: String },
-
     slogan: { type: String },
     company: { type: String },
     club: { type: String },
@@ -73,8 +69,6 @@ const customerSchema = new Schema(
     bloodType: { type: String },
     citizenId: { type: String },
     googleId: { type: String },
-
-
     referralCode: { type: String },
     referrenceId: { type: Schema.Types.ObjectId, ref: "Customer" },
     status: { type: String, enum: CustomerStatuses, default: CustomerStatuses.ACTIVE },
