@@ -7,9 +7,20 @@ export enum TransactionStatuses {
   INACTIVE = "INACTIVE",
 }
 
+export enum PaymentMethods {
+    CASH = "Cash",
+    CARD = "Card",
+}
+
 export type Transaction = {
-  name?: string;
-  status?: TransactionStatuses;
+    sellerId?: string;
+    amount?: number;
+    currency?: string;
+    reference?: string;
+    paymentDate?: Date;
+    paymentMethod?: PaymentMethods;
+    location?: string;
+    status?: TransactionStatuses;
 };
 
 const Schema = mongoose.Schema;
@@ -18,8 +29,14 @@ export type ITransaction = BaseDocument & Transaction;
 
 const transactionSchema = new Schema(
   {
-    name: { type: String },
-    status: { type: String, enum: TransactionStatuses, default: TransactionStatuses.ACTIVE },
+      sellerId: { type: Schema.Types.ObjectId, ref: "Customer" },
+      amount: { type: Number },
+      currency: { type: String },
+      reference: { type: String },
+      paymentDate: { type: Date },
+      paymentMethod: { type: String, enum: PaymentMethods },
+      location: { type: String },
+      status: { type: String, enum: TransactionStatuses, default: TransactionStatuses.ACTIVE },
   },
   { timestamps: true }
 );
