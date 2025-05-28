@@ -9,7 +9,8 @@ export enum CustomerStatuses {
 }
 
 export type Customer = {
-  username?: string;
+  firstname?: string;
+  lastname?: string;
   activeAt?: Date;
   referralCode?: string;
   role?: string;
@@ -29,7 +30,8 @@ export type ICustomer = BaseDocument & Customer;
 
 const customerSchema = new Schema(
   {
-    username: { type: String },
+    firstname: { type: String },
+    lastname: { type: String },
     activeAt: { type: Date },
     referralCode: { type: String },
     referrenceId: { type: Schema.Types.ObjectId, ref: "Customer" },

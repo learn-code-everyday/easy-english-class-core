@@ -43,6 +43,7 @@ const Mutation = {
         return await minerService.updateOne(miner._id.toString(), {
             customerId: context.id,
             registered: true,
+            connectedDate: new Date()
         });
     },
     disConnectMiner: async (root: any, args: any, context: Context) => {

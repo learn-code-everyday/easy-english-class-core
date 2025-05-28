@@ -28,7 +28,8 @@ type SummaryReferralAmountData {
 }
 
 input UpdateCustomerInput {
-  username: String
+  firstname: String
+  lastname: String
   phoneNumber: String
   address: String
   referralCode: String
@@ -39,7 +40,8 @@ type Customer {
   createdAt: DateTime
   updatedAt: DateTime
 
-  username: String
+  firstname: String
+  lastname: String
   activeAt: DateTime
   role: String
   avatarUrl: String
