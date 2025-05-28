@@ -2,6 +2,7 @@ import { gql } from "apollo-server-express";
 
 const schema = gql`
   extend type Query {
+    getMyMiner(q: QueryGetListInput): MinerPageData
     getAllMiner(q: QueryGetListInput): MinerPageData
     getOneMiner(id: ID!): Miner
     # Add Query
@@ -32,26 +33,20 @@ const schema = gql`
 
   input CreateMinerInput {
     name: String
+    model: String
     code: String
-    blockChainAddress: String
-    customerId: ID
     status: String
-    registered: Boolean
-    totalTokensMined: Float
-    totalUptime: Float
+    blockChainAddress: String
     currentHashRate: Float
     lastActive: DateTime
   }
 
   input UpdateMinerInput {
     name: String
+    model: String
     code: String
-    blockChainAddress: String
-    customerId: ID
     status: String
-    registered: Boolean
-    totalTokensMined: Float
-    totalUptime: Float
+    blockChainAddress: String
     currentHashRate: Float
     lastActive: DateTime
   }
@@ -71,6 +66,7 @@ const schema = gql`
     code: String
     blockChainAddress: String
     customerId: ID
+    customer: Customer
     status: String
     registered: Boolean
     totalTokensMined: Float

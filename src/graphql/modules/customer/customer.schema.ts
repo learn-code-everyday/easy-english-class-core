@@ -28,8 +28,9 @@ type SummaryReferralAmountData {
 }
 
 input UpdateCustomerInput {
-  status: String
-  approved: Boolean
+  username: String
+  phoneNumber: String
+  address: String
   referralCode: String
 }
 
@@ -42,25 +43,14 @@ type Customer {
   activeAt: DateTime
   role: String
   avatarUrl: String
-  displayName: String
   phoneNumber: String
-  
-  gender: String
-  birthday: DateTime
   address: String
 
   district: String
   ward: String
   city: String
 
-  slogan: String
-  company: String
-  club: String
-  school: String
-  bloodType: String
-  citizenId: String
   gmail: String
-
   referralCode: String
   referrenceId: String
   totalMiners: Float

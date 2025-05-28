@@ -1,16 +1,19 @@
 import {ROLES} from "../../../constants/role.const";
 import {Context} from "../../../core/context";
 import {minerService} from "./miner.service";
-import {MinerStatuses} from "../../modules/miner/miner.model";
 import {set} from "lodash";
-import minerSchema from "@/graphql/modules/miner/miner.schema";
+import {CustomerModel} from "../../modules/customer/customer.model";
 
 const Query = {
-    getAllMiner: async (root: any, args: any, context: Context) => {
-        // context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    getMyMiner: async (root: any, args: any, context: Context) => {
+        context.auth([ROLES.CUSTOMER]);
         if (context.isCustomer()) {
             set(args, "q.filter.customerId", context.id)
         }
+        return minerService.fetch(args.q);
+    },
+    getAllMiner: async (root: any, args: any, context: Context) => {
+        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
         return minerService.fetch(args.q);
     },
     getOneMiner: async (root: any, args: any, context: Context) => {
@@ -29,21 +32,7 @@ const Mutation = {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
         const {data} = args;
         const {code} = data;
-
-        const dataInsert = {
-            code: Date.now().toString(36).toUpperCase(),
-            name: `Miner ${code}`,
-            blockChainAddress: Date.now().toString(36).toUpperCase(),
-            customerId: context.id,
-            status: MinerStatuses.ACTIVE,
-            registered: false,
-            totalTokensMined: 0,
-            totalUptime: 0,
-            currentHashRate: 0,
-            lastActive: new Date(),
-        };
-
-        return await minerService.create(dataInsert);
+        return minerService.findOne({code});
     },
     connectMiner: async (root: any, args: any, context: Context) => {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
@@ -84,7 +73,11 @@ const Mutation = {
     },
 };
 
-const Miner = {};
+const Miner = {
+    customer: async (parent: { customerId: any; }) => {
+        return CustomerModel.findById(parent.customerId);
+    },
+};
 
 export default {
     Query,
