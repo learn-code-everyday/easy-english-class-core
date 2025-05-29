@@ -25,21 +25,15 @@ const Mutation = {
   createUser: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN]);
     const { data } = args;
-    data.code = await UserHelper.generateCode();
+    data.referralCode = await UserHelper.generateCode();
 
     data.status = UserStatuses.ACTIVE;
     const password = md5(data.password).toString();
 
     return await userService.create(data).then(async (result) => {
       const hashPassword = encryptionHelper.createPassword(password, result.id);
+      set(result, "referrenceId", context.id);
       set(result, "password", hashPassword);
-      // console.log("result", result);
-      onActivity.next({
-        userId: context.id,
-        factorId: result.id,
-        type: ActivityTypes.CREATE,
-        changedFactor: ChangedFactors.USER,
-      });
 
       await result.save();
       return result;

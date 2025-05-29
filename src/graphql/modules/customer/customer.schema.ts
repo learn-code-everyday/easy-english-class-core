@@ -4,6 +4,7 @@ const schema = gql`
   extend type Query {
   getAllCustomer(q: QueryGetListInput): CustomerPageData
   getOneCustomer(id: ID!): Customer
+  getCustomerForAdmin(data: GetCustomerForAdminInput): Customer
   # Add Query
   customerGetMe: Customer
 }
@@ -25,6 +26,11 @@ type EmailAccessLink {
 
 type SummaryReferralAmountData {
   amount: Float
+}
+
+input GetCustomerForAdminInput {
+  email: String
+  referralCode: String
 }
 
 input UpdateCustomerInput {

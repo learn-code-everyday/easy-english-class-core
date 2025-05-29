@@ -33,7 +33,7 @@ const customerSchema = new Schema(
     firstname: { type: String },
     lastname: { type: String },
     activeAt: { type: Date },
-    referralCode: { type: String },
+    referralCode: { type: String, unique: true },
     referrenceId: { type: Schema.Types.ObjectId, ref: "Customer" },
     role: { type: String },
     avatarUrl: { type: String, default: "/images/customer/avatar.png" },

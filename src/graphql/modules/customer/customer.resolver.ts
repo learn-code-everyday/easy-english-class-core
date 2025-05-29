@@ -15,6 +15,11 @@ const Query = {
     const { id } = args;
     return await customerService.findOne({ _id: id });
   },
+  getCustomerForAdmin: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    const { email, referralCode } = args;
+    return await customerService.findOne({ email, referralCode });
+  },
   customerGetMe: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.CUSTOMER]);
     return await customerService.findOne({ _id: context.id });

@@ -5,6 +5,7 @@ export const GoogleLogin = async (
     req: Request,
     res: Response
 ) => {
+
     const {googleClientId: clientId} = configs;
     const redirectUri = `${configs.protocol}://${configs.host}/api/google/callback`;
     const scope = 'openid profile email';

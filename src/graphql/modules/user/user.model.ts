@@ -40,7 +40,6 @@ export type IUser = BaseDocument & User;
 
 const userSchema = new Schema(
   {
-    code: { type: String, unique: true },
     name: { type: String },
     email: { type: String },
     phone: { type: String },
@@ -51,6 +50,8 @@ const userSchema = new Schema(
     role: { type: String, enum: Object.values(UserRoles) },
     avatar: { type: String },
     lastLoginAt: { type: Date },
+    referralCode: { type: String,  unique: true },
+    referrenceId: { type: Schema.Types.ObjectId, ref: "User" },
     status: { type: String, enum: Object.values(UserStatuses), default: UserStatuses.ACTIVE },
   },
   { timestamps: true, collation: { locale: "vi" } }
