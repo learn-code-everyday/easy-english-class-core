@@ -39,7 +39,7 @@ class CustomerService extends CrudService<typeof CustomerModel> {
                 const data: Customer = {
                     gmail: email,
                     googleId,
-                    username: name,
+                    firstname: name,
                     referralCode: `User-${Date.now()}`,
                     activeAt: new Date(),
                     role: ROLES.CUSTOMER,

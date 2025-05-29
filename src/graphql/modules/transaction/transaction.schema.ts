@@ -15,11 +15,13 @@ const schema = gql`
   }
 
   input CreateTransactionInput {
-    name: String
+    orderId: String
+    status: String
   }
 
   input UpdateTransactionInput {
-    name: String
+    orderId: String
+    status: String
   }
 
   type Transaction {
@@ -27,7 +29,7 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
-    name: String
+    orderId: String
     status: String
   }
 

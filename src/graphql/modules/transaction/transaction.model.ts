@@ -3,23 +3,18 @@ import { MainConnection } from "../../../loaders/database.loader";
 import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
 
 export enum TransactionStatuses {
-    ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
-}
-
-export enum PaymentMethods {
-    CASH = "Cash",
-    CARD = "Card",
+    PROCESSING = "PROCESSING",
+    SUCCESS = "SUCCESS",
+    PENDING_PAYMENT_CONFIRMATION = "PENDING_PAYMENT_CONFIRMATION",
+    DUPLICATE_INFORMATION = "DUPLICATE_INFORMATION",
+    PREVIOUSLY_REGISTERED = "PREVIOUSLY_REGISTERED",
+    REJECTED = "REJECTED",
+    MANUAL_PROCESSING = "MANUAL_PROCESSING",
 }
 
 export type Transaction = {
-    sellerId?: string;
-    amount?: number;
-    currency?: string;
-    reference?: string;
+    orderId?: string;
     paymentDate?: Date;
-    paymentMethod?: PaymentMethods;
-    location?: string;
     status?: TransactionStatuses;
 };
 
@@ -29,14 +24,9 @@ export type ITransaction = BaseDocument & Transaction;
 
 const transactionSchema = new Schema(
   {
-      sellerId: { type: Schema.Types.ObjectId, ref: "Customer" },
-      amount: { type: Number },
-      currency: { type: String },
-      reference: { type: String },
+      orderId: { type: Schema.Types.ObjectId, ref: "Order" },
       paymentDate: { type: Date },
-      paymentMethod: { type: String, enum: PaymentMethods },
-      location: { type: String },
-      status: { type: String, enum: TransactionStatuses, default: TransactionStatuses.ACTIVE },
+      status: { type: String, enum: TransactionStatuses, default: TransactionStatuses.PROCESSING },
   },
   { timestamps: true }
 );

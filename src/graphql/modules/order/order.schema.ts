@@ -13,21 +13,39 @@ const schema = gql`
     deleteOneOrder(id: ID!): Order
     # Add Mutation
   }
-
+  
   input CreateOrderInput {
-    name: String
+    fullname: String
+    phone: String
+    email: String
+    address: String
+    paymentMethod: String
+    quantity: Float
+    amount: Float
   }
 
   input UpdateOrderInput {
-    name: String
+    fullname: String
+    phone: String
+    email: String
+    address: String
+    paymentMethod: String
+    quantity: Float
+    amount: Float
+    status: String
   }
 
   type Order {
     id: String    
     createdAt: DateTime
     updatedAt: DateTime
-
-    name: String
+    fullname: String
+    phone: String
+    email: String
+    address: String
+    paymentMethod: String
+    quantity: Float
+    amount: Float
     status: String
   }
 

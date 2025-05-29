@@ -18,5 +18,11 @@ export default {
   smtpPassword: process.env['SMTP_PASSWORD'],
   mailerFrom: process.env['MAILER_FROM'],
   adminMail: process.env['ADMIN_MAIL'],
+  awsRegion: process.env['AWS_REGION'],
+  awsAccessKey: process.env['AWS_ACCESS_KEY'],
+  awsSecret: process.env['AWS_SECRET'],
+  awsBucketName: process.env['AWS_BUCKET_NAME'],
+  awsBucketEndpoint: process.env['AWS_BUCKET_ENDPOINT'],
+  awsFolderName: process.env['AWS_FOLDER_NAME'],
   debug: false,
 };
