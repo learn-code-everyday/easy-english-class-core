@@ -29,7 +29,7 @@ type SummaryReferralAmountData {
 }
 
 input GetCustomerForAdminInput {
-  email: String
+  gmail: String
   referralCode: String
 }
 
