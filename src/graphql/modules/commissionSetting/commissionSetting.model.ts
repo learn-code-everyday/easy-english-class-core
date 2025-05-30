@@ -8,8 +8,13 @@ export enum CommissionSettingStatuses {
 }
 
 export type CommissionSetting = {
-  name?: string;
-  status?: CommissionSettingStatuses;
+    isDefault?: boolean;
+    status?: CommissionSettingStatuses;
+    percentage?: number;
+    maxAmount?: number;
+    minAmount?: number;
+    effectiveFrom?: Date;
+    effectiveTo?: Date;
 };
 
 const Schema = mongoose.Schema;
@@ -18,8 +23,13 @@ export type ICommissionSetting = BaseDocument & CommissionSetting;
 
 const commissionSettingSchema = new Schema(
   {
-    name: { type: String },
-    status: { type: String, enum: CommissionSettingStatuses, default: CommissionSettingStatuses.ACTIVE },
+      isDefault: { type: Boolean },
+      percentage: { type: Number },
+      maxAmount: { type: Number },
+      minAmount: { type: Number },
+      effectiveFrom: { type: Date },
+      effectiveTo: { type: Date },
+      status: { type: String, enum: CommissionSettingStatuses, default: CommissionSettingStatuses.ACTIVE },
   },
   { timestamps: true }
 );

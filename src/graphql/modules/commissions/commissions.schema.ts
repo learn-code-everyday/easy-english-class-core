@@ -15,11 +15,19 @@ const schema = gql`
   }
 
   input CreateCommissionsInput {
-    name: String
+    orderId: String
+    buyerId: String
+    commission: Float
+    status: String
+    paymentDate: String
   }
 
   input UpdateCommissionsInput {
-    name: String
+    orderId: String
+    buyerId: String
+    commission: Float
+    status: String
+    paymentDate: String
   }
 
   type Commissions {
@@ -27,8 +35,11 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
-    name: String
+    orderId: String
+    buyerId: String
+    commission: Float
     status: String
+    paymentDate: String
   }
 
   type CommissionsPageData {

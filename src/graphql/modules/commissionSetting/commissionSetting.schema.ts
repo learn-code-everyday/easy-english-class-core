@@ -26,8 +26,13 @@ const schema = gql`
     id: String    
     createdAt: DateTime
     updatedAt: DateTime
-
-    name: String
+    
+    isDefault: Boolean
+    percentage: Float
+    maxAmount: Float
+    minAmount: Float
+    effectiveFrom: DateTime
+    effectiveTo: DateTime
     status: String
   }
 
