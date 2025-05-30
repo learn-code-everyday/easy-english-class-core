@@ -1,9 +1,13 @@
 import { ROLES } from "../../../constants/role.const";
-import { ErrorHelper, KeycodeHelper } from "../../../helpers";
+import { encryptionHelper, ErrorHelper } from "../../../helpers";
 import { TokenHelper } from "../../../helpers/token.helper";
 import { Context } from "../../../core/context";
 import { counterService } from "../counter/counter.service";
-import { IUser, UserModel } from "./user.model";
+import { IUser, UserModel, UserRoles, UserStatuses } from "./user.model";
+import { userService } from "./user.service";
+import { set } from "lodash";
+import md5 from "md5";
+import { mailService } from "../mails/mails.service";
 
 export class UserHelper {
   constructor(public user: IUser) {}
@@ -27,4 +31,68 @@ export class UserHelper {
       status: this.user.status,
     });
   }
+  static async validateCreateUser(data: any, context: Context) {
+    if (!data?.name || !data?.email || !data?.password) {
+      throw new Error("Name, email, and password are required");
+    }
+
+    const existingUserByEmail = await userService.findOne({ email: data.email });
+    if (existingUserByEmail) {
+      throw new Error("Email already exists");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      throw new Error("Invalid email format");
+    }
+
+    if (data.password.length < 6) {
+      throw new Error("Password must be at least 6 characters long");
+    }
+
+    if (data.name.length < 2 || data.name.length > 50) {
+      throw new Error("Name must be between 2-50 characters");
+    }
+
+    if (data.role && !Object.values(UserRoles).includes(data.role)) {
+      throw new Error("Invalid user role");
+    }
+
+    if (data.role === UserRoles.MERCHANT && context.tokenData.role !== ROLES.ADMIN) {
+      throw new Error("Only ADMIN can create MERCHANT users");
+    }
+
+    if (data.role === UserRoles.SALES && context.tokenData.role !== ROLES.MERCHANT) {
+      throw new Error("Only MERCHANT can create SALES users");
+    }
+    return true;
+  }
+
+  static createUserWithRole = async (data: any, context: Context) => {
+    const password = md5(data.password).toString();
+    const userData = {
+      ...data,
+      referralCode: await UserHelper.generateCode(),
+      status: UserStatuses.ACTIVE,
+      isFirstLogin: true,
+    };
+
+    return await userService.create(userData).then(async (result: any) => {
+      const hashPassword = encryptionHelper.createPassword(password, result.id);
+      set(result, "referrenceId", context.id);
+      set(result, "password", hashPassword);
+
+      await result.save();
+      try {
+        await mailService.sendWelcomeEmail({
+          name: result.name,
+          email: result.email,
+          role: result.role,
+          tempPassword: data.password,
+        });
+      } catch (error) {}
+
+      return result;
+    });
+  };
 }

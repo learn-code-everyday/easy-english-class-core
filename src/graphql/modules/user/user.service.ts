@@ -1,9 +1,5 @@
 import { CrudService } from "../../../base/crudService";
 import { ErrorHelper } from "../../../core/error";
-import { encryptionHelper } from "../../../helpers";
-import { UserHelper } from "./user.helper";
-import { set } from "lodash";
-import md5 from "md5";
 import { UserModel, UserRoles } from "./user.model";
 
 class UserService extends CrudService<typeof UserModel> {

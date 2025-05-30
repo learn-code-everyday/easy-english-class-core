@@ -4,8 +4,6 @@ import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
 const Schema = mongoose.Schema;
 export enum UserRoles {
   ADMIN = "ADMIN",
-  EDITOR = "EDITOR",
-  MEMBER = "MEMBER",
   MERCHANT = "MERCHANT",
   SALES = "SALES",
 }
@@ -22,7 +20,6 @@ export enum UserServiceStatus {
 }
 
 export type User = {
-  code?: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -34,6 +31,9 @@ export type User = {
   level?: number;
   lastLoginAt?: Date;
   status?: UserStatuses;
+  isFirstLogin?: boolean;
+  referralCode?: string;
+  referrenceId?: mongoose.Types.ObjectId;
 };
 
 export type IUser = BaseDocument & User;
@@ -50,11 +50,12 @@ const userSchema = new Schema(
     role: { type: String, enum: Object.values(UserRoles) },
     avatar: { type: String },
     lastLoginAt: { type: Date },
-    referralCode: { type: String,  unique: true },
+    referralCode: { type: String, unique: true },
     referrenceId: { type: Schema.Types.ObjectId, ref: "User" },
     status: { type: String, enum: Object.values(UserStatuses), default: UserStatuses.ACTIVE },
+    isFirstLogin: { type: Boolean, default: false },
   },
-  { timestamps: true, collation: { locale: "vi" } }
+  { timestamps: true, collation: { locale: "vi" } },
 );
 
 userSchema.index({ code: 1 });

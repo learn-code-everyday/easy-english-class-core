@@ -7,6 +7,7 @@ extend type Query {
   getOneUser(id: ID!): User
   # Add Query
   userGetMe: User
+  getUsersByRole(role: String!, q: QueryGetListInput): UserPageData
 }
 
 extend type Mutation {
@@ -15,6 +16,7 @@ extend type Mutation {
   deleteOneUser(id: ID!): User
     # Add Mutation
   signInUserByEmail(email: String!): UserLoginData
+  updatePassword(id: ID!, currentPassword: String, newPassword: String!): User
 }
 
 type UserLoginData {
@@ -69,6 +71,7 @@ type User {
   lastLoginAt: DateTime
   activeAt: DateTime
   status: String
+  isFirstLogin: Boolean
 
   createdAt: DateTime
   updatedAt: DateTime

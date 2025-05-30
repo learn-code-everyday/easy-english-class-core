@@ -7,11 +7,19 @@ import { Context } from "../../../core/context";
 import { UserHelper } from "./user.helper";
 import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
-import { IUser, UserStatuses } from "./user.model";
+import { IUser, UserRoles } from "./user.model";
 
 const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.EDITOR]);
+    context.auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.MERCHANT]);
+    if (context.tokenData.role === ROLES.MERCHANT) {
+      args.q = {
+        ...args.q,
+        role: UserRoles.SALES,
+        referrenceId: context.tokenData._id,
+      };
+    }
+
     return userService.fetch(args.q);
   },
   getOneUser: async (root: any, args: any, context: Context) => {
@@ -19,25 +27,29 @@ const Query = {
     const { id } = args;
     return await userService.findOne({ _id: id });
   },
+
+  getUsersByRole: async (root: any, args: any, context: Context) => {
+    context.auth([ROLES.ADMIN]);
+    const { role, q } = args;
+    if (!role || (role !== UserRoles.MERCHANT && role !== UserRoles.SALES)) {
+      throw new Error("Invalid role. Only MERCHANT or SALES allowed.");
+    }
+    const query = {
+      ...q,
+      role: role,
+    };
+
+    return userService.fetch(query);
+  },
 };
 
 const Mutation = {
   createUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth([ROLES.ADMIN, ROLES.MERCHANT]);
     const { data } = args;
-    data.referralCode = await UserHelper.generateCode();
 
-    data.status = UserStatuses.ACTIVE;
-    const password = md5(data.password).toString();
-
-    return await userService.create(data).then(async (result) => {
-      const hashPassword = encryptionHelper.createPassword(password, result.id);
-      set(result, "referrenceId", context.id);
-      set(result, "password", hashPassword);
-
-      await result.save();
-      return result;
-    });
+    await UserHelper.validateCreateUser(data, context);
+    return await UserHelper.createUserWithRole(data, context);
   },
 
   updateUser: async (root: any, args: any, context: Context) => {
@@ -65,6 +77,54 @@ const Mutation = {
 
       return result;
     });
+  },
+  updatePassword: async (root: any, args: any, context: Context) => {
+    context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
+    const { id, currentPassword, newPassword } = args;
+
+    if (context.tokenData._id !== id) {
+      throw new Error("You can only update your own password");
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error("New password must be at least 6 characters long");
+    }
+
+    const user: any = await userService.findOne({ _id: id });
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (context.tokenData.role !== ROLES.ADMIN && !user.isFirstLogin) {
+      if (!currentPassword) {
+        throw new Error("Current password is required");
+      }
+
+      const hashedCurrentPassword = encryptionHelper.createPassword(
+        md5(currentPassword).toString(),
+        user.id,
+      );
+
+      if (user.password !== hashedCurrentPassword) {
+        throw new Error("Current password is incorrect");
+      }
+    }
+
+    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user.id);
+
+    const updatedUser = await userService.updateOne(id, {
+      password: hashedNewPassword,
+      isFirstLogin: false,
+    });
+
+    onActivity.next({
+      userId: context.id,
+      factorId: updatedUser.id,
+      type: ActivityTypes.UPDATE,
+      changedFactor: ChangedFactors.USER,
+    });
+
+    return updatedUser;
   },
 
   deleteOneUser: async (root: any, args: any, context: Context) => {

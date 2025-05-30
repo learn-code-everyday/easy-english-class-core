@@ -4,7 +4,7 @@ import { UserModel } from "../user.model";
 
 const Query = {
   userGetMe: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
+    context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
     return await UserModel.findById(context.tokenData._id);
   },
 };
