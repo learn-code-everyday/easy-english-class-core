@@ -20,6 +20,7 @@ export type Miner = {
   manufactureDate?: string;
   customerId?: string;
   connectedDate?: string;
+  amount?: number;
 };
 
 const Schema = mongoose.Schema;
@@ -41,6 +42,7 @@ const minerSchema = new Schema(
     manufactureDate: { type: Date },
     customerId: { type: Schema.Types.ObjectId, ref: "Customer" },
     connectedDate: { type: Date },
+    amount: { type: Number },
   },
   { timestamps: true }
 );

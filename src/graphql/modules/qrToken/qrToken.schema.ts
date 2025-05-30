@@ -15,11 +15,19 @@ const schema = gql`
   }
 
   input CreateQrTokenInput {
-    name: String
+    token: String
+    minerId: String
+    customerId: String
+    used: Boolean
+    status: String
   }
 
   input UpdateQrTokenInput {
-    name: String
+    token: String
+    minerId: String
+    customerId: String
+    used: Boolean
+    status: String
   }
 
   type QrToken {
@@ -27,7 +35,10 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
-    name: String
+    token: String
+    minerId: String
+    customerId: String
+    used: Boolean
     status: String
   }
 

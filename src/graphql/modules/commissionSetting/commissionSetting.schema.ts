@@ -15,11 +15,23 @@ const schema = gql`
   }
 
   input CreateCommissionSettingInput {
-    name: String
+    isDefault: Boolean
+    percentage: Float
+    maxAmount: Float
+    minAmount: Float
+    effectiveFrom: DateTime
+    effectiveTo: DateTime
+    status: String
   }
 
   input UpdateCommissionSettingInput {
-    name: String
+    isDefault: Boolean
+    percentage: Float
+    maxAmount: Float
+    minAmount: Float
+    effectiveFrom: DateTime
+    effectiveTo: DateTime
+    status: String
   }
 
   type CommissionSetting {

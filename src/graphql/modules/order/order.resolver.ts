@@ -1,6 +1,7 @@
 import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { orderService } from "./order.service";
+import {CustomerModel} from "../../modules/customer/customer.model";
 
 const Query = {
   getAllOrder: async (root: any, args: any, context: Context) => {
@@ -18,12 +19,12 @@ const Mutation = {
   createOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { data } = args;
-    return await orderService.create(data);
+    return await orderService.createOrder(context.id, data);
   },
   updateOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { id, data } = args;
-    return await orderService.updateOne(id, data);
+    return await orderService.updateOrder(id, data);
   },
   deleteOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
@@ -33,7 +34,9 @@ const Mutation = {
 };
 
 const Order = {
-  
+  customer: async (parent: { customerId: any; }) => {
+    return CustomerModel.findById(parent.customerId);
+  },
 };
 
 export default {
