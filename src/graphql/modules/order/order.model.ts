@@ -3,8 +3,14 @@ import {MainConnection} from "../../../loaders/database.loader";
 import {BaseDocument, ModelLoader, ModelHook} from "../../../base/baseModel";
 
 export enum OrderStatuses {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+    PROCESSING = "PROCESSING",
+    SUCCESS = "SUCCESS",
+    PENDING_PAYMENT_CONFIRMATION = "PENDING_PAYMENT_CONFIRMATION",
+    DUPLICATE_INFORMATION = "DUPLICATE_INFORMATION",
+    PREVIOUSLY_REGISTERED = "PREVIOUSLY_REGISTERED",
+    REJECTED = "REJECTED",
+    MANUAL_PROCESSING = "MANUAL_PROCESSING",
+    DELIVERING = "DELIVERING",
 }
 
 export enum OrderPaymentMethod {
@@ -15,6 +21,7 @@ export enum OrderPaymentMethod {
 
 export type Order = {
     sellerId?: string;
+    customerId?: string;
     fullname?: string;
     phone?: string;
     email?: string;
@@ -31,7 +38,8 @@ export type IOrder = BaseDocument & Order;
 
 const orderSchema = new Schema(
     {
-        sellerId: { type: Schema.Types.ObjectId, ref: "Customer" },
+        sellerId: { type: Schema.Types.ObjectId, ref: "User" },
+        customerId: { type: Schema.Types.ObjectId, ref: "Customer" },
         fullname: {type: String},
         phone: {type: String},
         email: {type: String},
@@ -39,7 +47,8 @@ const orderSchema = new Schema(
         paymentMethod: {type: String, num: OrderPaymentMethod, default: OrderPaymentMethod.CASH},
         quantity: {type: Number},
         amount: {type: Number},
-        status: {type: String, enum: OrderStatuses, default: OrderStatuses.ACTIVE},
+        status: {type: String, enum: OrderStatuses, default: OrderStatuses.PROCESSING},
+        paymentDate: { type: Date },
     },
     {timestamps: true}
 );

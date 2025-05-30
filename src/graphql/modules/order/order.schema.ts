@@ -15,6 +15,7 @@ const schema = gql`
   }
   
   input CreateOrderInput {
+    customerId: String
     fullname: String
     phone: String
     email: String
@@ -25,6 +26,7 @@ const schema = gql`
   }
 
   input UpdateOrderInput {
+    customerId: String
     fullname: String
     phone: String
     email: String
@@ -47,6 +49,17 @@ const schema = gql`
     quantity: Float
     amount: Float
     status: String
+    customer: CustomerForOrder
+  }
+  
+  type CustomerForOrder {
+    id: String
+    firstname: String
+    lastname: String
+    phoneNumber: String
+    address: String
+    gmail: String
+    referralCode: String
   }
 
   type OrderPageData {
