@@ -11,6 +11,7 @@ export type QrToken = {
     token?: string;
     minerId?: string;
     customerId?: string;
+    qrCodeUrl?: string;
     used?: boolean;
     status?: QrTokenStatuses;
 };
@@ -22,6 +23,7 @@ export type IQrToken = BaseDocument & QrToken;
 const qrTokenSchema = new Schema(
     {
         token: {type: String},
+        qrCodeUrl: {type: String},
         minerId: {type: Schema.Types.ObjectId, ref: "Miner"},
         customerId: {type: Schema.Types.ObjectId, ref: "Customer"},
         used: {type: Boolean, default: false},

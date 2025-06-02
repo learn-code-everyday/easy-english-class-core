@@ -31,7 +31,7 @@ const minerSchema = new Schema(
   {
     name: { type: String },
     model: { type: String },
-    code: { type: String, unique: true },
+    code: { type: String, unique: true, sparse: true },
     blockChainAddress: { type: String },
     status: { type: String, enum: MinerStatuses, default: MinerStatuses.ACTIVE },
     registered: { type: Boolean, default: false },

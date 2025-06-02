@@ -23,7 +23,7 @@ class BucketHelper {
         filename,
         mimetype,
     }: {
-        stream: ReadableStream;
+        stream: any;
         filename: string;
         mimetype: string;
     }) {
@@ -35,6 +35,7 @@ class BucketHelper {
                 Body: stream,
                 Bucket: this.bucketName,
                 ContentType: mimetype,
+                ACL: 'public-read',
             },
         });
 

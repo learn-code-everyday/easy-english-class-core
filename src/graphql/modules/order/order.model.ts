@@ -24,12 +24,14 @@ export type Order = {
     customerId?: string;
     fullname?: string;
     phone?: string;
-    email?: string;
+    gmail?: string;
     address?: string;
     paymentMethod?: OrderPaymentMethod;
     quantity?: number;
     amount?: number;
-    status?: OrderPaymentMethod;
+    status?: OrderStatuses;
+    rejectReason?: string;
+    listQrUrl?: [string];
     transactionImage?: [string];
     transactionInput?: string;
 };
@@ -44,13 +46,15 @@ const orderSchema = new Schema(
         customerId: { type: Schema.Types.ObjectId, ref: "Customer" },
         fullname: {type: String},
         phone: {type: String},
-        email: {type: String},
+        gmail: {type: String},
         address: {type: String},
         paymentMethod: {type: String, num: OrderPaymentMethod, default: OrderPaymentMethod.CASH},
         quantity: {type: Number},
         amount: {type: Number},
         status: {type: String, enum: OrderStatuses, default: OrderStatuses.PROCESSING},
         paymentDate: { type: Date },
+        rejectReason: { type: String },
+        listQrUrl: { type: [String] },
         transactionImage: { type: [String] },
         transactionInput: { type: String },
     },

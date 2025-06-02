@@ -40,6 +40,7 @@ const schema = gql`
     customerId: String
     used: Boolean
     status: String
+    qrCodeUrl: String
   }
 
   type QrTokenPageData {
