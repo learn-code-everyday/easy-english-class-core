@@ -51,6 +51,7 @@ const schema = gql`
     isPrivate: Boolean
     readOnly: Boolean
     editMode: String
+    groupId: String
     createdAt: DateTime
     updatedAt: DateTime
     group: SettingGroup
