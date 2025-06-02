@@ -30,6 +30,8 @@ export type Order = {
     quantity?: number;
     amount?: number;
     status?: OrderPaymentMethod;
+    transactionImage?: [string];
+    transactionInput?: string;
 };
 
 const Schema = mongoose.Schema;
@@ -49,6 +51,8 @@ const orderSchema = new Schema(
         amount: {type: Number},
         status: {type: String, enum: OrderStatuses, default: OrderStatuses.PROCESSING},
         paymentDate: { type: Date },
+        transactionImage: { type: [String] },
+        transactionInput: { type: String },
     },
     {timestamps: true}
 );

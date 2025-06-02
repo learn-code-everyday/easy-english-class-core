@@ -45,7 +45,6 @@ class OrderService extends CrudService<typeof OrderModel> {
       throw new Error('Invalid order ID');
     }
 
-    // Perform update
     const result = await OrderModel.updateOne(
         { _id: id },
         { $set: data },
@@ -56,7 +55,6 @@ class OrderService extends CrudService<typeof OrderModel> {
       throw new Error('Order not found');
     }
 
-    // Fetch and return the updated order
     const updatedOrder = await OrderModel.findById(id);
     return updatedOrder;
   }

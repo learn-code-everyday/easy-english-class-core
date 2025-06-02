@@ -23,6 +23,8 @@ const schema = gql`
     paymentMethod: String
     quantity: Float
     amount: Float
+    transactionImage: [String]
+    transactionInput: String
   }
 
   input UpdateOrderInput {
@@ -35,6 +37,8 @@ const schema = gql`
     quantity: Float
     amount: Float
     status: String
+    transactionImage: [String]
+    transactionInput: String
   }
 
   type Order {
@@ -49,6 +53,8 @@ const schema = gql`
     quantity: Float
     amount: Float
     status: String
+    transactionImage: [String]
+    transactionInput: String
     customer: CustomerForOrder
   }
   
