@@ -26,7 +26,6 @@ export type Setting = {
   isActive?: boolean;
   isPrivate?: boolean;
   readOnly?: boolean;
-  groupId?: string;
   editMode?: EditModes;
 };
 
@@ -46,7 +45,6 @@ const settingSchema = new Schema(
     isActive: { type: Boolean, required: true, default: true },
     isPrivate: { type: Boolean, required: true, default: false },
     readOnly: { type: Boolean, default: false },
-    groupId: { type: Schema.Types.ObjectId, required: true },
     editMode: {
       type: String,
       enum: Object.values(EditModes),

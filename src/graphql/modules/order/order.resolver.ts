@@ -8,14 +8,14 @@ const Query = {
   getAllOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     if (context.isMerchantOrSeller()) {
-      set(args, "q.filter.sellerId", context.id)
+      set(args, "q.filter.userId", context.id)
     }
     return orderService.fetch(args.q);
   },
   getOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     if (context.isMerchantOrSeller()) {
-      set(args, "q.filter.sellerId", context.id)
+      set(args, "q.filter.userId", context.id)
     }
     const { id } = args;
     return await orderService.findOne({ _id: id });

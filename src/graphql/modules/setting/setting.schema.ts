@@ -29,7 +29,6 @@ const schema = gql`
     isActive: Boolean
     isPrivate: Boolean
     readOnly: Boolean
-    groupId: String
   }
 
   input UpdateSettingInput {
@@ -40,7 +39,6 @@ const schema = gql`
     isActive: Boolean
     isPrivate: Boolean
     readOnly: Boolean
-    groupId: String
   }
 
   type Setting {
@@ -52,7 +50,6 @@ const schema = gql`
     isActive: Boolean
     isPrivate: Boolean
     readOnly: Boolean
-    groupId: String
     editMode: String
     createdAt: DateTime
     updatedAt: DateTime

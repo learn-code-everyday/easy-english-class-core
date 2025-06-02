@@ -10,6 +10,7 @@ export enum QrTokenStatuses {
 export type QrToken = {
     token?: string;
     minerId?: string;
+    orderId?: string;
     customerId?: string;
     qrCodeUrl?: string;
     used?: boolean;
@@ -25,6 +26,7 @@ const qrTokenSchema = new Schema(
         token: {type: String},
         qrCodeUrl: {type: String},
         minerId: {type: Schema.Types.ObjectId, ref: "Miner"},
+        orderId: {type: Schema.Types.ObjectId, ref: "Order"},
         customerId: {type: Schema.Types.ObjectId, ref: "Customer"},
         used: {type: Boolean, default: false},
         status: {type: String, enum: QrTokenStatuses, default: QrTokenStatuses.ACTIVE},

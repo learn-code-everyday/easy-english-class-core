@@ -16,7 +16,7 @@ const schema = gql`
 
   input CreateCommissionsInput {
     orderId: String
-    buyerId: String
+    userId: String
     commission: Float
     status: String
     paymentDate: String
@@ -24,7 +24,7 @@ const schema = gql`
 
   input UpdateCommissionsInput {
     orderId: String
-    buyerId: String
+    userId: String
     commission: Float
     status: String
     paymentDate: String
@@ -36,7 +36,7 @@ const schema = gql`
     updatedAt: DateTime
 
     orderId: String
-    buyerId: String
+    userId: String
     commission: Float
     status: String
     paymentDate: String

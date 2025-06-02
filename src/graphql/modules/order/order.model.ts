@@ -20,7 +20,7 @@ export enum OrderPaymentMethod {
 }
 
 export type Order = {
-    sellerId?: string;
+    userId?: string;
     customerId?: string;
     fullname?: string;
     phone?: string;
@@ -42,7 +42,7 @@ export type IOrder = BaseDocument & Order;
 
 const orderSchema = new Schema(
     {
-        sellerId: { type: Schema.Types.ObjectId, ref: "User" },
+        userId: { type: Schema.Types.ObjectId, ref: "User" },
         customerId: { type: Schema.Types.ObjectId, ref: "Customer" },
         fullname: {type: String},
         phone: {type: String},

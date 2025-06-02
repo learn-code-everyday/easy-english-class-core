@@ -11,7 +11,7 @@ class OrderService extends CrudService<typeof OrderModel> {
     super(OrderModel);
   }
 
-  async createOrder(buyerId: string, data: any) {
+  async createOrder(userId: string, data: any) {
     try {
       const { fullname, phone, gmail, address, paymentMethod, quantity, customerId} = data;
       if (!customerId) {
@@ -37,7 +37,7 @@ class OrderService extends CrudService<typeof OrderModel> {
         throw new Error("Insufficient miner.");
       }
       const dataInsert: Order = {
-        sellerId: buyerId,
+        userId,
         customerId,
         fullname,
         phone,
@@ -68,8 +68,6 @@ class OrderService extends CrudService<typeof OrderModel> {
     if(!customerId) {
       customerId = existingOrder?.customerId
     }
-    console.log(99999, customerId)
-    console.log(99999, existingOrder)
 
     if (existingOrder?.status == OrderStatuses.DELIVERING) {
       throw new Error('Cannot update an order that is already DELIVERING');
@@ -78,17 +76,17 @@ class OrderService extends CrudService<typeof OrderModel> {
     if(status == OrderStatuses.DELIVERING) {
       await CommissionsModel.create({
         orderId: id,
-        buyerId: customerId,
+        userId: customerId,
         commission: amount * 30 / 100,
       });
       const minersToCreate = Array.from({ length: quantity }).map(() => ({
         name: `Miner-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-        customerId: customerId,
+        customerId,
         registered: true,
       }));
       const createdMiners =  await MinerModel.insertMany(minersToCreate);
       const createdMinerIds = createdMiners.map((m) => m._id.toString());
-      const listQrUrl = await qrTokenService.generateMultipleQrCodes({customerId, minerIds: createdMinerIds})
+      const listQrUrl = await qrTokenService.generateMultipleQrCodes({customerId, orderId: id ,minerIds: createdMinerIds})
 
       if(listQrUrl.length) {
         data.listQrUrl = listQrUrl;

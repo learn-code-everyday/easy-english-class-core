@@ -42,6 +42,30 @@ class BucketHelper {
         return upload.done();
     }
 
+    public async uploadQr({
+                                stream,
+                                filename,
+                                mimetype,
+                            }: {
+        stream: any;
+        filename: string;
+        mimetype: string;
+    }) {
+        const folder = 'qr';
+        const upload = new Upload({
+            client: this.client,
+            params: {
+                Key: `${folder}/${filename}`,
+                Body: stream,
+                Bucket: this.bucketName,
+                ContentType: mimetype,
+                ACL: 'public-read',
+            },
+        });
+
+        return upload.done();
+    }
+
     public async deleteFile({ fileName }: { fileName: string }) {
         try {
             const folder = configs.awsFolderName;

@@ -35,12 +35,12 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
     });
   }
 
-  async generateMultipleQrCodes({ customerId, minerIds }: { customerId: string; minerIds: string[] }) {
+  async generateMultipleQrCodes({ orderId, customerId, minerIds }: { orderId: string; customerId: string; minerIds: string[] }) {
     if (!Array.isArray(minerIds) || minerIds.length === 0) {
       throw new Error("minerIds must be a non-empty array");
     }
 
-    if (!customerId) {
+    if (!customerId || !orderId) {
       throw new Error("customerId must be a non-empty array");
     }
 
@@ -52,7 +52,7 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
       const buffer = await QRCode.toBuffer(qrString, { type: "png" });
       const stream = Readable.from(buffer);
       const filename = `qr_${minerId}_${customerId}_${Date.now()}.png`;
-      const res = await s3Bucket.uploadFile({
+      const res = await s3Bucket.uploadQr({
         stream,
         filename,
         mimetype: "image/png",
@@ -60,6 +60,7 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
 
       await QrTokenModel.create({
         minerId,
+        orderId,
         customerId,
         qrCodeUrl: res.Location,
       });

@@ -10,7 +10,7 @@ export enum CommissionsStatuses {
 
 export type Commissions = {
     orderId?: string;
-    buyerId?: string;
+    userId?: string;
     commission?: number;
     status?: CommissionsStatuses;
     paymentDate?: string;
@@ -23,7 +23,7 @@ export type ICommissions = BaseDocument & Commissions;
 const commissionsSchema = new Schema(
     {
         orderId: {type: Schema.Types.ObjectId, ref: "Order"},
-        buyerId: {type: Schema.Types.ObjectId, ref: "User"},
+        userId: {type: Schema.Types.ObjectId, ref: "User"},
         commission: { type: Number },
         status: {type: String, enum: CommissionsStatuses, default: CommissionsStatuses.PENDING},
         paymentDate: { type: Date },
