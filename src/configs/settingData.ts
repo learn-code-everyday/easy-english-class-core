@@ -3,9 +3,6 @@ import { SettingTypes } from "../graphql/modules/setting/setting.model";
 export enum SettingGroupSlug {
   COMMON = "COMMON",
   WEBSITE_SETTING = "WEBSITE_SETTING",
-  USER_SETTING = "USER_SETTING",
-  BLOCKCHAIN_SETTING = "BLOCKCHAIN_SETTING",
-  CLAIM_SETTING = "CLAIM_SETTING",
 }
 export enum SettingKey {
   // Cấu hình chung
@@ -19,8 +16,6 @@ export enum SettingKey {
   // cấu hình website
   USE_MENU_CATEGORY = "USE_MENU_CATEGORY",
   ADMIN_MENU = "ADMIN_MENU",
-  EDITOR_MENU = "EDITOR_MENU",
-  MENU_CATEGORIES = "MENU_CATEGORIES",
 
   MINER_UNIT_PRICE = "MINER_UNIT_PRICE",
   SELLER_COMMISSIONS_RATE = "SELLER_COMMISSIONS_RATE",
@@ -39,7 +34,7 @@ export const SETTING_DATA = [
         type: SettingTypes.string,
         name: "Website Title",
         key: SettingKey.TITLE,
-        value: `website.io`,
+        value: `botanika.ai`,
         isActive: true,
         isPrivate: false,
         readOnly: false,
@@ -48,25 +43,7 @@ export const SETTING_DATA = [
         type: SettingTypes.string,
         name: "Website Domain",
         key: SettingKey.WEBSITE_DOMAIN,
-        value: `http://website.io/`,
-        isActive: true,
-        isPrivate: false,
-        readOnly: false,
-      },
-      {
-        type: SettingTypes.string,
-        name: "API Domain",
-        key: SettingKey.API_DOMAIN,
-        value: `https://core.website.io/`,
-        isActive: true,
-        isPrivate: false,
-        readOnly: false,
-      },
-      {
-        type: SettingTypes.string,
-        name: "Media Domain",
-        key: SettingKey.MEDIA_DOMAIN,
-        value: `https://core.website.io/`,
+        value: `http://botanika.ai/`,
         isActive: true,
         isPrivate: false,
         readOnly: false,
@@ -85,24 +62,6 @@ export const SETTING_DATA = [
         name: "Maintenance",
         key: SettingKey.MAINTENANCE,
         value: false,
-        isActive: true,
-        isPrivate: false,
-        readOnly: false,
-      },
-    ],
-  },
-  {
-    slug: SettingGroupSlug.WEBSITE_SETTING,
-    name: "Website setting",
-    desc: "Website setting here",
-    icon: "far fa-tachometer-alt",
-    readOnly: false,
-    settings: [
-      {
-        type: SettingTypes.boolean,
-        name: "Use menu category",
-        key: SettingKey.USE_MENU_CATEGORY,
-        value: true,
         isActive: true,
         isPrivate: false,
         readOnly: false,

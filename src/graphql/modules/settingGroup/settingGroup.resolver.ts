@@ -41,6 +41,7 @@ const Mutation = {
 
 const SettingGroup = {
   settings: async (root: any, args: any, context: Context) => {
+    console.log("Fetching settings for group:", root["id"]);
     return await SettingModel.find({ groupId: root["id"] });
   },
 };
