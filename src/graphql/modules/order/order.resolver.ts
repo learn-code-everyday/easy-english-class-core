@@ -7,14 +7,14 @@ import {set} from "lodash";
 const Query = {
   getAllOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
-    if (context.isSeller()) {
+    if (context.isMerchantOrSeller()) {
       set(args, "q.filter.sellerId", context.id)
     }
     return orderService.fetch(args.q);
   },
   getOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
-    if (context.isSeller()) {
+    if (context.isMerchantOrSeller()) {
       set(args, "q.filter.sellerId", context.id)
     }
     const { id } = args;

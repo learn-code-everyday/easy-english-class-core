@@ -24,7 +24,7 @@ const qrTokenSchema = new Schema(
         token: {type: String},
         minerId: {type: Schema.Types.ObjectId, ref: "Miner"},
         customerId: {type: Schema.Types.ObjectId, ref: "Customer"},
-        used: {type: Boolean},
+        used: {type: Boolean, default: false},
         status: {type: String, enum: QrTokenStatuses, default: QrTokenStatuses.ACTIVE},
     },
     {timestamps: true}

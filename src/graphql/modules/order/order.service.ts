@@ -3,6 +3,7 @@ import {Order, OrderModel, OrderStatuses} from "./order.model";
 import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
 import {CommissionsModel} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
+import {QrTokenModel} from "@/graphql/modules/qrToken/qrToken.model";
 class OrderService extends CrudService<typeof OrderModel> {
   constructor() {
     super(OrderModel);
@@ -51,11 +52,26 @@ class OrderService extends CrudService<typeof OrderModel> {
         { upsert: true, new: true },
     );
 
-    if (result.matchedCount === 0) {
-      throw new Error('Order not found');
-    }
-
     const updatedOrder = await OrderModel.findById(id);
+    if(data.status == OrderStatuses.DELIVERING) {
+      await CommissionsModel.create({
+        orderId: id,
+        buyerId: data.customerId,
+        commission: data?.amount * 30 / 100,
+      });
+
+      // const availableMiners = await MinerModel.find({
+      //   status: MinerStatuses.ACTIVE,
+      //   $or: [
+      //     { customerId: { $exists: false } },
+      //     { customerId: null }
+      //   ]
+      // });
+      // await QrTokenModel.create({
+      //   minerId: id,
+      //   customerId: data.customerId,
+      // });
+    }
     return updatedOrder;
   }
 }
