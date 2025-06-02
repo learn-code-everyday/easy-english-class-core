@@ -5,6 +5,8 @@ import {CommissionsModel} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
 import {qrTokenService} from "../qrToken/qrToken.service";
 import {CustomerModel} from "../../modules/customer/customer.model";
+import {SettingModel} from "../../modules/setting/setting.model";
+import {SettingKey} from "../../../configs/settingData";
 
 class OrderService extends CrudService<typeof OrderModel> {
   constructor() {
@@ -24,7 +26,14 @@ class OrderService extends CrudService<typeof OrderModel> {
       if (customer.gmail !== gmail) {
         throw new Error("Email does not match with customer record.");
       }
-      const amount = 999 * quantity;
+      const setting = await SettingModel.findOne({
+        key: SettingKey.MINER_UNIT_PRICE,
+      });
+
+      if (!setting || isNaN(Number(setting.value))) {
+        throw new Error("Miner unit price setting is missing or invalid.");
+      }
+      const amount = setting.value * quantity;
       const availableMiners = await MinerModel.find({
         status: MinerStatuses.ACTIVE,
         $or: [
@@ -55,7 +64,7 @@ class OrderService extends CrudService<typeof OrderModel> {
     }
   }
   async updateOrder(id: string, data: any) {
-    let {customerId, amount, status, quantity} = data;
+    let {customerId, status, quantity} = data;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error('Invalid order ID');
     }
@@ -73,6 +82,15 @@ class OrderService extends CrudService<typeof OrderModel> {
       throw new Error('Cannot update an order that is already DELIVERING');
     }
 
+    const setting = await SettingModel.findOne({
+      key: SettingKey.MINER_UNIT_PRICE,
+    });
+
+    if (!setting || isNaN(Number(setting.value))) {
+      throw new Error("Miner unit price setting is missing or invalid.");
+    }
+    const amount = setting.value * quantity;
+    data.amount = amount;
     if(status == OrderStatuses.DELIVERING) {
       await CommissionsModel.create({
         orderId: id,

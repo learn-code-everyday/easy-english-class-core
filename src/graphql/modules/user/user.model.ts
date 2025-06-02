@@ -13,12 +13,6 @@ export enum UserStatuses {
   INACTIVE = "INACTIVE",
 }
 
-export enum UserServiceStatus {
-  FREE = "FREE",
-  EXPIRED = "EXPIRED",
-  PAID = "PAID",
-}
-
 export type User = {
   name?: string;
   email?: string;

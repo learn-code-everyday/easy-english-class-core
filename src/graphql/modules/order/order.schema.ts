@@ -22,7 +22,6 @@ const schema = gql`
     address: String
     paymentMethod: String
     quantity: Float
-    amount: Float
     transactionImage: [String]
     transactionInput: String
   }
@@ -35,7 +34,6 @@ const schema = gql`
     address: String
     paymentMethod: String
     quantity: Float
-    amount: Float
     status: String
     transactionImage: [String]
     transactionInput: String
