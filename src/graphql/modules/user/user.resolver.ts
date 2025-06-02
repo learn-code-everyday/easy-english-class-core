@@ -84,26 +84,7 @@ const Mutation = {
     const { data } = args;
     if (context.tokenData.role != ROLES.ADMIN) context.isOwner(context.id);
 
-    const password = data.password ? md5(data.password).toString() : null;
-
-    return await userService.updateOne(context.id, data).then(async (result: IUser) => {
-      onActivity.next({
-        userId: context.id,
-        factorId: result.id,
-        type: ActivityTypes.UPDATE,
-        changedFactor: ChangedFactors.USER,
-      });
-
-      if (password) {
-        const hashPassword = encryptionHelper.createPassword(password, result.id);
-        set(result, "password", hashPassword);
-        // console.log("result", result);
-        const userHelper = new UserHelper(result);
-        return await userHelper.user.save();
-      }
-
-      return result;
-    });
+    return await userService.updateOne(context.id, data);
   },
 
   updatePassword: async (root: any, args: any, context: Context) => {
