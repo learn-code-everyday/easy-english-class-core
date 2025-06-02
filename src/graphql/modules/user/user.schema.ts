@@ -13,6 +13,7 @@ extend type Query {
 extend type Mutation {
   createUser(data: CreateUserInput!): User
   updateUser(id: ID!, data: UpdateUserInput!): User
+  updateUserMyProfile(data: UpdateUserInput!): User
   deleteOneUser(id: ID!): User
     # Add Mutation
   signInUserByEmail(email: String!): UserLoginData
@@ -24,6 +25,20 @@ type UserLoginData {
   token: String
 }
 
+input PaymentInfoInput {
+  bankName: String
+  accountBankName: String
+  bankNumber: String
+  walletAddress: String
+}
+
+type PaymentInfo {
+  bankName: String
+  accountBankName: String
+  bankNumber: String
+  walletAddress: String
+}
+
 input CreateUserInput {
   name: String
   email: String
@@ -32,6 +47,7 @@ input CreateUserInput {
   walletAddress: String
   avatar: String
   role: String
+  payment: PaymentInfoInput
 }
 
 input UpdateUserInput {
@@ -43,6 +59,7 @@ input UpdateUserInput {
   avatar: String
   role: String
   status: String
+  payment: PaymentInfoInput
 }
 
 input UserUpdateMeInput {
@@ -62,12 +79,10 @@ type User {
   id: String
   email: String
   role: String
-
-  
   name: String
   phone: String
   address: String
-  
+  payment: PaymentInfo
   lastLoginAt: DateTime
   activeAt: DateTime
   status: String
