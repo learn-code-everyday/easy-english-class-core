@@ -34,17 +34,6 @@ class OrderService extends CrudService<typeof OrderModel> {
         throw new Error("Miner unit price setting is missing or invalid.");
       }
       const amount = setting.value * quantity;
-      const availableMiners = await MinerModel.find({
-        status: MinerStatuses.ACTIVE,
-        $or: [
-          { customerId: { $exists: false } },
-          { customerId: null }
-        ]
-      });
-
-      if (availableMiners.length < quantity) {
-        throw new Error("Insufficient miner.");
-      }
       const dataInsert: Order = {
         userId,
         customerId,
