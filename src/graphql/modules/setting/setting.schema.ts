@@ -25,6 +25,7 @@ const schema = gql`
     type: String
     name: String
     key: String
+    groupId: String
     value: Mixed
     isActive: Boolean
     isPrivate: Boolean
@@ -35,6 +36,7 @@ const schema = gql`
     type: String
     name: String
     key: String
+    groupId: String
     value: Mixed
     isActive: Boolean
     isPrivate: Boolean
