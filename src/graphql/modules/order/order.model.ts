@@ -31,7 +31,7 @@ export type Order = {
     amount?: number;
     status?: OrderStatuses;
     rejectReason?: string;
-    listQrUrl?: [string];
+    qrNumber?: [string];
     transactionImage?: [string];
     transactionInput?: string;
 };
@@ -54,7 +54,7 @@ const orderSchema = new Schema(
         status: {type: String, enum: OrderStatuses, default: OrderStatuses.PROCESSING},
         paymentDate: { type: Date },
         rejectReason: { type: String },
-        listQrUrl: { type: [String] },
+        qrNumber: { type: [String] },
         transactionImage: { type: [String] },
         transactionInput: { type: String },
     },

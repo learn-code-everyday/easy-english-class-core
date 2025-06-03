@@ -21,7 +21,7 @@ const schema = gql`
     gmail: String
     address: String
     paymentMethod: String
-    quantity: Float
+    qrNumber: [String]
     transactionImage: [String]
     transactionInput: String
   }
@@ -33,7 +33,7 @@ const schema = gql`
     gmail: String
     address: String
     paymentMethod: String
-    quantity: Float
+    qrNumber: [String]
     status: String
     transactionImage: [String]
     transactionInput: String
@@ -50,11 +50,10 @@ const schema = gql`
     gmail: String
     address: String
     paymentMethod: String
-    quantity: Float
     amount: Float
     status: String
     rejectReason: String
-    listQrUrl: [String]
+    qrNumber: [String]
     transactionImage: [String]
     transactionInput: String
     customer: CustomerForOrder

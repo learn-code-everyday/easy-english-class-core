@@ -17,7 +17,7 @@ extend type Mutation {
   deleteOneUser(id: ID!): User
     # Add Mutation
   signInUserByEmail(email: String!): UserLoginData
-  updatePassword(id: ID!, currentPassword: String, newPassword: String!): User
+  updatePassword(currentPassword: String, newPassword: String!): User
 }
 
 type UserLoginData {

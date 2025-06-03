@@ -89,17 +89,12 @@ const Mutation = {
 
   updatePassword: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
-    const { id, currentPassword, newPassword } = args;
-
-    if (context.tokenData._id !== id) {
-      throw new Error("You can only update your own password");
-    }
-
+    const { currentPassword, newPassword } = args;
     if (!newPassword || newPassword.length < 6) {
       throw new Error("New password must be at least 6 characters long");
     }
 
-    const user: any = await userService.findOne({ _id: id });
+    const user: any = await userService.findOne({ _id: context.id });
     if (!user) {
       throw new Error("User not found");
     }
@@ -121,7 +116,7 @@ const Mutation = {
 
     const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user.id);
 
-    const updatedUser = await userService.updateOne(id, {
+    const updatedUser = await userService.updateOne(user.id, {
       password: hashedNewPassword,
       isFirstLogin: false,
     });

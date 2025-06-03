@@ -15,7 +15,7 @@ class OrderService extends CrudService<typeof OrderModel> {
 
   async createOrder(userId: string, data: any) {
     try {
-      const { fullname, phone, gmail, address, paymentMethod, quantity, customerId} = data;
+      const { fullname, phone, gmail, address, paymentMethod, customerId, qrNumber} = data;
       if (!customerId) {
         throw new Error("CustomerId not found.");
       }
@@ -33,6 +33,7 @@ class OrderService extends CrudService<typeof OrderModel> {
       if (!setting || isNaN(Number(setting.value))) {
         throw new Error("Miner unit price setting is missing or invalid.");
       }
+      const quantity = qrNumber.length || 0;
       const amount = setting.value * quantity;
       const dataInsert: Order = {
         userId,
@@ -43,6 +44,7 @@ class OrderService extends CrudService<typeof OrderModel> {
         address,
         paymentMethod,
         quantity,
+        qrNumber,
         amount,
       };
 
