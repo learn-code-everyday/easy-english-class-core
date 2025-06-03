@@ -87,7 +87,7 @@ class OrderService extends CrudService<typeof OrderModel> {
     if(status == OrderStatuses.DELIVERING) {
       await CommissionsModel.create({
         orderId: id,
-        userId: customerId,
+        userId: existingOrder?.userId,
         commission: amount * 30 / 100,
       });
     }
