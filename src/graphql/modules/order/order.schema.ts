@@ -41,6 +41,8 @@ const schema = gql`
 
   type Order {
     id: String    
+    userId: String    
+    customerId: String    
     createdAt: DateTime
     updatedAt: DateTime
     fullname: String
@@ -56,6 +58,16 @@ const schema = gql`
     transactionImage: [String]
     transactionInput: String
     customer: CustomerForOrder
+    user: UserForOrder
+  }
+  
+  type UserForOrder {
+      id: String
+      email: String
+      role: String
+      name: String
+      phone: String
+      address: String
   }
   
   type CustomerForOrder {

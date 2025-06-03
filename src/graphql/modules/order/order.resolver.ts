@@ -3,6 +3,7 @@ import { Context } from "../../../core/context";
 import { orderService } from "./order.service";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {set} from "lodash";
+import {UserModel} from "../../modules/user/user.model";
 
 const Query = {
   getAllOrder: async (root: any, args: any, context: Context) => {
@@ -43,6 +44,9 @@ const Mutation = {
 const Order = {
   customer: async (parent: { customerId: any; }) => {
     return CustomerModel.findById(parent.customerId);
+  },
+  user: async (parent: { userId: any; }) => {
+    return UserModel.findById(parent.userId);
   },
 };
 
