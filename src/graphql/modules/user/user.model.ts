@@ -17,7 +17,7 @@ export enum UserStatuses {
 
 export type User = {
     name?: string;
-    email?: string;
+    gmail?: string;
     phone?: string;
     wallet?: string;
     telegramLink?: string;
@@ -43,7 +43,7 @@ export type IUser = BaseDocument & User;
 const userSchema = new Schema(
     {
         name: {type: String},
-        email: {type: String},
+        gmail: {type: String},
         phone: {type: String},
         wallet: {type: String},
         telegramLink: {type: String},

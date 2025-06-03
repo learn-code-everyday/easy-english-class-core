@@ -16,8 +16,8 @@ extend type Mutation {
   updateUserMyProfile(data: UpdateUserInput!): User
   deleteOneUser(id: ID!): User
     # Add Mutation
-  signInUserByEmail(email: String!): UserLoginData
-  updatePassword(currentPassword: String, newPassword: String!): User
+  signInUserByEmail(gmail: String!): UserLoginData
+  updatePassword(newPassword: String!): User
 }
 
 type UserLoginData {
@@ -41,7 +41,7 @@ type PaymentInfo {
 
 input CreateUserInput {
   name: String
-  email: String
+  gmail: String
   password: String
   phone: String
   walletAddress: String
@@ -52,7 +52,7 @@ input CreateUserInput {
 
 input UpdateUserInput {
   name: String
-  email: String
+  gmail: String
   password: String
   phone: String
   walletAddress: String
@@ -77,7 +77,7 @@ input UserUpdateMeInput {
 type User {
   code: String
   id: String
-  email: String
+  gmail: String
   role: String
   name: String
   phone: String
