@@ -39,7 +39,7 @@ const schema = gql`
     userId: String
     commission: Float
     status: String
-    paymentDate: String
+    paymentDate: DateTime
     order: OrderForCommission
     user: UserForCommission
   }
