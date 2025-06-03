@@ -143,7 +143,11 @@ const Mutation = {
   },
 };
 
-const User = {};
+const User = {
+  infoReferrence: async (parent: { referrenceId: any; }) => {
+    return UserModel.findById(parent.referrenceId);
+  },
+};
 
 export default {
   Query,

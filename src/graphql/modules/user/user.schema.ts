@@ -88,9 +88,17 @@ type User {
   activeAt: DateTime
   status: String
   isFirstLogin: Boolean
+  infoReferrence: InfoReferrence
 
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+type InfoReferrence {
+  id: String
+  gmail: String
+  name: String
+  phone: String
 }
 
 

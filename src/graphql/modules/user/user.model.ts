@@ -67,7 +67,7 @@ const userSchema = new Schema(
 );
 
 userSchema.index({code: 1});
-userSchema.index({email: "text"}, {weights: {email: 2}});
+userSchema.index({gmail: "text"}, {weights: {gmail: 2}});
 
 export const UserHook = new ModelHook<IUser>(userSchema);
 export const UserModel: mongoose.Model<IUser> = MainConnection.model("User", userSchema);
