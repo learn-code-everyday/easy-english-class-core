@@ -40,6 +40,28 @@ const schema = gql`
     commission: Float
     status: String
     paymentDate: String
+    order: OrderForCommission
+    user: UserForCommission
+  }
+  
+   type OrderForCommission {
+    id: String
+    fullname: String
+    phone: String
+    gmail: String
+    address: String
+    paymentMethod: String
+    quantity: Float
+    amount: Float
+  }
+  
+  type UserForCommission {
+      id: String
+      email: String
+      role: String
+      name: String
+      phone: String
+      address: String
   }
 
   type CommissionsPageData {

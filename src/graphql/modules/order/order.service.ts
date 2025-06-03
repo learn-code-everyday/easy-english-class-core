@@ -90,18 +90,6 @@ class OrderService extends CrudService<typeof OrderModel> {
         userId: customerId,
         commission: amount * 30 / 100,
       });
-      const minersToCreate = Array.from({ length: quantity }).map(() => ({
-        name: `Miner-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-        customerId,
-        registered: true,
-      }));
-      const createdMiners =  await MinerModel.insertMany(minersToCreate);
-      const createdMinerIds = createdMiners.map((m) => m._id.toString());
-      const listQrUrl = await qrTokenService.generateMultipleQrCodes({customerId, orderId: id ,minerIds: createdMinerIds})
-
-      if(listQrUrl.length) {
-        data.listQrUrl = listQrUrl;
-      }
     }
     await OrderModel.updateOne(
         { _id: id },

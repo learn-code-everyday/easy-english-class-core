@@ -1,6 +1,8 @@
 import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { commissionsService } from "./commissions.service";
+import {UserModel} from "../../modules/user/user.model";
+import {OrderModel} from "../../modules/order/order.model";
 
 const Query = {
   getAllCommissions: async (root: any, args: any, context: Context) => {
@@ -33,7 +35,12 @@ const Mutation = {
 };
 
 const Commissions = {
-  
+  order: async (parent: { orderId: any; }) => {
+    return OrderModel.findById(parent.orderId);
+  },
+  user: async (parent: { userId: any; }) => {
+    return UserModel.findById(parent.userId);
+  },
 };
 
 export default {
