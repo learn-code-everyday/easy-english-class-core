@@ -67,6 +67,10 @@ class OrderService extends CrudService<typeof OrderModel> {
       customerId = existingOrder?.customerId
     }
 
+    if(!quantity) {
+      quantity = existingOrder?.quantity
+    }
+
     if (existingOrder?.status == OrderStatuses.DELIVERING) {
       throw new Error('Cannot update an order that is already DELIVERING');
     }
