@@ -40,7 +40,7 @@ class CustomerService extends CrudService<typeof CustomerModel> {
                     gmail: email,
                     googleId,
                     firstname: name,
-                    referralCode: `User-${Date.now()}`,
+                    referralCode: `Botanika-${Date.now()}`,
                     activeAt: new Date(),
                     role: ROLES.CUSTOMER,
                 };

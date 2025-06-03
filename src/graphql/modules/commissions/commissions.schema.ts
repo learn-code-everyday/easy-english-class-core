@@ -57,7 +57,7 @@ const schema = gql`
   
   type UserForCommission {
       id: String
-      email: String
+      gmail: String
       role: String
       name: String
       phone: String

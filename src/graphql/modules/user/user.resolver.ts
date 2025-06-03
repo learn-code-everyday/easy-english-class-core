@@ -2,12 +2,12 @@ import { set } from "lodash";
 import md5 from "md5";
 import { ROLES } from "../../../constants/role.const";
 import { onActivity } from "../../../events/onActivity.event";
-import { encryptionHelper } from "../../../helpers";
+import {encryptionHelper, ErrorHelper} from "../../../helpers";
 import { Context } from "../../../core/context";
 import { UserHelper } from "./user.helper";
 import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
-import { IUser, UserRoles } from "./user.model";
+import {IUser, UserModel, UserRoles} from "./user.model";
 
 const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {
@@ -89,15 +89,29 @@ const Mutation = {
 
   updatePassword: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
-    const { newPassword } = args;
+    const { currentPassword, newPassword } = args;
+
+    if (context.tokenData._id !== id) {
+      throw new Error("You can only update your own password");
+    }
+
     if (!newPassword || newPassword.length < 6) {
       throw new Error("New password must be at least 6 characters long");
     }
 
     const user: any = await userService.findOne({ _id: context.id });
     if (!user) {
-      throw new Error("User not found");
+      throw ErrorHelper.userNotExist();
     }
+
+    if (context.tokenData.role !== ROLES.ADMIN && !user.isFirstLogin) {
+      const validPassword = encryptionHelper.comparePassword(currentPassword, user.id, user.password);
+
+      if (!validPassword) {
+        throw ErrorHelper.userPasswordNotCorrect();
+      }
+    }
+
     const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user.id);
     const updatedUser = await userService.updateOne(user.id, {
       password: hashedNewPassword,
