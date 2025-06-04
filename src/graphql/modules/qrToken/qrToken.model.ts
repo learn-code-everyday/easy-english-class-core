@@ -24,8 +24,8 @@ export type IQrToken = BaseDocument & QrToken;
 
 const qrTokenSchema = new Schema(
     {
-        qrNumber: {type: String},
-        token: {type: String},
+        qrNumber: {type: String, unique: true, sparse: true},
+        token: {type: String, unique: true, sparse: true},
         qrCodeUrl: {type: String},
         minerId: {type: Schema.Types.ObjectId, ref: "Miner"},
         orderId: {type: Schema.Types.ObjectId, ref: "Order"},

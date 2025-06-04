@@ -44,9 +44,11 @@ input CreateUserInput {
   gmail: String
   password: String
   phone: String
+  address: String
   walletAddress: String
   avatar: String
   role: String
+  referralCode: String
   payment: PaymentInfoInput
 }
 
@@ -55,10 +57,12 @@ input UpdateUserInput {
   gmail: String
   password: String
   phone: String
+  address: String
   walletAddress: String
   avatar: String
   role: String
   status: String
+  referralCode: String
   payment: PaymentInfoInput
 }
 
