@@ -21,6 +21,7 @@ const schema = gql`
     gmail: String
     address: String
     paymentMethod: String
+    qrNumber: [String]
     quantity: Float
     transactionImage: [String]
     transactionInput: String
