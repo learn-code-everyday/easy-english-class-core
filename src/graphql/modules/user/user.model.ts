@@ -18,6 +18,7 @@ export enum UserStatuses {
 export type User = {
     name?: string;
     gmail?: string;
+    address?: string;
     phone?: string;
     wallet?: string;
     telegramLink?: string;
@@ -44,6 +45,7 @@ const userSchema = new Schema(
     {
         name: {type: String},
         gmail: {type: String},
+        address: {type: String},
         phone: {type: String},
         wallet: {type: String},
         telegramLink: {type: String},
