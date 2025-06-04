@@ -4,6 +4,7 @@ const schema = gql`
   extend type Query {
     getAllQrToken(q: QueryGetListInput): QrTokenPageData
     getOneQrToken(id: ID!): QrToken
+    verifyQrToken(qrNumber: String!): QrToken
     # Add Query
   }
 
@@ -15,6 +16,7 @@ const schema = gql`
   }
 
   input CreateQrTokenInput {
+    qrNumber: String
     token: String
     minerId: String
     customerId: String
@@ -23,6 +25,7 @@ const schema = gql`
   }
 
   input UpdateQrTokenInput {
+    qrNumber: String
     token: String
     minerId: String
     customerId: String
@@ -35,6 +38,7 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
+    qrNumber: String
     token: String
     minerId: String
     customerId: String

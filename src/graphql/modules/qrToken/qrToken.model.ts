@@ -8,6 +8,7 @@ export enum QrTokenStatuses {
 }
 
 export type QrToken = {
+    qrNumber?: string;
     token?: string;
     minerId?: string;
     orderId?: string;
@@ -23,6 +24,7 @@ export type IQrToken = BaseDocument & QrToken;
 
 const qrTokenSchema = new Schema(
     {
+        qrNumber: {type: String},
         token: {type: String},
         qrCodeUrl: {type: String},
         minerId: {type: Schema.Types.ObjectId, ref: "Miner"},
