@@ -1,5 +1,5 @@
 import {CrudService} from "../../../base/crudService";
-import {Order, OrderModel, OrderStatuses} from "./order.model";
+import {Order, OrderModel, OrderPaymentMethod, OrderStatuses} from "./order.model";
 import {CommissionsModel} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
 import {CustomerModel} from "../../modules/customer/customer.model";
@@ -11,9 +11,59 @@ class OrderService extends CrudService<typeof OrderModel> {
     super(OrderModel);
   }
 
-  async getOrderForMerchant(userId: string, data: any) {
+  async getOrderForMerchant(userId: string) {
     try {
+      const [ordersAggregation, commissionsAggregation] = await Promise.all([
+        OrderModel.aggregate([
+          {
+            $match: {
+              userId: new mongoose.Types.ObjectId(userId),
+              status: "SUCCESS",
+            },
+          },
+          {
+            $group: {
+              _id: "$paymentMethod",
+              totalRevenue: { $sum: "$amount" },
+            },
+          },
+        ]),
+        CommissionsModel.aggregate([
+          {
+            $match: {
+              userId: new mongoose.Types.ObjectId(userId),
+              status: "PAID",
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalCommission: { $sum: "$commission" },
+            },
+          },
+        ]),
+      ]);
 
+      let totalCryptoRevenue = 0;
+      let totalCashBankingRevenue = 0;
+
+      for (const entry of ordersAggregation) {
+        if (entry._id === OrderPaymentMethod.CRYPTO) {
+          totalCryptoRevenue = entry.totalRevenue;
+        } else if (
+            entry._id === OrderPaymentMethod.CASH ||
+            entry._id === OrderPaymentMethod.BANKING
+        ) {
+          totalCashBankingRevenue += entry.totalRevenue;
+        }
+      }
+      const totalCommission = commissionsAggregation[0]?.totalCommission || 0;
+
+      return {
+        totalCryptoRevenue,
+        totalCashBankingRevenue,
+        totalCommission,
+      };
     } catch (error) {
       console.error("Error get order for merchant:", error);
       throw error;

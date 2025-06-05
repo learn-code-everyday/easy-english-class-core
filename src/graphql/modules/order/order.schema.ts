@@ -59,6 +59,7 @@ const schema = gql`
     amount: Float
     status: String
     rejectReason: String
+    trackingLink: String
     qrNumber: [String]
     transactionImage: [String]
     transactionInput: String

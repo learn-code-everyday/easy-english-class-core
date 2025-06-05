@@ -15,7 +15,7 @@ const Query = {
   },
   getOrderForMerchant: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_MEMBER_EDITOR);
-    return orderService.fetch(args.q);
+    return orderService.getOrderForMerchant(context.id);
   },
   getOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);

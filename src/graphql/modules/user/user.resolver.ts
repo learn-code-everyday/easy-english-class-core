@@ -90,10 +90,6 @@ const Mutation = {
     context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
     const { currentPassword, newPassword } = args;
 
-    if (context.tokenData._id !== id) {
-      throw new Error("You can only update your own password");
-    }
-
     if (!newPassword || newPassword.length < 6) {
       throw new Error("New password must be at least 6 characters long");
     }
