@@ -152,8 +152,8 @@ class OrderService extends CrudService<typeof OrderModel> {
         return OrderModel.findById(id);
     }
 
-    async updateStatusOrder(id: string, data: any) {
-        let {status, trackingLink} = data;
+    async updateOrderForAdmin(id: string, data: any) {
+        let {status, trackingLink, rejectReason} = data;
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new Error('Invalid order ID');
         }
@@ -167,7 +167,8 @@ class OrderService extends CrudService<typeof OrderModel> {
             {
                 $set: {
                     status,
-                    trackingLink
+                    trackingLink,
+                    rejectReason
                 }
             },
             {upsert: true, new: true},

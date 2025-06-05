@@ -11,7 +11,7 @@ const schema = gql`
   extend type Mutation {
     createOrder(data: CreateOrderInput!): Order
     updateOrder(id: ID!, data: UpdateOrderInput!): Order
-    updateStatusOrder(id: ID!, data: UpdateOrderInput!): Order
+    updateOrderForAdmin(id: ID!, data: UpdateOrderInput!): Order
     approveOrder(id: ID!): Order
     deleteOneOrder(id: ID!): Order
     # Add Mutation
