@@ -69,17 +69,17 @@ class MailService {
 
   async sendWelcomeEmail(data: {
     name: string;
-    email: string;
+    gmail: string;
     role?: string;
     tempPassword?: string;
   }) {
     try {
       const template = {
-        to: data.email,
+        to: data.gmail,
         subject: `Welcome to Botanika - Your Account is Ready!`,
         html: buildWelcomeEmailTemplate({
           name: data.name,
-          email: data.email,
+          email: data.gmail,
           role: data.role || "User",
           tempPassword: data.tempPassword,
         }),

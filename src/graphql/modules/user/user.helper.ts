@@ -32,14 +32,14 @@ export class UserHelper {
     });
   }
   static async validateCreateUser(data: any, context: Context) {
-    const existingUserByEmail = await userService.findOne({ email: data.email });
+    const existingUserByEmail = await userService.findOne({ gmail: data.gmail });
     if (existingUserByEmail) {
       throw new Error("Email already exists");
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-      throw new Error("Invalid email format");
+    if (!emailRegex.test(data.gmail)) {
+      throw new Error("Invalid gmail format");
     }
 
     if (data.name.length < 2 || data.name.length > 50) {
@@ -78,7 +78,7 @@ export class UserHelper {
       try {
         await mailService.sendWelcomeEmail({
           name: result.name,
-          email: result.email,
+          gmail: result.gmail,
           role: result.role,
           tempPassword: data.password,
         });
