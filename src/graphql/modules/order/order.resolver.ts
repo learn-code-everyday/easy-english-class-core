@@ -14,10 +14,7 @@ const Query = {
     return orderService.fetch(args.q);
   },
   getOrderForMerchant: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
-    if (context.isMerchantOrSeller()) {
-      set(args, "q.filter.userId", context.id)
-    }
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     return orderService.fetch(args.q);
   },
   getOneOrder: async (root: any, args: any, context: Context) => {

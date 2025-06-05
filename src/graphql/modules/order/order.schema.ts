@@ -38,6 +38,8 @@ const schema = gql`
     paymentMethod: String
     qrNumber: [String]
     status: String
+    trackingLink: String
+    rejectReason: String
     transactionImage: [String]
     transactionInput: String
   }

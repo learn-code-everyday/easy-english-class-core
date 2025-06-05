@@ -11,6 +11,14 @@ class OrderService extends CrudService<typeof OrderModel> {
     super(OrderModel);
   }
 
+  async getOrderForMerchant(userId: string, data: any) {
+    try {
+
+    } catch (error) {
+      console.error("Error get order for merchant:", error);
+      throw error;
+    }
+  }
   async createOrder(userId: string, data: any) {
     try {
       const { fullname, phone, gmail, address, paymentMethod, customerId, qrNumber} = data;

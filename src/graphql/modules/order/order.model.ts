@@ -29,6 +29,7 @@ export type Order = {
     paymentMethod?: OrderPaymentMethod;
     quantity?: number;
     amount?: number;
+    trackingLink?: string;
     status?: OrderStatuses;
     rejectReason?: string;
     qrNumber?: [string];
@@ -54,6 +55,7 @@ const orderSchema = new Schema(
         status: {type: String, enum: OrderStatuses, default: OrderStatuses.PROCESSING},
         paymentDate: { type: Date },
         rejectReason: { type: String },
+        trackingLink: { type: String },
         qrNumber: { type: [String] },
         transactionImage: { type: [String] },
         transactionInput: { type: String },
