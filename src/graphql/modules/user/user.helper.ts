@@ -32,10 +32,6 @@ export class UserHelper {
     });
   }
   static async validateCreateUser(data: any, context: Context) {
-    if (!data?.name || !data?.email || !data?.password) {
-      throw new Error("Name, email, and password are required");
-    }
-
     const existingUserByEmail = await userService.findOne({ email: data.email });
     if (existingUserByEmail) {
       throw new Error("Email already exists");
@@ -44,10 +40,6 @@ export class UserHelper {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.email)) {
       throw new Error("Invalid email format");
-    }
-
-    if (data.password.length < 6) {
-      throw new Error("Password must be at least 6 characters long");
     }
 
     if (data.name.length < 2 || data.name.length > 50) {
