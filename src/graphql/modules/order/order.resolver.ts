@@ -13,6 +13,13 @@ const Query = {
     }
     return orderService.fetch(args.q);
   },
+  getOrderForMerchant: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR);
+    if (context.isMerchantOrSeller()) {
+      set(args, "q.filter.userId", context.id)
+    }
+    return orderService.fetch(args.q);
+  },
   getOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     if (context.isMerchantOrSeller()) {
@@ -33,6 +40,11 @@ const Mutation = {
     context.auth(ROLES.ADMIN_EDITOR);
     const { id, data } = args;
     return await orderService.updateOrder(id, data);
+  },
+  approveOrder: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_MEMBER);
+    const { id, data } = args;
+    return await orderService.approveOrder(id, data);
   },
   deleteOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);

@@ -27,7 +27,6 @@ const Query = {
     const { id } = args;
     return await userService.findOne({ _id: id });
   },
-
   getUsersByRole: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN]);
     const { role, q } = args;

@@ -3,6 +3,7 @@ import {gql} from "apollo-server-express";
 const schema = gql`
   extend type Query {
     getAllOrder(q: QueryGetListInput): OrderPageData
+    getOrderForMerchant(q: QueryGetListInput): OrderForMerchant
     getOneOrder(id: ID!): Order
     # Add Query
   }
@@ -10,6 +11,7 @@ const schema = gql`
   extend type Mutation {
     createOrder(data: CreateOrderInput!): Order
     updateOrder(id: ID!, data: UpdateOrderInput!): Order
+    approveOrder(id: ID!): Order
     deleteOneOrder(id: ID!): Order
     # Add Mutation
   }
@@ -60,6 +62,10 @@ const schema = gql`
     transactionInput: String
     customer: CustomerForOrder
     user: UserForOrder
+  }
+  
+  type OrderForMerchant {
+    quantity: Float
   }
   
   type UserForOrder {

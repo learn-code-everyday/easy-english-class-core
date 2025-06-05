@@ -1,9 +1,7 @@
 import {CrudService} from "../../../base/crudService";
 import {Order, OrderModel, OrderStatuses} from "./order.model";
-import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
 import {CommissionsModel} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
-import {qrTokenService} from "../qrToken/qrToken.service";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {SettingModel} from "../../modules/setting/setting.model";
 import {SettingKey} from "../../../configs/settingData";
@@ -66,7 +64,7 @@ class OrderService extends CrudService<typeof OrderModel> {
     }
 
     if(!customerId) {
-      customerId = existingOrder?.customerId
+      data.customerId = existingOrder?.customerId
     }
 
     if(!quantity) {
@@ -84,20 +82,50 @@ class OrderService extends CrudService<typeof OrderModel> {
     if (!setting || isNaN(Number(setting.value))) {
       throw new Error("Miner unit price setting is missing or invalid.");
     }
-    const amount = setting.value * quantity;
-    data.amount = amount;
-    if(status == OrderStatuses.DELIVERING) {
-      await CommissionsModel.create({
-        orderId: id,
-        userId: existingOrder?.userId,
-        commission: amount * 30 / 100,
-      });
-    }
+    data.amount = setting.value * quantity;
     await OrderModel.updateOne(
         { _id: id },
         { $set: data },
         { upsert: true, new: true },
     );
+
+    return OrderModel.findById(id);
+  }
+  async approveOrder(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error('Invalid order ID');
+    }
+
+    const existingOrder = await OrderModel.findById(id);
+    if (!existingOrder) {
+      throw new Error('Order not found');
+    }
+
+    if (existingOrder?.status !== OrderStatuses.PENDING_PAYMENT_CONFIRMATION) {
+      throw new Error('Cannot update an order that is already PENDING_PAYMENT_CONFIRMATION');
+    }
+
+    const setting = await SettingModel.findOne({
+      key: SettingKey.SELLER_COMMISSIONS_RATE,
+    });
+
+    if (!setting || isNaN(Number(setting.value))) {
+      throw new Error("Miner unit price setting is missing or invalid.");
+    }
+
+    await OrderModel.updateOne(
+        { _id: id },
+        { $set: {
+          status: OrderStatuses.DELIVERING
+          } },
+        { upsert: true, new: true },
+    );
+
+    await CommissionsModel.create({
+      orderId: id,
+      userId: existingOrder?.userId,
+      commission: existingOrder?.amount * setting?.value / 100,
+    });
 
     return OrderModel.findById(id);
   }

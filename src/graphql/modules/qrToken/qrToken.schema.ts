@@ -20,7 +20,7 @@ const schema = gql`
     token: String
     minerId: String
     customerId: String
-    used: Boolean
+    isExport: Boolean
     status: String
   }
 
@@ -29,7 +29,7 @@ const schema = gql`
     token: String
     minerId: String
     customerId: String
-    used: Boolean
+    isExport: Boolean
     status: String
   }
 
@@ -42,7 +42,7 @@ const schema = gql`
     token: String
     minerId: String
     customerId: String
-    used: Boolean
+    isExport: Boolean
     status: String
     qrCodeUrl: String
   }

@@ -3,8 +3,10 @@ import {MainConnection} from "../../../loaders/database.loader";
 import {BaseDocument, ModelLoader, ModelHook} from "../../../base/baseModel";
 
 export enum QrTokenStatuses {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+    UNUSED = "UNUSED",
+    USED = "USED",
+    REGISTERED = "REGISTERED",
+    EXPIRED = "EXPIRED",
 }
 
 export type QrToken = {
@@ -14,7 +16,7 @@ export type QrToken = {
     orderId?: string;
     customerId?: string;
     qrCodeUrl?: string;
-    used?: boolean;
+    isExport?: boolean;
     status?: QrTokenStatuses;
 };
 
@@ -30,8 +32,8 @@ const qrTokenSchema = new Schema(
         minerId: {type: Schema.Types.ObjectId, ref: "Miner"},
         orderId: {type: Schema.Types.ObjectId, ref: "Order"},
         customerId: {type: Schema.Types.ObjectId, ref: "Customer"},
-        used: {type: Boolean, default: false},
-        status: {type: String, enum: QrTokenStatuses, default: QrTokenStatuses.ACTIVE},
+        isExport: {type: Boolean, default: false},
+        status: {type: String, enum: QrTokenStatuses, default: QrTokenStatuses.REGISTERED},
     },
     {timestamps: true}
 );
