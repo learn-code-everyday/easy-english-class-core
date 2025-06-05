@@ -2,6 +2,8 @@ import { ROLES } from "../../../constants/role.const";
 import { Context } from "../../../core/context";
 import { qrTokenService } from "./qrToken.service";
 import {OrderModel} from "../../modules/order/order.model";
+import {CustomerModel} from "../../modules/customer/customer.model";
+import {MinerModel} from "../../modules/miner/miner.model";
 
 const Query = {
   getAllQrToken: async (root: any, args: any, context: Context) => {
@@ -26,6 +28,12 @@ const Query = {
 };
 
 const Mutation = {
+  generateMultipleQrCodes: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR);
+    const { quantity } = args;
+    await qrTokenService.generateMultipleQrCodes(quantity);
+    return qrTokenService.fetch(args.q);
+  },
   createQrToken: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { data } = args;
@@ -44,7 +52,12 @@ const Mutation = {
 };
 
 const QrToken = {
-  
+  customer: async (parent: { customerId: any; }) => {
+    return CustomerModel.findById(parent.customerId);
+  },
+  miner: async (parent: { minerId: any; }) => {
+    return MinerModel.findById(parent.minerId);
+  },
 };
 
 export default {

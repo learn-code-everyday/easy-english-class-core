@@ -1,8 +1,9 @@
 import {CrudService} from "../../../base/crudService";
-import {QrTokenModel} from "./qrToken.model";
+import {QrToken, QrTokenModel, QrTokenStatuses} from "./qrToken.model";
 import QRCode from "qrcode";
 import {Readable} from "stream";
 import {s3Bucket} from "../../../helpers/bucket.helper";
+import crypto from "crypto";
 
 class QrTokenService extends CrudService<typeof QrTokenModel> {
   constructor() {
@@ -34,41 +35,22 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
       qrCodeUrl: res.Location,
     });
   }
+  async generateMultipleQrCodes(quantity: number) {
+    const qrTokens: QrToken[] = [];
 
-  async generateMultipleQrCodes({ orderId, customerId, minerIds }: { orderId: string; customerId: string; minerIds: string[] }) {
-    if (!Array.isArray(minerIds) || minerIds.length === 0) {
-      throw new Error("minerIds must be a non-empty array");
-    }
+    for (let i = 0; i < quantity; i++) {
+      const qrNumber = BigInt("0x" + crypto.randomBytes(6).toString("hex")).toString(36);
+      const token = BigInt("0x" + crypto.randomBytes(8).toString("hex")).toString(36);
 
-    if (!customerId || !orderId) {
-      throw new Error("customerId must be a non-empty array");
-    }
-
-    const results: string[] = [];
-
-    for (const minerId of minerIds) {
-      const payload = { minerId, customerId };
-      const qrString = JSON.stringify(payload);
-      const buffer = await QRCode.toBuffer(qrString, { type: "png" });
-      const stream = Readable.from(buffer);
-      const filename = `qr_${minerId}_${customerId}_${Date.now()}.png`;
-      const res = await s3Bucket.uploadQr({
-        stream,
-        filename,
-        mimetype: "image/png",
+      qrTokens.push({
+        qrNumber,
+        token,
+        status: QrTokenStatuses.REGISTERED,
+        isExport: false,
       });
-
-      await QrTokenModel.create({
-        minerId,
-        orderId,
-        customerId,
-        qrCodeUrl: res.Location,
-      });
-
-      results.push(res.Location);
     }
 
-    return results;
+    return await QrTokenModel.insertMany(qrTokens);
   }
 
 }

@@ -38,6 +38,11 @@ const Mutation = {
     const { id, data } = args;
     return await orderService.updateOrder(id, data);
   },
+  updateStatusOrder: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR);
+    const { id, data } = args;
+    return await orderService.updateStatusOrder(id, data);
+  },
   approveOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_MEMBER);
     const { id, data } = args;

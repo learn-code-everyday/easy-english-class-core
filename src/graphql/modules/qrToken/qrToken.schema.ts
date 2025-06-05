@@ -9,6 +9,7 @@ const schema = gql`
   }
 
   extend type Mutation {
+    generateMultipleQrCodes(quantity: Int): QrTokenPageData
     createQrToken(data: CreateQrTokenInput!): QrToken
     updateQrToken(id: ID!, data: UpdateQrTokenInput!): QrToken
     deleteOneQrToken(id: ID!): QrToken
@@ -32,7 +33,7 @@ const schema = gql`
     isExport: Boolean
     status: String
   }
-
+  
   type QrToken {
     id: String    
     createdAt: DateTime
@@ -45,6 +46,8 @@ const schema = gql`
     isExport: Boolean
     status: String
     qrCodeUrl: String
+    customer: Customer
+    miner: Miner
   }
 
   type QrTokenPageData {
