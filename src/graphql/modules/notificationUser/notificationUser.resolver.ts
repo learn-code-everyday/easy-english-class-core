@@ -29,6 +29,11 @@ const Mutation = {
     const { id, data } = args;
     return await notificationUserService.updateOne(id, data);
   },
+  readNotificationUser: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR);
+    const { id } = args;
+    return await notificationUserService.readNotification(id);
+  },
   deleteOneNotificationUser: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { id } = args;

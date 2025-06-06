@@ -10,6 +10,7 @@ const schema = gql`
   extend type Mutation {
     createNotificationUser(data: CreateNotificationUserInput!): NotificationUser
     updateNotificationUser(id: ID!, data: UpdateNotificationUserInput!): NotificationUser
+    readNotificationUser(id: ID!): NotificationUser
     deleteOneNotificationUser(id: ID!): NotificationUser
     # Add Mutation
   }
@@ -18,6 +19,7 @@ const schema = gql`
     title: String
     description: String
     userId: String
+    orderId: String
     isRead: Boolean
   }
 
@@ -25,6 +27,7 @@ const schema = gql`
     title: String
     description: String
     userId: String
+    orderId: String
     isRead: Boolean
   }
 
@@ -33,6 +36,8 @@ const schema = gql`
     createdAt: DateTime
     updatedAt: DateTime
 
+    userId: String
+    orderId: String
     title: String
     description: String
     status: String
