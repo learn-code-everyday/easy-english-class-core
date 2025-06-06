@@ -12,6 +12,7 @@ const schema = gql`
     generateMultipleQrCodes(quantity: Int): QrTokenPageData
     createQrToken(data: CreateQrTokenInput!): QrToken
     updateQrToken(id: ID!, data: UpdateQrTokenInput!): QrToken
+    exportQrToken(ids: [String]): Boolean
     deleteOneQrToken(id: ID!): QrToken
     # Add Mutation
   }

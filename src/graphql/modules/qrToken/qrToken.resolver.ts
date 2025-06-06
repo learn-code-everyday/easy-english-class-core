@@ -34,6 +34,12 @@ const Mutation = {
     await qrTokenService.generateMultipleQrCodes(quantity);
     return qrTokenService.fetch(args.q);
   },
+  exportQrToken: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR);
+    const { ids } = args;
+    await qrTokenService.export(ids);
+    return qrTokenService.fetch(args.q);
+  },
   createQrToken: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { data } = args;

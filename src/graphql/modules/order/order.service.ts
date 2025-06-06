@@ -162,6 +162,11 @@ class OrderService extends CrudService<typeof OrderModel> {
         if (!existingOrder) {
             throw new Error('Order not found');
         }
+
+        if (existingOrder?.status === OrderStatuses.SUCCESS) {
+            throw new Error('Cannot update an order that is already SUCCESS');
+        }
+
         await OrderModel.updateOne(
             {_id: id},
             {
@@ -174,46 +179,21 @@ class OrderService extends CrudService<typeof OrderModel> {
             {upsert: true, new: true},
         );
 
-        return OrderModel.findById(id);
-    }
+        if(status === OrderStatuses.SUCCESS) {
+            const setting = await SettingModel.findOne({
+                key: SettingKey.SELLER_COMMISSIONS_RATE,
+            });
 
-    async approveOrder(id: string) {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw new Error('Invalid order ID');
+            if (!setting || isNaN(Number(setting.value))) {
+                throw new Error("Miner unit price setting is missing or invalid.");
+            }
+
+            await CommissionsModel.create({
+                orderId: id,
+                userId: existingOrder?.userId,
+                commission: existingOrder?.amount * setting?.value / 100,
+            });
         }
-
-        const existingOrder = await OrderModel.findById(id);
-        if (!existingOrder) {
-            throw new Error('Order not found');
-        }
-
-        if (existingOrder?.status !== OrderStatuses.PENDING_PAYMENT_CONFIRMATION) {
-            throw new Error('Cannot update an order that is already PENDING_PAYMENT_CONFIRMATION');
-        }
-
-        const setting = await SettingModel.findOne({
-            key: SettingKey.SELLER_COMMISSIONS_RATE,
-        });
-
-        if (!setting || isNaN(Number(setting.value))) {
-            throw new Error("Miner unit price setting is missing or invalid.");
-        }
-
-        await OrderModel.updateOne(
-            {_id: id},
-            {
-                $set: {
-                    status: OrderStatuses.DELIVERING
-                }
-            },
-            {upsert: true, new: true},
-        );
-
-        await CommissionsModel.create({
-            orderId: id,
-            userId: existingOrder?.userId,
-            commission: existingOrder?.amount * setting?.value / 100,
-        });
 
         return OrderModel.findById(id);
     }

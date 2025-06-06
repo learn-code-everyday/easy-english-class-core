@@ -52,7 +52,14 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
 
     return await QrTokenModel.insertMany(qrTokens);
   }
+  async export(ids: string[]): Promise<boolean> {
+    const result = await QrTokenModel.updateMany(
+        { _id: { $in: ids } },
+        { $set: { isExport: true } }
+    );
 
+    return result.modifiedCount > 0;
+  }
 }
 
 const qrTokenService = new QrTokenService();
