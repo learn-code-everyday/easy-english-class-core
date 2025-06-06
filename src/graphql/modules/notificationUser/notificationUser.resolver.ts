@@ -6,9 +6,7 @@ import {set} from "lodash";
 const Query = {
   getAllNotificationUser: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
-    if (context.isCustomer()) {
-      set(args, "q.filter.userId", context.id)
-    }
+    set(args, "q.filter.userId", context.id)
     return notificationUserService.fetch(args.q);
   },
   getOneNotificationUser: async (root: any, args: any, context: Context) => {
