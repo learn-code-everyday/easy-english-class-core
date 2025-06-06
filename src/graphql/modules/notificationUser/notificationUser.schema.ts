@@ -17,14 +17,14 @@ const schema = gql`
   input CreateNotificationUserInput {
     title: String
     description: String
-    customerId: String
+    userId: String
     isRead: Boolean
   }
 
   input UpdateNotificationUserInput {
     title: String
     description: String
-    customerId: String
+    userId: String
     isRead: Boolean
   }
 
