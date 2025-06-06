@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { MainConnection } from "../../../loaders/database.loader";
 import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
-import {NotificationStatuses} from "@/graphql/modules/notification/notification.model";
 
 export enum NotificationUserStatuses {
     ACTIVE = "ACTIVE",
@@ -13,7 +12,7 @@ export type NotificationUser = {
     description?: string;
     userId: string;
     isRead: boolean;
-    status?: NotificationStatuses;
+    status?: NotificationUserStatuses;
 };
 
 const Schema = mongoose.Schema;
@@ -26,7 +25,7 @@ const notificationUserSchema = new Schema(
       description: { type: String },
       userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
       isRead: { type: Boolean },
-      status: { type: String, enum: NotificationStatuses, default: NotificationStatuses.ACTIVE },
+      status: { type: String, enum: NotificationUserStatuses, default: NotificationUserStatuses.ACTIVE },
   },
   { timestamps: true }
 );
