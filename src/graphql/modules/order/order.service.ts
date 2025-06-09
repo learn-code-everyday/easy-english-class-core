@@ -25,7 +25,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                         $group: {
                             _id: "$paymentMethod",
                             totalRevenue: {$sum: "$amount"},
-                            totalOrder: { $sum: 1 },
+                            totalOrder: { $sum: "$quantity" },
                         },
                     },
                 ]),
