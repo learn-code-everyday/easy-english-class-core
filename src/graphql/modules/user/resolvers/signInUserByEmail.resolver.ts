@@ -9,8 +9,6 @@ const Mutation = {
   signInUserByEmail: async (root: any, args: any, context: Context) => {
     let { gmail } = args;
     const password = context.passwordToken;
-    // console.log('------> phone', phone);
-
     const user = await UserModel.findOne({ gmail });
 
     if (!user) {

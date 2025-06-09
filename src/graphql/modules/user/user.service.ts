@@ -1,29 +1,45 @@
 import { CrudService } from "../../../base/crudService";
 import { ErrorHelper } from "../../../core/error";
 import { UserModel, UserRoles } from "./user.model";
+import mongoose from "mongoose";
 
 class UserService extends CrudService<typeof UserModel> {
   constructor() {
     super(UserModel);
   }
 
-  async getChatbotUser() {
-    const chatbotUser = await UserModel.findOne({ email: "chatbot@gmail.com" });
-    if (chatbotUser) {
-      throw ErrorHelper.error("No chatbot");
-    }
-
-    return await UserModel.findByIdAndUpdate(
-      chatbotUser.id,
+  async getReferralTree(userId: string) {
+    const result = await UserModel.aggregate([
       {
-        $setOnInsert: {
-          name: "Fuck Chatbot",
-          role: UserRoles.ADMIN,
-          // uid: Types.ObjectId().toHexString(),
-        },
+        $match: { _id: new mongoose.Types.ObjectId(userId) }
       },
-      { upsert: true, new: true },
-    );
+      {
+        $graphLookup: {
+          from: "users",
+          startWith: "$referrenceId",
+          connectFromField: "referrenceId",
+          connectToField: "_id",
+          as: "referredByChain"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "referrenceId",
+          as: "referrals"
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          referredByChain: 1,
+          referrals: 1
+        }
+      }
+    ]);
+    return result[0] ?? { referredByChain: [], referrals: [] };
   }
 }
 

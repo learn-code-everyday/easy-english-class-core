@@ -141,7 +141,7 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword }) => {
         `
     : "";
 
-  const loginUrl = "https://botanika.com/login";
+  const loginUrl = "https://admin-botanika.blockifyy.com/login";
 
   const roleMessage =
     role === "MERCHANT"

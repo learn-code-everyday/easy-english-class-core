@@ -22,6 +22,11 @@ const Query = {
 
     return userService.fetch(args.q);
   },
+  getReferralTree: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
+    const { id } = args;
+    return await userService.getReferralTree(id || context.id);
+  },
   getOneUser: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.EDITOR]);
     const { id } = args;

@@ -62,16 +62,23 @@ export class UserHelper {
 
   static createUserWithRole = async (data: any, context: Context) => {
     const password = md5(data.password).toString();
+
+    let level = 1;
+    if (context.tokenData.role === UserRoles.MERCHANT) {
+      level = (context.tokenData.level || 0) + 1;
+    }
+
     const userData = {
       ...data,
       referralCode: await UserHelper.generateCode(),
       status: UserStatuses.ACTIVE,
       isFirstLogin: true,
+      level,
+      referrenceId: context.id,
     };
 
     return await userService.create(userData).then(async (result: any) => {
       const hashPassword = encryptionHelper.createPassword(password, result.id);
-      set(result, "referrenceId", context.id);
       set(result, "password", hashPassword);
 
       await result.save();

@@ -7,6 +7,7 @@ extend type Query {
   getOneUser(id: ID!): User
   # Add Query
   userGetMe: User
+  getReferralTree(id: ID): ReferralTree
   getUsersByRole(role: String!, q: QueryGetListInput): UserPageData
 }
 
@@ -23,6 +24,11 @@ extend type Mutation {
 type UserLoginData {
   user: User
   token: String
+}
+
+type ReferralTree {
+  referredByChain: [User]
+  referrals: [User]
 }
 
 input PaymentInfoInput {
@@ -86,6 +92,7 @@ type User {
   role: String
   name: String
   phone: String
+  level: Int
   address: String
   payment: PaymentInfo
   lastLoginAt: DateTime
