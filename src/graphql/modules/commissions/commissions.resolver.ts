@@ -3,10 +3,14 @@ import { Context } from "../../../core/context";
 import { commissionsService } from "./commissions.service";
 import {UserModel} from "../../modules/user/user.model";
 import {OrderModel} from "../../modules/order/order.model";
+import {set} from "lodash";
 
 const Query = {
   getAllCommissions: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
+    if (context.isMerchantOrSeller()) {
+      set(args, "q.filter.userId", context.id)
+    }
     return commissionsService.fetch(args.q);
   },
   getOneCommissions: async (root: any, args: any, context: Context) => {
