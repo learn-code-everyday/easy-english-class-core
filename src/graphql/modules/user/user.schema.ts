@@ -27,8 +27,8 @@ type UserLoginData {
 }
 
 type ReferralTree {
-  referredByChain: [User]
-  referrals: [User]
+  referredByChain: [UserReferral]
+  referrals: [UserReferral]
 }
 
 input PaymentInfoInput {
@@ -82,6 +82,28 @@ input UserUpdateMeInput {
   wardId: String
   """${Object.values(UserRoles).join("|")}"""
   role: String
+}
+
+type UserReferral {
+  _id: String
+  gmail: String
+  referralCode: String
+  referrenceId: String
+  role: String
+  name: String
+  phone: String
+  level: Int
+  sold: Int
+  address: String
+  payment: PaymentInfo
+  lastLoginAt: DateTime
+  activeAt: DateTime
+  status: String
+  isFirstLogin: Boolean
+  infoReferrence: InfoReferrence
+
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type User {

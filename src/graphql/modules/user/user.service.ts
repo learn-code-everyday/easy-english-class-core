@@ -32,7 +32,7 @@ class UserService extends CrudService<typeof UserModel> {
       },
       {
         $project: {
-          _id: 1,
+          id: 1,
           name: 1,
           referredByChain: 1,
           referrals: 1
