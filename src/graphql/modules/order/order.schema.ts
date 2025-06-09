@@ -68,7 +68,10 @@ const schema = gql`
   }
   
   type OrderForMerchant {
-    quantity: Float
+    totalCryptoRevenue: Float
+    totalCashBankingRevenue: Float
+    totalCommission: Float
+    totalOrder: Float
   }
   
   type UserForOrder {

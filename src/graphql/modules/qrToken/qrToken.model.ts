@@ -5,8 +5,6 @@ import {BaseDocument, ModelLoader, ModelHook} from "../../../base/baseModel";
 export enum QrTokenStatuses {
     UNUSED = "UNUSED",
     USED = "USED",
-    REGISTERED = "REGISTERED",
-    EXPIRED = "EXPIRED",
 }
 
 export type QrToken = {
@@ -33,7 +31,7 @@ const qrTokenSchema = new Schema(
         orderId: {type: Schema.Types.ObjectId, ref: "Order"},
         customerId: {type: Schema.Types.ObjectId, ref: "Customer"},
         isExport: {type: Boolean, default: false},
-        status: {type: String, enum: QrTokenStatuses, default: QrTokenStatuses.REGISTERED},
+        status: {type: String, enum: QrTokenStatuses, default: QrTokenStatuses.UNUSED},
     },
     {timestamps: true}
 );

@@ -25,6 +25,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                         $group: {
                             _id: "$paymentMethod",
                             totalRevenue: {$sum: "$amount"},
+                            totalOrder: { $sum: 1 },
                         },
                     },
                 ]),
@@ -46,8 +47,11 @@ class OrderService extends CrudService<typeof OrderModel> {
 
             let totalCryptoRevenue = 0;
             let totalCashBankingRevenue = 0;
+            let totalOrder = 0;
 
             for (const entry of ordersAggregation) {
+                totalOrder += entry.totalOrder || 0;
+
                 if (entry._id === OrderPaymentMethod.CRYPTO) {
                     totalCryptoRevenue = entry.totalRevenue;
                 } else if (
@@ -63,6 +67,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                 totalCryptoRevenue,
                 totalCashBankingRevenue,
                 totalCommission,
+                totalOrder,
             };
         } catch (error) {
             console.error("Error get order for merchant:", error);
