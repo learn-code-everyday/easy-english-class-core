@@ -93,6 +93,7 @@ type User {
   name: String
   phone: String
   level: Int
+  sold: Int
   address: String
   payment: PaymentInfo
   lastLoginAt: DateTime
