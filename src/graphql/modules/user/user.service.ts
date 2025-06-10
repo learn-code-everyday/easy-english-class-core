@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import * as crypto from "crypto";
 import {mailService} from "../../modules/mails/mails.service";
 import {OtpModel, OtpStatuses} from "../../modules/otp/otp.model";
-import {encryptionHelper} from "@/helpers";
+import {encryptionHelper} from "../../../helpers";
 import md5 from "md5";
 
 class UserService extends CrudService<typeof UserModel> {
