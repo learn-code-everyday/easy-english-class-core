@@ -2,7 +2,7 @@ import { SettingTypes } from "../graphql/modules/setting/setting.model";
 
 export enum SettingGroupSlug {
   COMMON = "COMMON",
-  WEBSITE_SETTING = "WEBSITE_SETTING",
+  BOTANIKA = "BOTANIKA",
 }
 export enum SettingKey {
   // Cấu hình chung
@@ -20,6 +20,14 @@ export enum SettingKey {
   MINER_UNIT_PRICE = "MINER_UNIT_PRICE",
   SELLER_COMMISSIONS_RATE = "SELLER_COMMISSIONS_RATE",
   MERCHANT_COMMISSIONS_RATE = "MERCHANT_COMMISSIONS_RATE",
+
+  BANK_NAME = "BANK_NAME",
+  ACCOUNT_NAME = "ACCOUNT_NAME",
+  BANK_NUMBER = "BANK_NUMBER",
+
+  WALLET_NAME = "WALLET_NAME",
+  WALLET_ADDRESS = "WALLET_ADDRESS",
+  CRYPTO_SCAN = "CRYPTO_SCAN",
 }
 
 export const SETTING_DATA = [
@@ -68,5 +76,94 @@ export const SETTING_DATA = [
       },
     ],
   },
-
+  {
+    slug: SettingGroupSlug.BOTANIKA,
+    name: "Botanika setting",
+    desc: "Botanika setting here",
+    icon: "FcSettings",
+    readOnly: true,
+    settings: [
+      {
+        type: SettingTypes.number,
+        name: "Seller commission rate",
+        key: SettingKey.SELLER_COMMISSIONS_RATE,
+        value: 30,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Miner unit price",
+        key: SettingKey.MINER_UNIT_PRICE,
+        value: 250,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Merchant commission rate",
+        key: SettingKey.MERCHANT_COMMISSIONS_RATE,
+        value: 30,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.string,
+        name: "Bank name",
+        key: SettingKey.BANK_NAME,
+        value: "Vietcombank",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.string,
+        name: "Account bank name",
+        key: SettingKey.ACCOUNT_NAME,
+        value: `HUYNH PHAM HIEU TRUNG`,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.string,
+        name: "Bank number",
+        key: SettingKey.BANK_NUMBER,
+        value: "0421000535414",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.string,
+        name: "Wallet name",
+        key: SettingKey.WALLET_NAME,
+        value: "Tron Wallet Address for payment",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.string,
+        name: "Wallet address",
+        key: SettingKey.WALLET_ADDRESS,
+        value: "TEneoUNBQjkid8NajzCeiZLqraBxbDy7",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.string,
+        name: "Crypto scan",
+        key: SettingKey.CRYPTO_SCAN,
+        value: "https://tronscan.org/#/",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+    ],
+  },
 ];

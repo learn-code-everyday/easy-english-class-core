@@ -45,6 +45,7 @@ const schema = gql`
     location: String
     paymentMethod: String
     qrNumber: [String]
+    quantity: Float
     status: String
     trackingLink: String
     rejectReason: String
