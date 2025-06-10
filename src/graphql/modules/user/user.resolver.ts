@@ -51,6 +51,11 @@ const Query = {
 };
 
 const Mutation = {
+  resetPassword: async (root: any, args: any, context: Context) => {
+    const { gmail } = args;
+
+    return await userService.resetPassword(gmail);
+  },
   createUser: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.MERCHANT]);
     const { data } = args;
@@ -58,7 +63,6 @@ const Mutation = {
     await UserHelper.validateCreateUser(data, context);
     return await UserHelper.createUserWithRole(data, context);
   },
-
   updateUser: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { id, data } = args;
@@ -85,7 +89,6 @@ const Mutation = {
       return result;
     });
   },
-
   updateUserMyProfile: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { data } = args;
@@ -93,7 +96,6 @@ const Mutation = {
 
     return await userService.updateOne(context.id, data);
   },
-
   updatePassword: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
     const { currentPassword, newPassword } = args;
@@ -130,7 +132,6 @@ const Mutation = {
 
     return updatedUser;
   },
-
   deleteOneUser: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN]);
     const { id } = args;

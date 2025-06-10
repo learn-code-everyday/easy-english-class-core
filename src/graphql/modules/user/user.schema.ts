@@ -12,6 +12,7 @@ extend type Query {
 }
 
 extend type Mutation {
+  resetPassword(gmail: String!): Boolean
   createUser(data: CreateUserInput!): User
   updateUser(id: ID!, data: UpdateUserInput!): User
   updateUserMyProfile(data: UpdateUserInput!): User

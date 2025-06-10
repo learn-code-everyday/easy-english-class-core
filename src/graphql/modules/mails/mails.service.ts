@@ -1,116 +1,138 @@
 import nodemailer from "nodemailer";
 
-import { configs } from "../../../configs";
+import {configs} from "../../../configs";
 
 class MailService {
-  private transporter: {
-    sendMail: (arg0: {
-      from: string;
-      to: string;
-      subject: string;
-      text: string;
-      html: string;
-    }) => any;
-  };
-
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: `${configs.smtpHost}`,
-      port: `${configs.smtpPort}`,
-      secure: false,
-      auth: {
-        user: `${configs.smtpUser}`,
-        pass: `${configs.smtpPassword}`,
-      },
-    });
-  }
-
-  async notificationForContactRequest(data: {
-    name: string;
-    phone: string;
-    email: string;
-    notice: string;
-  }) {
-    try {
-      const template = {
-        to: `${configs.adminMail}`,
-        subject: `New contact request from ${data.name}`,
-        html: buildContactEmailTemplate({
-          name: data.name,
-          phone: data.phone,
-          email: data.email,
-          notice: data.notice,
-        }),
-      };
-
-      return await this.sendEmail(template);
-    } catch (error) {
-      console.error("Error sending contact email:", error);
-    }
-  }
-
-  async sendEmail(data: { to: string; subject: string; text?: string; html?: string }) {
-    const { to, subject, text, html } = data;
-    const mailOptions = {
-      from: `${configs.mailerFrom}`,
-      to,
-      subject,
-      text,
-      html,
+    private transporter: {
+        sendMail: (arg0: {
+            from: string;
+            to: string;
+            subject: string;
+            text: string;
+            html: string;
+        }) => any;
     };
 
-    try {
-      return this.transporter.sendMail(mailOptions);
-    } catch (error) {
-      console.error("Error occurred:", error);
-      throw error;
+    constructor() {
+        this.transporter = nodemailer.createTransport({
+            host: `${configs.smtpHost}`,
+            port: `${configs.smtpPort}`,
+            secure: false,
+            auth: {
+                user: `${configs.smtpUser}`,
+                pass: `${configs.smtpPassword}`,
+            },
+        });
     }
-  }
 
-  async sendWelcomeEmail(data: {
-    name: string;
-    gmail: string;
-    role?: string;
-    tempPassword?: string;
-  }) {
-    try {
-      const template = {
-        to: data.gmail,
-        subject: `Welcome to Botanika - Your Account is Ready!`,
-        html: buildWelcomeEmailTemplate({
-          name: data.name,
-          email: data.gmail,
-          role: data.role || "User",
-          tempPassword: data.tempPassword,
-        }),
-      };
+    async notificationForContactRequest(data: {
+        name: string;
+        phone: string;
+        email: string;
+        notice: string;
+    }) {
+        try {
+            const template = {
+                to: `${configs.adminMail}`,
+                subject: `New contact request from ${data.name}`,
+                html: buildContactEmailTemplate({
+                    name: data.name,
+                    phone: data.phone,
+                    email: data.email,
+                    notice: data.notice,
+                }),
+            };
 
-      return await this.sendEmail(template);
-    } catch (error) {
-      console.error("Error sending welcome email:", error);
-      throw error;
+            return await this.sendEmail(template);
+        } catch (error) {
+            console.error("Error sending contact email:", error);
+        }
     }
-  }
+
+    async sendEmail(data: { to: string; subject: string; text?: string; html?: string }) {
+        const {to, subject, text, html} = data;
+        const mailOptions = {
+            from: `${configs.mailerFrom}`,
+            to,
+            subject,
+            text,
+            html,
+        };
+
+        try {
+            return this.transporter.sendMail(mailOptions);
+        } catch (error) {
+            console.error("Error occurred:", error);
+            throw error;
+        }
+    }
+
+    async sendWelcomeEmail(data: {
+        name: string;
+        gmail: string;
+        role?: string;
+        tempPassword?: string;
+    }) {
+        try {
+            const template = {
+                to: data.gmail,
+                subject: `Welcome to Botanika - Your Account is Ready!`,
+                html: buildWelcomeEmailTemplate({
+                    name: data.name,
+                    email: data.gmail,
+                    role: data.role || "User",
+                    tempPassword: data.tempPassword,
+                }),
+            };
+
+            return await this.sendEmail(template);
+        } catch (error) {
+            console.error("Error sending welcome email:", error);
+            throw error;
+        }
+    }
+
+    async sendResetPassword(data: {
+        name: string;
+        gmail: string;
+        otp: string;
+    }) {
+        try {
+            const template = {
+                to: data.gmail,
+                subject: `Reset Your Botanika Account Password`,
+                html: buildResetPasswordOTPTemplate({
+                    name: data.name,
+                    otp: data.otp,
+                }),
+            };
+
+            return await this.sendEmail(template);
+        } catch (error) {
+            console.error("Error sending reset password email:", error);
+            throw error;
+        }
+    }
 }
 
 const mailService = new MailService();
 
-export { mailService };
+export {mailService};
 
-const buildContactEmailTemplate = ({ name, phone, email, notice }) => {
-  const contactMethod = phone
-    ? `<tr>
+const buildContactEmailTemplate = ({name, phone, email, notice}) => {
+    const contactMethod = phone
+        ? `<tr>
          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Phone</strong></td>
          <td style="padding: 8px; border: 1px solid #ddd;">${phone}</td>
        </tr>`
-    : email
-      ? `<tr>
+        : email
+            ? `<tr>
          <td style="padding: 8px; border: 1px solid #ddd;"><strong>Email</strong></td>
          <td style="padding: 8px; border: 1px solid #ddd;">${email}</td>
        </tr>`
-      : "";
+            : "";
 
-  return `
+    return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd;">
       <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Contact Request</h2>
       <table style="width: 100%; border-collapse: collapse;">
@@ -129,9 +151,9 @@ const buildContactEmailTemplate = ({ name, phone, email, notice }) => {
   `;
 };
 
-const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword }) => {
-  const passwordSection = tempPassword
-    ? `
+const buildWelcomeEmailTemplate = ({name, email, role, tempPassword}) => {
+    const passwordSection = tempPassword
+        ? `
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="color: #333; margin-top: 0;">Your Login Credentials</h3>
             <p><strong>Email:</strong> ${email}</p>
@@ -139,18 +161,18 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword }) => {
             <p style="color: #dc3545; font-size: 14px;"><strong>Important:</strong> Please change your password after your first login for security purposes.</p>
         </div>
         `
-    : "";
+        : "";
 
-  const loginUrl = "https://admin-botanika.blockifyy.com/login";
+    const loginUrl = "https://admin-botanika.blockifyy.com/login";
 
-  const roleMessage =
-    role === "MERCHANT"
-      ? "You have been granted Merchant access to our platform."
-      : role === "SALES"
-        ? "You have been granted Sales access to our platform."
-        : "Welcome to our platform!";
+    const roleMessage =
+        role === "MERCHANT"
+            ? "You have been granted Merchant access to our platform."
+            : role === "SALES"
+                ? "You have been granted Sales access to our platform."
+                : "Welcome to our platform!";
 
-  return `
+    return `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
             <div style="text-align: center; margin-bottom: 30px;">
                 <h1 style="color: #28a745; margin: 0;">Welcome to Botanika!</h1>
@@ -200,3 +222,23 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword }) => {
         </div>
         `;
 };
+
+const buildResetPasswordOTPTemplate = ({ name, otp }: { name: string; otp: string }) => {
+    return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd;">
+      <h2 style="color: #d9534f;">Reset Password Request</h2>
+      <p>Hi ${name},</p>
+      <p>We received a request to reset your password. Use the following OTP to proceed:</p>
+      <div style="font-size: 24px; font-weight: bold; margin: 20px 0; text-align: center; letter-spacing: 4px;">
+        ${otp}
+      </div>
+      <p>This OTP is valid for 10 minutes. If you did not request a password reset, please ignore this email.</p>
+      <p style="margin-top: 30px;">Best regards,<br><strong>The Botanika Team</strong></p>
+      <p style="margin-top: 20px; color: #999; font-size: 12px; text-align: center;">
+        This email was automatically generated. Please do not reply to this message.
+      </p>
+    </div>
+  `;
+};
+
+
