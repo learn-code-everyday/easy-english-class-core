@@ -14,7 +14,7 @@ extend type Query {
 extend type Mutation {
   resetPassword(gmail: String!): SendResetPassword
   verifyResetCode(gmail: String!, code:String!): SendResetPassword
-  confirmPasswordReset(data: ConfirmPasswordResetInput!): SendResetPassword
+  confirmPasswordReset(gmail: String!, code:String!, newPassword: String!): SendResetPassword
   createUser(data: CreateUserInput!): User
   updateUser(id: ID!, data: UpdateUserInput!): User
   updateUserMyProfile(data: UpdateUserInput!): User
