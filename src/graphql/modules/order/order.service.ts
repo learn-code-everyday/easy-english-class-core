@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {SettingModel} from "../../modules/setting/setting.model";
 import {SettingKey} from "../../../configs/settingData";
+import {QrTokenModel, QrTokenStatuses} from "../../modules/qrToken/qrToken.model";
 
 class OrderService extends CrudService<typeof OrderModel> {
     constructor() {
@@ -95,6 +96,20 @@ class OrderService extends CrudService<typeof OrderModel> {
             if (!setting || isNaN(Number(setting.value))) {
                 throw new Error("Miner unit price setting is missing or invalid.");
             }
+
+            if (!Array.isArray(qrNumber) || qrNumber.length === 0) {
+                throw new Error("qrNumber must be a non-empty array.");
+            }
+
+            const usedQrTokens = await QrTokenModel.find({
+                qrNumber: { $in: qrNumber },
+                status: { $ne: QrTokenStatuses.UNUSED }
+            });
+
+            if (usedQrTokens.length < qrNumber.length) {
+                throw new Error(`Some QR numbers have already been used`);
+            }
+
             const quantity = qrNumber.length || 0;
             const amount = setting.value * quantity;
             const dataInsert: Order = {
