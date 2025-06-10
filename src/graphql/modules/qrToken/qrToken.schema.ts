@@ -5,6 +5,7 @@ const schema = gql`
     getAllQrToken(q: QueryGetListInput): QrTokenPageData
     getOneQrToken(id: ID!): QrToken
     verifyQrToken(qrNumber: String!): QrToken
+    getAvailableQrTokens(quantity: Int!): [QrToken]
     # Add Query
   }
 

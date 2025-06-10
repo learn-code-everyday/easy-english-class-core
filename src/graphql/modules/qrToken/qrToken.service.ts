@@ -10,6 +10,17 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
     super(QrTokenModel);
   }
 
+  async getAvailableQrTokens(limit: number) {
+    const availableCount = await QrTokenModel.countDocuments({ status: QrTokenStatuses.UNUSED });
+
+    if (availableCount < limit) {
+      throw new Error("Not enough UNUSED QrTokens in the database.");
+    }
+
+    return QrTokenModel.find({status: QrTokenStatuses.UNUSED})
+        .limit(limit)
+        .sort({createdAt: 1});
+  }
   async generateQrCode({ minerId, customerId }: { minerId: string; customerId: string }) {
     const payload = { minerId, customerId };
     const qrString = JSON.stringify(payload);

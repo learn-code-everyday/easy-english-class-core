@@ -10,6 +10,11 @@ const Query = {
     context.auth(ROLES.ADMIN_EDITOR);
     return qrTokenService.fetch(args.q);
   },
+  getAvailableQrTokens: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR);
+    const { quantity } = args;
+    return qrTokenService.getAvailableQrTokens(quantity);
+  },
   getOneQrToken: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR);
     const { id } = args;
