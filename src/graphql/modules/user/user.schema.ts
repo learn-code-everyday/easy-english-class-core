@@ -86,6 +86,7 @@ input UserUpdateMeInput {
 
 type UserReferral {
   _id: String
+  countReferrence: Int
   gmail: String
   referralCode: String
   referrenceId: String

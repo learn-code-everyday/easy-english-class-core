@@ -9,6 +9,7 @@ import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
 import {IUser, UserModel, UserRoles} from "./user.model";
 import {OrderModel} from "../../modules/order/order.model";
+import mongoose from "mongoose";
 
 const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {
@@ -167,9 +168,33 @@ const User = {
     })
   },
 };
+const UserReferral = {
+  infoReferrence: async (parent: { referrenceId: any; }) => {
+    return UserModel.findById(parent.referrenceId);
+  },
+  sold: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      { $match: { userId: parent._id } },
+      {
+        $group: {
+          _id: null,
+          totalQuantity: { $sum: '$quantity' },
+        },
+      },
+    ]);
+
+    return result[0]?.totalQuantity || 0;
+  },
+  countReferrence: async (parent: { _id: any }) => {
+    return UserModel.countDocuments({
+      referrenceId: parent._id
+    })
+  },
+};
 
 export default {
   Query,
   Mutation,
   User,
+  UserReferral,
 };
