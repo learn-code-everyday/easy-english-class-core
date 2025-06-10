@@ -101,13 +101,15 @@ class OrderService extends CrudService<typeof OrderModel> {
                 throw new Error("qrNumber must be a non-empty array.");
             }
 
-            const usedQrTokens = await QrTokenModel.find({
+            const unusedQrTokens = await QrTokenModel.find({
                 qrNumber: { $in: qrNumber },
-                status: { $ne: QrTokenStatuses.UNUSED }
+                status: QrTokenStatuses.UNUSED
             });
 
-            if (usedQrTokens.length < qrNumber.length) {
-                throw new Error(`Some QR numbers have already been used`);
+            if (unusedQrTokens.length < qrNumber.length) {
+                const foundQrNumbers = unusedQrTokens.map(qr => qr.qrNumber);
+                const notFound = qrNumber.filter(qr => !foundQrNumbers.includes(qr));
+                throw new Error(`Not enough UNUSED QR tokens. These are invalid or already used: ${notFound.join(", ")}`);
             }
 
             const quantity = qrNumber.length || 0;
