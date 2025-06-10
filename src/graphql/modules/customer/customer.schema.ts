@@ -38,6 +38,10 @@ input UpdateCustomerInput {
   lastname: String
   phoneNumber: String
   address: String
+  district: String
+  ward: String
+  city: String
+  location: String
   referralCode: String
 }
 
@@ -57,6 +61,7 @@ type Customer {
   district: String
   ward: String
   city: String
+  location: String
 
   gmail: String
   referralCode: String

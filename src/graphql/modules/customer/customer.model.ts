@@ -20,6 +20,7 @@ export type Customer = {
   district?: string;
   ward?: string;
   city?: string;
+  location?: string;
   gmail?: string
   googleId?: string
   status?: CustomerStatuses;
@@ -43,6 +44,7 @@ const customerSchema = new Schema(
     district:{type: String},
     ward:{type: String},
     city: { type: String },
+    location: { type: String },
     googleId: { type: String },
     status: { type: String, enum: CustomerStatuses, default: CustomerStatuses.ACTIVE },
   },

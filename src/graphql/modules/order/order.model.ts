@@ -26,6 +26,10 @@ export type Order = {
     phone?: string;
     gmail?: string;
     address?: string;
+    district?: string;
+    ward?: string;
+    city?: string;
+    location?: string;
     paymentMethod?: OrderPaymentMethod;
     quantity?: number;
     amount?: number;
@@ -49,6 +53,10 @@ const orderSchema = new Schema(
         phone: {type: String},
         gmail: {type: String},
         address: {type: String},
+        district:{type: String},
+        ward:{type: String},
+        city: { type: String },
+        location: { type: String },
         paymentMethod: {type: String, num: OrderPaymentMethod, default: OrderPaymentMethod.CASH},
         quantity: {type: Number},
         amount: {type: Number},
