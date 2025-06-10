@@ -7,7 +7,7 @@ import { Context } from "../../../core/context";
 import { UserHelper } from "./user.helper";
 import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
-import {IUser, UserModel, UserRoles} from "./user.model";
+import {IUser, UserModel, UserRoles, UserStatuses} from "./user.model";
 import {OrderModel} from "../../modules/order/order.model";
 import mongoose from "mongoose";
 
@@ -15,9 +15,10 @@ const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.MERCHANT]);
     if (context.tokenData.role === ROLES.MERCHANT) {
-      args.q = {
-        ...args.q,
+      args.q.filter = {
+        ...args.q.filter,
         role: UserRoles.SALES,
+        status: UserStatuses.ACTIVE,
         referrenceId: context.tokenData._id,
       };
     }
