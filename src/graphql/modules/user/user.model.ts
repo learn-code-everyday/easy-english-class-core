@@ -44,7 +44,7 @@ export type IUser = BaseDocument & User;
 const userSchema = new Schema(
     {
         name: {type: String},
-        gmail: {type: String},
+        gmail: {type: String, unique: true, sparse: true},
         address: {type: String},
         phone: {type: String},
         wallet: {type: String},
