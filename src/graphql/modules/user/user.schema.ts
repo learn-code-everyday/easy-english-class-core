@@ -111,6 +111,7 @@ type User {
   gmail: String
   referralCode: String
   referrenceId: String
+  countReferrence: Int
   role: String
   name: String
   phone: String

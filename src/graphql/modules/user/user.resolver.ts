@@ -161,6 +161,11 @@ const User = {
 
     return result[0]?.totalQuantity || 0;
   },
+  countReferrence: async (parent: { _id: any }) => {
+    return UserModel.estimatedDocumentCount({
+      referrenceId: parent._id
+    })
+  },
 };
 
 export default {
