@@ -51,10 +51,10 @@ class UserService extends CrudService<typeof UserModel> {
 
     if (!validOtp) throw new Error("Invalid or expired OTP");
 
-    return true;
+    return { success: true, message: "OTP" };
   };
   async confirmPasswordReset(gmail: string, otp: string, newPassword: string) {
-    const user = await UserModel.findOne({ email: gmail });
+    const user = await UserModel.findOne({ gmail });
     if (!user) throw new Error("User not found");
 
     const now = new Date();
@@ -68,13 +68,13 @@ class UserService extends CrudService<typeof UserModel> {
 
     if (!validOtp) throw new Error("Invalid or expired OTP");
 
-    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user.id);
+    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), String(user._id));
     await UserModel.updateOne({ _id: user._id }, { password: hashedNewPassword });
 
     validOtp.status = OtpStatuses.INACTIVE;
     await validOtp.save();
 
-    return true;
+    return { success: true, message: "Pass" };
   };
 
   async updatePassword(userId: string) {
