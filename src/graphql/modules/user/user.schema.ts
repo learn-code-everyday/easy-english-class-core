@@ -12,7 +12,9 @@ extend type Query {
 }
 
 extend type Mutation {
-  resetPassword(gmail: String!): Boolean
+  resetPassword(gmail: String!): SendResetPassword
+  verifyResetCode(gmail: String!, code:String!): SendResetPassword
+  confirmPasswordReset(data: ConfirmPasswordResetInput!): SendResetPassword
   createUser(data: CreateUserInput!): User
   updateUser(id: ID!, data: UpdateUserInput!): User
   updateUserMyProfile(data: UpdateUserInput!): User
@@ -20,6 +22,11 @@ extend type Mutation {
     # Add Mutation
   signInUserByEmail(gmail: String!): UserLoginData
   updatePassword(currentPassword: String, newPassword: String!): User
+}
+
+type SendResetPassword {
+  success: Boolean
+  message: String
 }
 
 type UserLoginData {
@@ -30,6 +37,12 @@ type UserLoginData {
 type ReferralTree {
   referredByChain: [UserReferral]
   referrals: [UserReferral]
+}
+
+input ConfirmPasswordResetInput {
+  gmail: String
+  code: String
+  newPassword: String
 }
 
 input PaymentInfoInput {

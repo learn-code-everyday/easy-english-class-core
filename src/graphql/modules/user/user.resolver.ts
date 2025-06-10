@@ -56,6 +56,16 @@ const Mutation = {
 
     return await userService.resetPassword(gmail);
   },
+  verifyResetCode: async (root: any, args: any, context: Context) => {
+    const { gmail, code } = args;
+
+    return await userService.verifyResetCode(gmail, code);
+  },
+  confirmPasswordReset: async (root: any, args: any, context: Context) => {
+    const { gmail, code, newPassword } = args.data;
+
+    return await userService.confirmPasswordReset(gmail, code, newPassword);
+  },
   createUser: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.MERCHANT]);
     const { data } = args;

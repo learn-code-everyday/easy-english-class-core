@@ -3,8 +3,9 @@ import {UserModel} from "./user.model";
 import mongoose from "mongoose";
 import * as crypto from "crypto";
 import {mailService} from "../../modules/mails/mails.service";
-import {OtpModel} from "../../modules/otp/otp.model";
-
+import {OtpModel, OtpStatuses} from "../../modules/otp/otp.model";
+import {encryptionHelper} from "@/helpers";
+import md5 from "md5";
 
 class UserService extends CrudService<typeof UserModel> {
   constructor() {
@@ -33,9 +34,48 @@ class UserService extends CrudService<typeof UserModel> {
       otp,
     });
 
-    return { message: "OTP sent to email" };
+    return { success: true, message: "OTP sent to email" };
   };
+  async verifyResetCode(gmail: string, otp: string) {
+    const user = await UserModel.findOne({ gmail });
+    if (!user) throw new Error("User not found");
 
+    const now = new Date();
+
+    const validOtp = await OtpModel.findOne({
+      userId: user.id,
+      otp,
+      status: OtpStatuses.ACTIVE,
+      expiredAt: { $gt: now.toISOString() },
+    });
+
+    if (!validOtp) throw new Error("Invalid or expired OTP");
+
+    return true;
+  };
+  async confirmPasswordReset(gmail: string, otp: string, newPassword: string) {
+    const user = await UserModel.findOne({ email: gmail });
+    if (!user) throw new Error("User not found");
+
+    const now = new Date();
+
+    const validOtp = await OtpModel.findOne({
+      userId: user._id,
+      otp,
+      status: OtpStatuses.ACTIVE,
+      expiredAt: { $gt: now.toISOString() },
+    });
+
+    if (!validOtp) throw new Error("Invalid or expired OTP");
+
+    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user._id);
+    await UserModel.updateOne({ _id: user._id }, { password: hashedNewPassword });
+
+    validOtp.status = OtpStatuses.INACTIVE;
+    await validOtp.save();
+
+    return true;
+  };
 
   async updatePassword(userId: string) {
 
