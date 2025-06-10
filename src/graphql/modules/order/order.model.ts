@@ -36,7 +36,7 @@ export type Order = {
     trackingLink?: string;
     status?: OrderStatuses;
     rejectReason?: string;
-    qrNumber?: [string];
+    qrNumber?: any[];
     transactionImage?: [string];
     transactionInput?: string;
 };

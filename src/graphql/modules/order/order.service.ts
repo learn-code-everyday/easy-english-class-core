@@ -78,7 +78,7 @@ class OrderService extends CrudService<typeof OrderModel> {
 
     async createOrder(userId: string, data: any) {
         try {
-            const {fullname, phone, gmail, address, paymentMethod, customerId, qrNumber} = data;
+            const {gmail, customerId, qrNumber} = data;
             if (!customerId) {
                 throw new Error("CustomerId not found.");
             }
@@ -115,13 +115,10 @@ class OrderService extends CrudService<typeof OrderModel> {
             const quantity = qrNumber.length || 0;
             const amount = setting.value * quantity;
             const dataInsert: Order = {
+                ...data,
                 userId,
                 customerId,
-                fullname,
-                phone,
                 gmail,
-                address,
-                paymentMethod,
                 quantity,
                 qrNumber,
                 amount,
