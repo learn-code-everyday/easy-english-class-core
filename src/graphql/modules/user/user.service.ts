@@ -68,7 +68,7 @@ class UserService extends CrudService<typeof UserModel> {
 
     if (!validOtp) throw new Error("Invalid or expired OTP");
 
-    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user._id);
+    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), user.id);
     await UserModel.updateOne({ _id: user._id }, { password: hashedNewPassword });
 
     validOtp.status = OtpStatuses.INACTIVE;

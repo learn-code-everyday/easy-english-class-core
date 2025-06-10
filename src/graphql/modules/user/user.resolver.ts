@@ -62,7 +62,7 @@ const Mutation = {
     return await userService.verifyResetCode(gmail, code);
   },
   confirmPasswordReset: async (root: any, args: any, context: Context) => {
-    const { gmail, code, newPassword } = args.data;
+    const { gmail, code, newPassword } = args;
 
     return await userService.confirmPasswordReset(gmail, code, newPassword);
   },
