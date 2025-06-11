@@ -123,6 +123,10 @@ class OrderService extends CrudService<typeof OrderModel> {
                 qrNumber,
                 amount,
             };
+            await QrTokenModel.updateMany(
+                { qrNumber: { $in: qrNumber } },
+                { $set: { status: QrTokenStatuses.ORDER } }
+            );
 
             return await OrderModel.create(dataInsert);
         } catch (error) {
@@ -206,6 +210,11 @@ class OrderService extends CrudService<typeof OrderModel> {
             if (!setting || isNaN(Number(setting.value))) {
                 throw new Error("Miner unit price setting is missing or invalid.");
             }
+
+            await QrTokenModel.updateMany(
+                { qrNumber: { $in: existingOrder?.qrNumber } },
+                { $set: { status: QrTokenStatuses.USED } }
+            );
 
             await CommissionsModel.create({
                 orderId: id,

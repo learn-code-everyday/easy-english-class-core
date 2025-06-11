@@ -5,6 +5,8 @@ import {BaseDocument, ModelLoader, ModelHook} from "../../../base/baseModel";
 export enum QrTokenStatuses {
     UNUSED = "UNUSED",
     USED = "USED",
+    ORDER = "ORDER",
+    REGISTERED  = "REGISTERED ",
 }
 
 export type QrToken = {
