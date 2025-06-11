@@ -6,7 +6,7 @@ export enum QrTokenStatuses {
     UNUSED = "UNUSED",
     USED = "USED",
     ORDER = "ORDER",
-    REGISTERED  = "REGISTERED ",
+    REGISTERED  = "REGISTERED",
 }
 
 export type QrToken = {

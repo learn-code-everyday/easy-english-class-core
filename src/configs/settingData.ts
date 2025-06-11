@@ -28,6 +28,7 @@ export enum SettingKey {
   WALLET_NAME = "WALLET_NAME",
   WALLET_ADDRESS = "WALLET_ADDRESS",
   CRYPTO_SCAN = "CRYPTO_SCAN",
+  EXCHANGE_RATE = "EXCHANGE_RATE",
 }
 
 export const SETTING_DATA = [
@@ -160,6 +161,15 @@ export const SETTING_DATA = [
         name: "Crypto scan",
         key: SettingKey.CRYPTO_SCAN,
         value: "https://tronscan.org/#/",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Exchange rate",
+        key: SettingKey.EXCHANGE_RATE,
+        value: 26250,
         isActive: true,
         isPrivate: false,
         readOnly: false,

@@ -26,7 +26,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                         $group: {
                             _id: "$paymentMethod",
                             totalRevenue: {$sum: "$amount"},
-                            totalOrder: { $sum: "$quantity" },
+                            totalOrder: {$sum: "$quantity"},
                         },
                     },
                 ]),
@@ -102,7 +102,7 @@ class OrderService extends CrudService<typeof OrderModel> {
             }
 
             const unusedQrTokens = await QrTokenModel.find({
-                qrNumber: { $in: qrNumber },
+                qrNumber: {$in: qrNumber},
                 status: QrTokenStatuses.UNUSED
             });
 
@@ -124,8 +124,8 @@ class OrderService extends CrudService<typeof OrderModel> {
                 amount,
             };
             await QrTokenModel.updateMany(
-                { qrNumber: { $in: qrNumber } },
-                { $set: { status: QrTokenStatuses.ORDER } }
+                {qrNumber: {$in: qrNumber}},
+                {$set: {status: QrTokenStatuses.ORDER}}
             );
 
             return await OrderModel.create(dataInsert);
@@ -202,7 +202,7 @@ class OrderService extends CrudService<typeof OrderModel> {
             {upsert: true, new: true},
         );
 
-        if(status === OrderStatuses.SUCCESS) {
+        if (status === OrderStatuses.SUCCESS) {
             const setting = await SettingModel.findOne({
                 key: SettingKey.SELLER_COMMISSIONS_RATE,
             });
@@ -212,8 +212,13 @@ class OrderService extends CrudService<typeof OrderModel> {
             }
 
             await QrTokenModel.updateMany(
-                { qrNumber: { $in: existingOrder?.qrNumber } },
-                { $set: { status: QrTokenStatuses.USED } }
+                {qrNumber: {$in: existingOrder?.qrNumber}},
+                {
+                    $set: {
+                        status: QrTokenStatuses.USED,
+                        customerId: existingOrder?.customerId,
+                    }
+                }
             );
 
             await CommissionsModel.create({

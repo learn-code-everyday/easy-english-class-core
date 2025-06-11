@@ -3,6 +3,7 @@ import {Context} from "../../../core/context";
 import {minerService} from "./miner.service";
 import {set} from "lodash";
 import {CustomerModel} from "../../modules/customer/customer.model";
+import {qrTokenService} from "../../modules/qrToken/qrToken.service";
 
 const Query = {
     getMyMiner: async (root: any, args: any, context: Context) => {
@@ -30,9 +31,14 @@ const Query = {
 const Mutation = {
     scanMiner: async (root: any, args: any, context: Context) => {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {data} = args;
-        const {code} = data;
-        return minerService.findOne({code});
+        const {code} = args.data;
+
+        const dataQr = await qrTokenService.findOne({token: code});
+        if (!dataQr) {
+            throw new Error("Qr is missing or invalid.");
+        }
+
+        return minerService.generateMiner(context.id, code);
     },
     connectMiner: async (root: any, args: any, context: Context) => {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);

@@ -1,5 +1,6 @@
 import { CrudService } from "../../../base/crudService";
 import {MinerModel, MinerStatuses} from "./miner.model";
+import {QrTokenModel, QrTokenStatuses} from "../../modules/qrToken/qrToken.model";
 class MinerService extends CrudService<typeof MinerModel> {
   constructor() {
     super(MinerModel);
@@ -30,13 +31,13 @@ class MinerService extends CrudService<typeof MinerModel> {
   }
 
 
-  async scan(code: string) {
+  async generateMiner(customerId: string, token: string) {
     try {
       const dataInsert = {
         code: Date.now().toString(36).toUpperCase(),
-        name: `Miner ${code}`,
+        name: `Miner` +  Date.now().toString(36).toUpperCase(),
         blockChainAddress: Date.now().toString(36).toUpperCase(),
-        customerId: '',
+        customerId,
         status: MinerStatuses.ACTIVE,
         registered: false,
         totalTokensMined: 0,
@@ -44,6 +45,15 @@ class MinerService extends CrudService<typeof MinerModel> {
         currentHashRate: 0,
         lastActive: new Date(),
       };
+
+      await QrTokenModel.updateOne(
+          {token},
+          {$set: {
+              status: QrTokenStatuses.REGISTERED,
+              customerId,
+            }},
+          {upsert: true, new: true},
+      );
 
       return MinerModel.create(dataInsert);
     } catch (error) {

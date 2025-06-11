@@ -56,7 +56,7 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
       qrTokens.push({
         qrNumber,
         token,
-        status: QrTokenStatuses.REGISTERED,
+        status: QrTokenStatuses.UNUSED,
         isExport: false,
       });
     }
