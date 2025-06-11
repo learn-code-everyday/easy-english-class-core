@@ -32,13 +32,14 @@ const Mutation = {
     scanMiner: async (root: any, args: any, context: Context) => {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
         const {code} = args.data;
+        const customerId = context.id;
 
-        const dataQr = await qrTokenService.findOne({token: code});
+        const dataQr = await qrTokenService.findOne({token: code, customerId});
         if (!dataQr) {
             throw new Error("Qr is missing or invalid.");
         }
 
-        return minerService.generateMiner(context.id, code);
+        return minerService.generateMiner(customerId, code);
     },
     connectMiner: async (root: any, args: any, context: Context) => {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
