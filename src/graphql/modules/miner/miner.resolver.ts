@@ -47,6 +47,10 @@ const Mutation = {
         const {code} = data;
 
         const miner = await minerService.findOne({code});
+        if (!miner) {
+            throw new Error("miner is missing or invalid.");
+        }
+
         return await minerService.updateOne(miner._id.toString(), {
             customerId: context.id,
             registered: true,
