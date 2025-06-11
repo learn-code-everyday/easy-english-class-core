@@ -38,7 +38,7 @@ const qrTokenSchema = new Schema(
     {timestamps: true}
 );
 
-// qrTokenSchema.index({ name: "text" }, { weights: { name: 2 } });
+qrTokenSchema.index({qrNumber: "text", token: "text"});
 
 export const QrTokenHook = new ModelHook<IQrToken>(qrTokenSchema);
 export const QrTokenModel: mongoose.Model<IQrToken> = MainConnection.model(

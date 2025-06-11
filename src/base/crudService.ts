@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Document, Model } from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 
 import { configs } from "../configs";
 import { ErrorHelper, IParseQuery } from "../helpers";
@@ -31,6 +31,17 @@ export abstract class CrudService<M extends Model<Document, {}>> extends BaseSer
     const query = this.model.find();
 
     if (search) {
+      const or: any[] = [];
+      const isObjectId = mongoose.Types.ObjectId.isValid(search);
+
+      if (isObjectId) {
+        or.push({ _id: new mongoose.Types.ObjectId(search) });
+        or.push({ customerId: new mongoose.Types.ObjectId(search) });
+        or.push({ minerId: new mongoose.Types.ObjectId(search) });
+        or.push({ userId: new mongoose.Types.ObjectId(search) });
+        or.push({ orderId: new mongoose.Types.ObjectId(search) });
+      }
+
       if (search.includes(" ")) {
         _.set(queryInput, "filter.$text.$search", search);
         query.select({ _score: { $meta: "textScore" } });
@@ -40,12 +51,14 @@ export abstract class CrudService<M extends Model<Document, {}>> extends BaseSer
           .indexes()
           .find((c: any) => _.values(c[0]!).some((d: any) => d == "text"));
         if (textSearchIndex) {
-          const or: any[] = [];
           Object.keys(textSearchIndex[0]!).forEach((key) => {
             or.push({ [key]: { $regex: search, $options: "i" } });
           });
-          _.set(queryInput, "filter.$or", or);
         }
+      }
+
+      if (or.length) {
+        _.set(queryInput, "filter.$or", or);
       }
     }
 

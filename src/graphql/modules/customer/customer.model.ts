@@ -51,6 +51,8 @@ const customerSchema = new Schema(
   { timestamps: true }
 );
 
+customerSchema.index({firstname: "text", lastname: "text", referralCode: "text", gmail: "text", phone: "text"}, {weights: {gmail: 2}});
+
 export const CustomerHook = new ModelHook<ICustomer>(customerSchema);
 export const CustomerModel: mongoose.Model<ICustomer> = MainConnection.model(
   "Customer",
