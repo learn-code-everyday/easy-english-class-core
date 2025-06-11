@@ -71,7 +71,7 @@ const orderSchema = new Schema(
     {timestamps: true}
 );
 
-// orderSchema.index({ name: "text" }, { weights: { name: 2 } });
+orderSchema.index({ name: "text", email: "text" });
 
 export const OrderHook = new ModelHook<IOrder>(orderSchema);
 export const OrderModel: mongoose.Model<IOrder> = MainConnection.model(
