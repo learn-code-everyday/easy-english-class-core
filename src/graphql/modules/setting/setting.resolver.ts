@@ -16,12 +16,10 @@ const Query = {
     return settingService.fetch(args.q);
   },
   getOneSetting: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { id } = args;
     return await settingService.findOne({ _id: id });
   },
   getOneSettingByKey: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
     const { key } = args;
     return await settingService.findOne({ key: key });
   },

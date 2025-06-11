@@ -5,11 +5,9 @@ import { SettingModel } from "../setting/setting.model";
 
 const Query = {
   getAllSettingGroup: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
     return settingGroupService.fetch(args.q);
   },
   getOneSettingGroup: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await settingGroupService.findOne({ _id: id });
   },
@@ -17,12 +15,11 @@ const Query = {
 
 const Mutation = {
   createSettingGroup: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
+    context.auth(ROLES.ADMIN_EDITOR);
     const { data } = args;
     return await settingGroupService.create(data);
   },
   updateSettingGroup: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
     const { id, data } = args;
     return await settingGroupService.updateOne(id, data);
   },
