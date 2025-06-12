@@ -59,6 +59,7 @@ const schema = gql`
     customerId: String    
     createdAt: DateTime
     updatedAt: DateTime
+    paymentDate: DateTime
     fullname: String
     phone: String
     gmail: String
