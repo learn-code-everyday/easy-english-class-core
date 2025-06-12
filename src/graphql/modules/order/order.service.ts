@@ -166,6 +166,10 @@ class OrderService extends CrudService<typeof OrderModel> {
             throw new Error("Miner unit price setting is missing or invalid.");
         }
         data.amount = setting.value * quantity;
+
+        if (status === OrderStatuses.PENDING_PAYMENT_CONFIRMATION) {
+            data.paymentDate =  new Date();
+        }
         await OrderModel.updateOne(
             {_id: id},
             {$set: data},
