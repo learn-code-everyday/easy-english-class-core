@@ -17,7 +17,7 @@ const Query = {
     if (context.tokenData.role === ROLES.MERCHANT) {
       args.q.filter = {
         ...args.q.filter,
-        role: UserRoles.SALES,
+        role: UserRoles.MERCHANT,
         status: UserStatuses.ACTIVE,
         referrenceId: context.tokenData._id,
       };
