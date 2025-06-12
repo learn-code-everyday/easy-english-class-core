@@ -7,7 +7,6 @@ const Schema = mongoose.Schema;
 export enum UserRoles {
     ADMIN = "ADMIN",
     MERCHANT = "MERCHANT",
-    SALES = "SALES",
 }
 
 export enum UserStatuses {

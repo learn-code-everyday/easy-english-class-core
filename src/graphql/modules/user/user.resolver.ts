@@ -38,7 +38,7 @@ const Query = {
   getUsersByRole: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN]);
     const { role, q } = args;
-    if (!role || (role !== UserRoles.MERCHANT && role !== UserRoles.SALES)) {
+    if (!role || (role !== UserRoles.MERCHANT)) {
       throw new Error("Invalid role. Only MERCHANT or SALES allowed.");
     }
     const query = {
