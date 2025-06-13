@@ -8,7 +8,6 @@ export enum UserRoles {
     ADMIN = "ADMIN",
     MERCHANT = "MERCHANT",
 }
-
 export enum UserStatuses {
     ACTIVE = "ACTIVE",
     INACTIVE = "INACTIVE",

@@ -31,6 +31,8 @@ const commissionsSchema = new Schema(
     {timestamps: true}
 );
 
+commissionsSchema.index({commission: "text"});
+
 // commissionsSchema.index({ name: "text" }, { weights: { name: 2 } });
 
 export const CommissionsHook = new ModelHook<ICommissions>(commissionsSchema);
