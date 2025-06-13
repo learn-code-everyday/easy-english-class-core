@@ -51,6 +51,7 @@ const schema = gql`
     gmail: String
     address: String
     paymentMethod: String
+    currency: String
     quantity: Float
     amount: Float
   }
