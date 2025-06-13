@@ -26,7 +26,7 @@ const Mutation = {
     return await contentService.updateOne(id, data);
   },
   deleteOneContent: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await contentService.deleteOne(id);
   },

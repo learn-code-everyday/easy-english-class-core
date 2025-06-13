@@ -26,7 +26,7 @@ const Mutation = {
     return await tokensHistoryService.updateOne(id, data);
   },
   deleteOneTokensHistory: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await tokensHistoryService.deleteOne(id);
   },

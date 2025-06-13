@@ -55,7 +55,7 @@ const Mutation = {
     });
   },
   deleteOneSetting: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await settingService.deleteOne(id).then((res) => {
       onActivity.next({

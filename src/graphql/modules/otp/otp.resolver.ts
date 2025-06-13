@@ -26,7 +26,7 @@ const Mutation = {
     return await otpService.updateOne(id, data);
   },
   deleteOneOtp: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await otpService.deleteOne(id);
   },

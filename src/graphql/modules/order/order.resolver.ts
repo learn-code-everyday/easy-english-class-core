@@ -44,7 +44,7 @@ const Mutation = {
     return await orderService.updateOrderForAdmin(id, data);
   },
   deleteOneOrder: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await orderService.deleteOne(id);
   },

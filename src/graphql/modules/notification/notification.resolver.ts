@@ -31,7 +31,7 @@ const Mutation = {
     return await notificationService.updateOne(id, data);
   },
   deleteOneNotification: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await notificationService.deleteOne(id);
   },

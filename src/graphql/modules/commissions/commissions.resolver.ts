@@ -32,7 +32,7 @@ const Mutation = {
     return await commissionsService.updateOne(id, data);
   },
   deleteOneCommissions: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await commissionsService.deleteOne(id);
   },
