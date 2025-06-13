@@ -55,9 +55,6 @@ export class UserHelper {
   }
 
   static createUserWithRole = async (data: any, context: Context) => {
-    const plainPassword = data.password || randomBytes(8).toString("hex");
-    const password = md5(plainPassword).toString();
-
     let level = 1;
     if (context.tokenData.role === UserRoles.MERCHANT) {
       level = (context.tokenData.level || 0) + 1;
@@ -73,6 +70,8 @@ export class UserHelper {
     };
 
     return await userService.create(userData).then(async (result: any) => {
+      const plainPassword = randomBytes(8).toString("hex");
+      const password = md5(plainPassword).toString();
       const hashPassword = encryptionHelper.createPassword(password, result.id);
       set(result, "password", hashPassword);
 
@@ -82,7 +81,7 @@ export class UserHelper {
           name: result.name,
           gmail: result.gmail,
           role: result.role,
-          tempPassword: data.password,
+          tempPassword: password,
         });
       } catch (error) {}
 
