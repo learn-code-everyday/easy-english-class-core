@@ -107,7 +107,7 @@ const Mutation = {
     return await userService.updateOne(context.id, data);
   },
   updatePassword: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.SALES]);
+    context.auth([ROLES.ADMIN, ROLES.MERCHANT]);
     const { currentPassword, newPassword } = args;
 
     if (!newPassword || newPassword.length < 6) {

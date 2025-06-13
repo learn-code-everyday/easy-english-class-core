@@ -18,6 +18,8 @@ export enum SettingKey {
   ADMIN_MENU = "ADMIN_MENU",
 
   MINER_UNIT_PRICE = "MINER_UNIT_PRICE",
+  MINER_UNIT_USDT_PRICE = "MINER_UNIT_USDT_PRICE",
+  MINER_UNIT_VND_PRICE = "MINER_UNIT_VND_PRICE",
   SELLER_COMMISSIONS_RATE = "SELLER_COMMISSIONS_RATE",
   MERCHANT_COMMISSIONS_RATE = "MERCHANT_COMMISSIONS_RATE",
 
@@ -95,9 +97,18 @@ export const SETTING_DATA = [
       },
       {
         type: SettingTypes.number,
-        name: "Miner unit price",
-        key: SettingKey.MINER_UNIT_PRICE,
-        value: 250,
+        name: "Miner unit USDT price",
+        key: SettingKey.MINER_UNIT_USDT_PRICE,
+        value: 1600,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Miner unit VND price",
+        key: SettingKey.MINER_UNIT_VND_PRICE,
+        value: 1600,
         isActive: true,
         isPrivate: false,
         readOnly: false,
@@ -167,7 +178,7 @@ export const SETTING_DATA = [
       },
       {
         type: SettingTypes.number,
-        name: "Exchange rate",
+        name: "USDT to VND Exchange rate",
         key: SettingKey.EXCHANGE_RATE,
         value: 26250,
         isActive: true,

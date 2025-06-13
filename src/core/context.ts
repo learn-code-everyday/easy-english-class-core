@@ -59,13 +59,9 @@ export class Context {
     return _.get(this.tokenData, "role") === ROLES.MERCHANT;
   }
 
-  isSeller() {
-    return _.get(this.tokenData, "role") === ROLES.SALES;
-  }
-
   isMerchantOrSeller() {
     const role = _.get(this.tokenData, "role");
-    return role === ROLES.MERCHANT || role === ROLES.SALES;
+    return role === ROLES.MERCHANT;
   }
 
   get id() {
