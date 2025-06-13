@@ -50,9 +50,6 @@ export class UserHelper {
       throw new Error("Invalid user role");
     }
 
-    if (context.tokenData.role !== ROLES.MERCHANT) {
-      throw new Error("Only MERCHANT can create SALES users");
-    }
     return true;
   }
 
