@@ -29,6 +29,7 @@ export class UserHelper {
       role: this.user.role,
       _id: this.user._id,
       name: this.user.name,
+      level: this.user.level,
       status: this.user.status,
     });
   }

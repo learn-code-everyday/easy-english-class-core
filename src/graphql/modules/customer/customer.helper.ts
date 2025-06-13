@@ -100,7 +100,8 @@ export class CustomerHelper {
     return TokenHelper.generateToken({
       role: this.customer.role,
       _id: this.customer._id,
-      username: this.customer.username,
+      firstname: this.customer.firstname,
+      lastname: this.customer.lastname,
       status: this.customer.status,
     });
   }
