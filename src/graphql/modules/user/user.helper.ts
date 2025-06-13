@@ -8,6 +8,7 @@ import { userService } from "./user.service";
 import { set } from "lodash";
 import md5 from "md5";
 import { mailService } from "../mails/mails.service";
+import { randomBytes } from 'crypto';
 
 export class UserHelper {
   constructor(public user: IUser) {}
@@ -54,7 +55,8 @@ export class UserHelper {
   }
 
   static createUserWithRole = async (data: any, context: Context) => {
-    const password = md5(data.password).toString();
+    const plainPassword = data.password || randomBytes(8).toString("hex");
+    const password = md5(plainPassword).toString();
 
     let level = 1;
     if (context.tokenData.role === UserRoles.MERCHANT) {
