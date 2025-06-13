@@ -26,6 +26,7 @@ const schema = gql`
     ward: String
     city: String
     location: String
+    currency: String
     paymentMethod: String
     qrNumber: [String]
     quantity: Float
@@ -43,6 +44,7 @@ const schema = gql`
     ward: String
     city: String
     location: String
+    currency: String
     paymentMethod: String
     qrNumber: [String]
     quantity: Float
@@ -61,6 +63,7 @@ const schema = gql`
     updatedAt: DateTime
     paymentDate: DateTime
     fullname: String
+    currency: String
     phone: String
     gmail: String
     address: String

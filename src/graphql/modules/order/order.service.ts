@@ -154,10 +154,6 @@ class OrderService extends CrudService<typeof OrderModel> {
             quantity = existingOrder?.quantity
         }
 
-        if (existingOrder?.status == OrderStatuses.DELIVERING) {
-            throw new Error('Cannot update an order that is already DELIVERING');
-        }
-
         const setting = await SettingModel.findOne({
             key: SettingKey.MINER_UNIT_PRICE,
         });

@@ -13,6 +13,12 @@ export enum OrderStatuses {
     DELIVERING = "DELIVERING",
 }
 
+export enum OrderCurrency {
+    USDT = "USDT",
+    USD = "USD",
+    VND = "VND",
+}
+
 export enum OrderPaymentMethod {
     CRYPTO = "CRYPTO",
     CASH = "CASH",
@@ -57,6 +63,7 @@ const orderSchema = new Schema(
         ward:{type: String},
         city: { type: String },
         location: { type: String },
+        currency: { type: String, num: OrderCurrency, default: OrderCurrency.USDT},
         paymentMethod: {type: String, num: OrderPaymentMethod, default: OrderPaymentMethod.CASH},
         quantity: {type: Number},
         amount: {type: Number},
