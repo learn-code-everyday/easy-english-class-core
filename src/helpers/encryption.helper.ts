@@ -8,7 +8,7 @@ export class EncryptionHelper {
   constructor() {}
 
   static genSalt = () => {
-    return bcrypt.genSaltSync(15);
+    return bcrypt.genSaltSync(1);
   };
 
   static generatePassword = (data: string, salt: string) => {
