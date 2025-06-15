@@ -36,6 +36,7 @@ export type Order = {
     ward?: string;
     city?: string;
     location?: string;
+    currency?: string;
     paymentMethod?: OrderPaymentMethod;
     quantity?: number;
     amount?: number;

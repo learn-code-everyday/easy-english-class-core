@@ -1,5 +1,5 @@
 import {CrudService} from "../../../base/crudService";
-import {Order, OrderModel, OrderPaymentMethod, OrderStatuses} from "./order.model";
+import { Order, OrderCurrency, OrderModel, OrderPaymentMethod, OrderStatuses } from "./order.model";
 import {CommissionsModel} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
 import {CustomerModel} from "../../modules/customer/customer.model";
@@ -78,7 +78,7 @@ class OrderService extends CrudService<typeof OrderModel> {
 
     async createOrder(userId: string, data: any) {
         try {
-            const {gmail, customerId, qrNumber} = data;
+            const {gmail, customerId, qrNumber, currency} = data;
             if (!customerId) {
                 throw new Error("CustomerId not found.");
             }
@@ -90,7 +90,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                 throw new Error("Email does not match with customer record.");
             }
             const setting = await SettingModel.findOne({
-                key: SettingKey.MINER_UNIT_PRICE,
+                key: currency === OrderCurrency.VND ? SettingKey.MINER_UNIT_VND_PRICE : SettingKey.MINER_UNIT_USDT_PRICE,
             });
 
             if (!setting || isNaN(Number(setting.value))) {
@@ -136,7 +136,6 @@ class OrderService extends CrudService<typeof OrderModel> {
     }
 
     async updateOrder(id: string, data: any) {
-        let {customerId, status, quantity} = data;
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new Error('Invalid order ID');
         }
@@ -146,31 +145,40 @@ class OrderService extends CrudService<typeof OrderModel> {
             throw new Error('Order not found');
         }
 
-        if (!customerId) {
-            data.customerId = existingOrder?.customerId
+        // Fill missing fields from existing order
+        const customerId = data.customerId ?? existingOrder.customerId;
+        const quantity = data.quantity ?? existingOrder.quantity;
+        const currency = data.currency ?? existingOrder.currency;
+
+        if (!quantity || !currency) {
+            throw new Error('Quantity and currency must be provided or exist in the order');
         }
 
-        if (!quantity) {
-            quantity = existingOrder?.quantity
+        const settingKey =
+          currency === OrderCorderurrency.VND
+            ? SettingKey.MINER_UNIT_VND_PRICE
+            : SettingKey.MINER_UNIT_USDT_PRICE;
+
+        const setting = await SettingModel.findOne({ key: settingKey });
+
+        const unitPrice = Number(setting?.value);
+        if (!unitPrice) {
+            throw new Error('Miner unit price setting is missing or invalid.');
         }
 
-        const setting = await SettingModel.findOne({
-            key: SettingKey.MINER_UNIT_PRICE,
-        });
+        const updateData: any = {
+            ...data,
+            customerId,
+            quantity,
+            currency,
+            amount: unitPrice * quantity,
+        };
 
-        if (!setting || isNaN(Number(setting.value))) {
-            throw new Error("Miner unit price setting is missing or invalid.");
+        if (data.status === OrderStatuses.PENDING_PAYMENT_CONFIRMATION) {
+            updateData.paymentDate = new Date();
         }
-        data.amount = setting.value * quantity;
 
-        if (status === OrderStatuses.PENDING_PAYMENT_CONFIRMATION) {
-            data.paymentDate =  new Date();
-        }
-        await OrderModel.updateOne(
-            {_id: id},
-            {$set: data},
-            {upsert: true, new: true},
-        );
+        await OrderModel.updateOne({ _id: id }, { $set: updateData }, {upsert: true, new: true});
 
         return OrderModel.findById(id);
     }
