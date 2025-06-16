@@ -11,13 +11,13 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
   }
 
   async getAvailableQrTokens(limit: number) {
-    const availableCount = await QrTokenModel.countDocuments({ status: QrTokenStatuses.UNUSED });
+    const availableCount = await QrTokenModel.countDocuments({ status: QrTokenStatuses.NEW });
 
     if (availableCount < limit) {
-      throw new Error("Not enough UNUSED QrTokens in the database.");
+      throw new Error("Not enough NEW QrTokens in the database.");
     }
 
-    return QrTokenModel.find({status: QrTokenStatuses.UNUSED})
+    return QrTokenModel.find({status: QrTokenStatuses.NEW})
         .limit(limit)
         .sort({createdAt: 1});
   }
@@ -56,7 +56,7 @@ class QrTokenService extends CrudService<typeof QrTokenModel> {
       qrTokens.push({
         qrNumber,
         token,
-        status: QrTokenStatuses.UNUSED,
+        status: QrTokenStatuses.NEW,
         isExport: false,
       });
     }

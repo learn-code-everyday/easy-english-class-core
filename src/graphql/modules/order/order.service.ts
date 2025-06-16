@@ -103,7 +103,7 @@ class OrderService extends CrudService<typeof OrderModel> {
 
             const unusedQrTokens = await QrTokenModel.find({
                 qrNumber: {$in: qrNumber},
-                status: QrTokenStatuses.UNUSED
+                status: QrTokenStatuses.NEW
             });
 
             if (unusedQrTokens.length < qrNumber.length) {
@@ -125,7 +125,7 @@ class OrderService extends CrudService<typeof OrderModel> {
             };
             await QrTokenModel.updateMany(
                 {qrNumber: {$in: qrNumber}},
-                {$set: {status: QrTokenStatuses.ORDER}}
+                {$set: {status: QrTokenStatuses.ORDERED}}
             );
 
             return await OrderModel.create(dataInsert);
@@ -155,7 +155,7 @@ class OrderService extends CrudService<typeof OrderModel> {
         }
 
         const settingKey =
-          currency === OrderCorderurrency.VND
+          currency === OrderCurrency.VND
             ? SettingKey.MINER_UNIT_VND_PRICE
             : SettingKey.MINER_UNIT_USDT_PRICE;
 
@@ -210,6 +210,18 @@ class OrderService extends CrudService<typeof OrderModel> {
             {upsert: true, new: true},
         );
 
+        if (status === OrderStatuses.DELIVERING) {
+            await QrTokenModel.updateMany(
+                {qrNumber: {$in: existingOrder?.qrNumber}},
+                {
+                    $set: {
+                        status: QrTokenStatuses.DELIVERING,
+                        customerId: existingOrder?.customerId,
+                    }
+                }
+            );
+        }
+
         if (status === OrderStatuses.SUCCESS) {
             const setting = await SettingModel.findOne({
                 key: SettingKey.SELLER_COMMISSIONS_RATE,
@@ -223,7 +235,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                 {qrNumber: {$in: existingOrder?.qrNumber}},
                 {
                     $set: {
-                        status: QrTokenStatuses.USED,
+                        status: QrTokenStatuses.DELIVERED,
                         customerId: existingOrder?.customerId,
                     }
                 }
