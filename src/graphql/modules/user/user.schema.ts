@@ -135,6 +135,9 @@ type User {
   phone: String
   level: Int
   sold: Int
+  usd: Float 
+  usdt: Float 
+  vnd: Float 
   address: String
   payment: PaymentInfo
   lastLoginAt: DateTime
