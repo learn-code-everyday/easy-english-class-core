@@ -64,6 +64,11 @@ export class Context {
     return role === ROLES.MERCHANT;
   }
 
+  isSuperAdmin() {
+    const role = _.get(this.tokenData, "role");
+    return role === ROLES.MEMBER;
+  }
+
   get id() {
     return _.get(this.tokenData, "_id");
   }
