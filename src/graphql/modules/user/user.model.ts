@@ -66,7 +66,6 @@ const userSchema = new Schema(
     {timestamps: true, collation: {locale: "vi"}},
 );
 
-userSchema.index({code: 1});
 userSchema.index({name: "text", gmail: "text", phone: "text", referralCode: "text"}, {weights: {gmail: 2}});
 
 export const UserHook = new ModelHook<IUser>(userSchema);

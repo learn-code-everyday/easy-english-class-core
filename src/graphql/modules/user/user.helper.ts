@@ -82,7 +82,7 @@ export class UserHelper {
           name: result.name,
           gmail: result.gmail,
           role: result.role,
-          tempPassword: password,
+          tempPassword: plainPassword,
         });
       } catch (error) {}
 
