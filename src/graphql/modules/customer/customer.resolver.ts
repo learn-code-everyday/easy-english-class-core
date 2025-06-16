@@ -4,10 +4,48 @@ import {Context} from "../../../core/context";
 import {customerService} from "./customer.service";
 import {ActivityTypes, ChangedFactors} from "../activity/activity.model";
 import {MinerModel} from "../../modules/miner/miner.model";
+import {UserModel} from "../../modules/user/user.model";
+import {OrderModel} from "../../modules/order/order.model";
+import {set} from "lodash";
 
 const Query = {
   getAllCustomer: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    if (context.isMerchantOrSeller()) {
+      // Get customers from orders created by this user
+      const orders = await OrderModel.find({ userId: context.id }).select("customerId");
+      const customerIds = orders.map(order => order.customerId).filter(Boolean);
+      if (customerIds.length > 0) {
+        set(args, "q.filter._id.$in", customerIds);
+      } else {
+        // No orders = no customers to show
+        set(args, "q.filter._id.$in", []);
+      }
+    } else if (context.isSuperAdmin()) {
+      // Filter customers for users in the same branch based on referenceId
+      const currentUser = await UserModel.findById(context.id);
+      if (currentUser && currentUser.referrenceId) {
+        // Get all users in the same branch (descendants)
+        const branchUsers = await UserModel.find({
+          referrenceId: currentUser.id
+        }).select("_id");
+
+        const branchUserIds = branchUsers.map((user) => user._id);
+        
+        // Get customers from orders created by users in the branch
+        const orders = await OrderModel.find({ 
+          userId: { $in: branchUserIds } 
+        }).select("customerId");
+        const customerIds = orders.map(order => order.customerId).filter(Boolean);
+        
+        if (customerIds.length > 0) {
+          set(args, "q.filter._id.$in", customerIds);
+        } else {
+          // No orders = no customers to show
+          set(args, "q.filter._id.$in", []);
+        }
+      }
+    }
     return customerService.fetch(args.q);
   },
   getOneCustomer: async (root: any, args: any, context: Context) => {
