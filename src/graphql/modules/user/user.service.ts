@@ -107,8 +107,14 @@ class UserService extends CrudService<typeof UserModel> {
         $project: {
           id: 1,
           name: 1,
-          referredByChain: 1,
-          referrals: 1
+          referrals: 1,
+          referredByChain: {
+            $filter: {
+              input: "$referredByChain",
+              as: "user",
+              cond: { $eq: ["$$user.role", "MERCHANT"] }
+            }
+          }
         }
       }
     ]);
