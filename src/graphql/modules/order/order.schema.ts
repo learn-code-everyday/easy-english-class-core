@@ -93,7 +93,7 @@ const schema = gql`
   
   type UserForOrder {
       id: String
-      email: String
+      gmail: String
       role: String
       name: String
       phone: String

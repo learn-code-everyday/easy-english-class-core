@@ -151,6 +151,57 @@ const User = {
 
     return result[0]?.totalQuantity || 0;
   },
+  usd: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "USD",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
+  usdt: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "USDT",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
+  vnd: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "VND",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
   countReferrence: async (parent: { _id: any }) => {
     return UserModel.estimatedDocumentCount({
       referrenceId: parent._id
@@ -173,6 +224,57 @@ const UserReferral = {
     ]);
 
     return result[0]?.totalQuantity || 0;
+  },
+  usd: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "USD",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
+  usdt: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "USDT",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
+  vnd: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "VND",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
   },
   countReferrence: async (parent: { _id: any }) => {
     return UserModel.countDocuments({

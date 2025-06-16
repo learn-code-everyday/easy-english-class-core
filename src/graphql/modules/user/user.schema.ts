@@ -108,7 +108,10 @@ type UserReferral {
   name: String
   phone: String
   level: Int
-  sold: Int
+  sold: Int 
+  usd: Float 
+  usdt: Float 
+  vnd: Float 
   address: String
   payment: PaymentInfo
   lastLoginAt: DateTime
@@ -116,7 +119,7 @@ type UserReferral {
   status: String
   isFirstLogin: Boolean
   infoReferrence: InfoReferrence
-
+   
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -132,6 +135,9 @@ type User {
   phone: String
   level: Int
   sold: Int
+  usd: Float 
+  usdt: Float 
+  vnd: Float 
   address: String
   payment: PaymentInfo
   lastLoginAt: DateTime
