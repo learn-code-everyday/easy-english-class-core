@@ -156,6 +156,59 @@ const User = {
       referrenceId: parent._id
     })
   },
+  usd: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "USD",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
+
+  usdt: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "USDT",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
+
+  vnd: async (parent: { _id: any }) => {
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          userId: parent._id,
+          currency: "VND",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+    return result[0]?.totalAmount || 0;
+  },
 };
 const UserReferral = {
   infoReferrence: async (parent: { referrenceId: any; }) => {
