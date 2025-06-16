@@ -6,6 +6,7 @@ import {CustomerModel} from "../../modules/customer/customer.model";
 import {SettingModel} from "../../modules/setting/setting.model";
 import {SettingKey} from "../../../configs/settingData";
 import {QrTokenModel, QrTokenStatuses} from "../../modules/qrToken/qrToken.model";
+import {UserModel, UserRoles} from "../../modules/user/user.model";
 
 class OrderService extends CrudService<typeof OrderModel> {
     constructor() {
@@ -223,14 +224,6 @@ class OrderService extends CrudService<typeof OrderModel> {
         }
 
         if (status === OrderStatuses.SUCCESS) {
-            const setting = await SettingModel.findOne({
-                key: SettingKey.SELLER_COMMISSIONS_RATE,
-            });
-
-            if (!setting || isNaN(Number(setting.value))) {
-                throw new Error("Miner unit price setting is missing or invalid.");
-            }
-
             await QrTokenModel.updateMany(
                 {qrNumber: {$in: existingOrder?.qrNumber}},
                 {
@@ -241,11 +234,73 @@ class OrderService extends CrudService<typeof OrderModel> {
                 }
             );
 
-            await CommissionsModel.create({
-                orderId: id,
-                userId: existingOrder?.userId,
-                commission: existingOrder?.amount * setting?.value / 100,
+            const setting = await SettingModel.findOne({
+                key: SettingKey.SELLER_COMMISSIONS_RATE,
             });
+
+            if (!setting || isNaN(Number(setting.value))) {
+                throw new Error("Miner unit price setting is missing or invalid.");
+            }
+
+            const commissionRate = Number(setting.value);
+            const totalCommission = (existingOrder?.amount || 0) * commissionRate / 100;
+
+            const seller = await UserModel.findById(existingOrder.userId).lean();
+            if (!seller) throw new Error("Seller not found");
+
+            const commissions = [];
+            let sellerCommission = totalCommission / 3;
+            let leaderCommission = 0;
+            let grandLeaderCommission = 0;
+
+            const leader = seller.referrenceId
+                ? await UserModel.findOne({
+                    _id: seller.referrenceId,
+                    role: UserRoles.MERCHANT,
+                }).lean()
+                : null;
+
+            const grandLeader = leader?.referrenceId
+                ? await UserModel.findOne({
+                    _id: leader.referrenceId,
+                    role: UserRoles.MERCHANT,
+                }).lean()
+                : null;
+
+            if (leader) {
+                leaderCommission = totalCommission / 3;
+                if (grandLeader) {
+                    grandLeaderCommission = totalCommission / 3;
+                } else {
+                    leaderCommission = totalCommission - sellerCommission;
+                }
+            } else {
+                sellerCommission = totalCommission;
+            }
+
+            commissions.push({
+                orderId: id,
+                userId: seller._id,
+                commission: sellerCommission,
+            });
+
+            if (leader) {
+                commissions.push({
+                    orderId: id,
+                    userId: leader._id,
+                    commission: leaderCommission,
+                });
+            }
+
+            if (grandLeader) {
+                commissions.push({
+                    orderId: id,
+                    userId: grandLeader._id,
+                    commission: grandLeaderCommission,
+                });
+            }
+
+            await CommissionsModel.insertMany(commissions);
         }
 
         return OrderModel.findById(id);
