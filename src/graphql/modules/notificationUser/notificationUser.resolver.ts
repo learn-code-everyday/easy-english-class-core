@@ -5,12 +5,12 @@ import {set} from "lodash";
 
 const Query = {
   getAllNotificationUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     set(args, "q.filter.userId", context.id)
     return notificationUserService.fetch(args.q);
   },
   getOneNotificationUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     const { id } = args;
     return await notificationUserService.findOne({ _id: id });
   },
@@ -18,17 +18,17 @@ const Query = {
 
 const Mutation = {
   createNotificationUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     const { data } = args;
     return await notificationUserService.create(data);
   },
   updateNotificationUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     const { id, data } = args;
     return await notificationUserService.updateOne(id, data);
   },
   readNotificationUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
     const { id } = args;
     return await notificationUserService.readNotification(id);
   },
