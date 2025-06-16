@@ -2,18 +2,18 @@ import { set } from "lodash";
 import md5 from "md5";
 import { ROLES } from "../../../constants/role.const";
 import { onActivity } from "../../../events/onActivity.event";
-import {encryptionHelper, ErrorHelper} from "../../../helpers";
+import { encryptionHelper, ErrorHelper } from "../../../helpers";
 import { Context } from "../../../core/context";
 import { UserHelper } from "./user.helper";
 import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
-import {IUser, UserModel, UserRoles, UserStatuses} from "./user.model";
-import {OrderModel} from "../../modules/order/order.model";
+import { UserModel, UserRoles, UserStatuses } from "./user.model";
+import { OrderModel } from "../../modules/order/order.model";
 import mongoose from "mongoose";
 
 const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.EDITOR, ROLES.MERCHANT]);
+    context.auth([ROLES.ADMIN, ROLES.MEMBER, ROLES.MERCHANT]);
     if (context.tokenData.role === ROLES.MERCHANT) {
       args.q.filter = {
         ...args.q.filter,
@@ -38,7 +38,7 @@ const Query = {
   getUsersByRole: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN]);
     const { role, q } = args;
-    if (!role || (role !== UserRoles.MERCHANT)) {
+    if (!role || role !== UserRoles.MERCHANT) {
       throw new Error("Invalid role. Only MERCHANT or SALES allowed.");
     }
     const query = {
@@ -67,27 +67,27 @@ const Mutation = {
     return await userService.confirmPasswordReset(gmail, code, newPassword);
   },
   createUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.MERCHANT]);
+    context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.MEMBER]);
     const { data } = args;
 
     await UserHelper.validateCreateUser(data, context);
     return await UserHelper.createUserWithRole(data, context);
   },
   updateUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER);
     const { id, data } = args;
 
     return await userService.updateOne(id, data);
   },
   updateUserMyProfile: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER);
     const { data } = args;
     if (context.tokenData.role != ROLES.ADMIN) context.isOwner(context.id);
 
     return await userService.updateOne(context.id, data);
   },
   updatePassword: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.MERCHANT]);
+    context.auth([ROLES.ADMIN, ROLES.MEMBER, ROLES.MERCHANT]);
     const { currentPassword, newPassword } = args;
 
     if (!newPassword || newPassword.length < 6) {
@@ -135,7 +135,7 @@ const Mutation = {
 };
 
 const User = {
-  infoReferrence: async (parent: { referrenceId: any; }) => {
+  infoReferrence: async (parent: { referrenceId: any }) => {
     return UserModel.findById(parent.referrenceId);
   },
   sold: async (parent: { _id: any }) => {
@@ -144,7 +144,7 @@ const User = {
       {
         $group: {
           _id: null,
-          totalQuantity: { $sum: '$quantity' },
+          totalQuantity: { $sum: "$quantity" },
         },
       },
     ]);
@@ -204,12 +204,12 @@ const User = {
   },
   countReferrence: async (parent: { _id: any }) => {
     return UserModel.estimatedDocumentCount({
-      referrenceId: parent._id
-    })
+      referrenceId: parent._id,
+    });
   },
 };
 const UserReferral = {
-  infoReferrence: async (parent: { referrenceId: any; }) => {
+  infoReferrence: async (parent: { referrenceId: any }) => {
     return UserModel.findById(parent.referrenceId);
   },
   sold: async (parent: { _id: any }) => {
@@ -218,7 +218,7 @@ const UserReferral = {
       {
         $group: {
           _id: null,
-          totalQuantity: { $sum: '$quantity' },
+          totalQuantity: { $sum: "$quantity" },
         },
       },
     ]);
@@ -278,8 +278,8 @@ const UserReferral = {
   },
   countReferrence: async (parent: { _id: any }) => {
     return UserModel.countDocuments({
-      referrenceId: parent._id
-    })
+      referrenceId: parent._id,
+    });
   },
 };
 
