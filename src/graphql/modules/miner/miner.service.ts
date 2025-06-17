@@ -33,9 +33,21 @@ class MinerService extends CrudService<typeof MinerModel> {
 
   async generateMiner(customerId: string, token: string) {
     try {
-      const dataInsert = {
+      const qrToken: any = await QrTokenModel.findOne({ token });
+      if (!qrToken) {
+        throw new Error('QR Token not found');
+      }
+
+      if (qrToken.minerId) {
+        const existingMiner = await MinerModel.findById(qrToken.minerId);
+        if (existingMiner) {
+          return existingMiner;
+        }
+      }
+
+      const newMiner = await MinerModel.create({
         code: Date.now().toString(36).toUpperCase(),
-        name: `Miner` +  Date.now().toString(36).toUpperCase(),
+        name: 'Miner' + Date.now().toString(36).toUpperCase(),
         blockChainAddress: Date.now().toString(36).toUpperCase(),
         customerId,
         status: MinerStatuses.ACTIVE,
@@ -44,18 +56,14 @@ class MinerService extends CrudService<typeof MinerModel> {
         totalUptime: 0,
         currentHashRate: 0,
         lastActive: new Date(),
-      };
+      });
 
-      await QrTokenModel.updateOne(
-          {token},
-          {$set: {
-              status: QrTokenStatuses.REGISTERED,
-              customerId,
-            }},
-          {upsert: true, new: true},
-      );
+      qrToken.status = QrTokenStatuses.REGISTERED;
+      qrToken.customerId = customerId;
+      qrToken.minerId = newMiner._id;
+      await qrToken.save();
 
-      return MinerModel.create(dataInsert);
+      return newMiner;
     } catch (error) {
       console.error("Error fetch miner:", error);
       throw error;
