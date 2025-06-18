@@ -52,9 +52,11 @@ const schema = gql`
   }
   
   type DataMinerForAdmin {
+    totalMinersRegistered: Float
     totalMiners: Float
     activeMiners: Float
     totalTokensMined: Float
+    totalBonsaiMined: Float
   }
 
   type Miner {

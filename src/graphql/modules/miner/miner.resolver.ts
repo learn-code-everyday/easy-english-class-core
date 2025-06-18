@@ -4,6 +4,7 @@ import {minerService} from "./miner.service";
 import {set} from "lodash";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {qrTokenService} from "../../modules/qrToken/qrToken.service";
+import {MinerStatuses} from "@/graphql/modules/miner/miner.model";
 
 const Query = {
     getMyMiner: async (root: any, args: any, context: Context) => {
@@ -54,6 +55,7 @@ const Mutation = {
         return await minerService.updateOne(miner._id.toString(), {
             customerId: context.id,
             registered: true,
+            status: MinerStatuses.REGISTERED,
             connectedDate: new Date()
         });
     },
@@ -65,6 +67,7 @@ const Mutation = {
         const miner = await minerService.findOne({code});
         return await minerService.updateOne(miner._id.toString(), {
             customerId: null,
+            status: MinerStatuses.ACTIVE,
             registered: false,
         });
     },
