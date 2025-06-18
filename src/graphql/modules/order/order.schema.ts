@@ -88,8 +88,14 @@ const schema = gql`
     totalUsdRevenue: Float
     totalUsdtRevenue: Float
     totalVndRevenue: Float
-    totalCommission: Float
     totalOrder: Float
+    totalPaidCommission: Float
+    revenueData: RevenueData
+  }
+  
+  type RevenueData {
+    month: String
+    value: Float
   }
   
   type UserForOrder {

@@ -1,6 +1,6 @@
 import {CrudService} from "../../../base/crudService";
 import { Order, OrderCurrency, OrderModel, OrderPaymentMethod, OrderStatuses } from "./order.model";
-import {CommissionsModel} from "../../modules/commissions/commissions.model";
+import {CommissionsModel, CommissionsStatuses} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {SettingModel} from "../../modules/setting/setting.model";
@@ -35,13 +35,27 @@ class OrderService extends CrudService<typeof OrderModel> {
                     {
                         $match: {
                             userId: new mongoose.Types.ObjectId(userId),
-                            status: "PAID",
+                            status: { $in: [CommissionsStatuses.PAID, CommissionsStatuses.PENDING] },
                         },
                     },
                     {
                         $group: {
-                            _id: null,
-                            totalCommission: {$sum: "$commission"},
+                            _id: "$status",
+                            totalCommission: { $sum: "$commission" },
+                        },
+                    },
+                ]),
+                OrderModel.aggregate([
+                    {
+                        $match: {
+                            userId: new mongoose.Types.ObjectId(userId),
+                            status: "SUCCESS",
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: { $month: "$paymentDate" },
+                            value: { $sum: "$amount" },
                         },
                     },
                 ]),
@@ -67,14 +81,37 @@ class OrderService extends CrudService<typeof OrderModel> {
 
                 totalOrder += record.totalOrder;
             }
-            const totalCommission = commissionsAggregation[0]?.totalCommission || 0;
+            let totalPaidCommission = 0;
+            let totalPendingCommission = 0
+
+            for (const commission of commissionsAggregation) {
+                if (commission._id === CommissionsStatuses.PAID) {
+                    totalPaidCommission = commission.totalCommission;
+                } else if (commission._id === CommissionsStatuses.PENDING) {
+                    totalPendingCommission = commission.totalCommission;
+                }
+            }
+
+            const revenueData = Array.from({ length: 12 }, (_, i) => ({
+                month: new Date(2000, i).toLocaleString("default", { month: "short" }),
+                value: 0,
+            }));
+
+            for (const item of revenueByMonth) {
+                const index = item._id - 1; // month index (0-based)
+                if (index >= 0 && index < 12) {
+                    revenueData[index].value = item.value;
+                }
+            }
 
             return {
                 totalUsdRevenue,
                 totalUsdtRevenue,
                 totalVndRevenue,
-                totalCommission,
                 totalOrder,
+                totalPaidCommission,
+                totalPendingCommission,
+                revenueData,
             };
         } catch (error) {
             console.error("Error get order for merchant:", error);
