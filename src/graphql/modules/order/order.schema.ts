@@ -90,6 +90,7 @@ const schema = gql`
     totalVndRevenue: Float
     totalOrder: Float
     totalPaidCommission: Float
+    totalPendingCommission: Float
     revenueData: [RevenueData]
   }
   
