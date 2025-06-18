@@ -15,6 +15,7 @@ class OrderService extends CrudService<typeof OrderModel> {
 
     async getOrderForMerchant(userId: string) {
         try {
+            console.log(999, userId)
             const [ordersAggregation, commissionsAggregation, revenueByMonth] = await Promise.all([
                 OrderModel.aggregate([
                     {
@@ -25,7 +26,7 @@ class OrderService extends CrudService<typeof OrderModel> {
                     },
                     {
                         $group: {
-                            _id: "$paymentMethod",
+                            _id: "$currency",
                             totalRevenue: {$sum: "$amount"},
                             totalOrder: {$sum: "$quantity"},
                         },
@@ -92,10 +93,8 @@ class OrderService extends CrudService<typeof OrderModel> {
                 }
             }
 
-            const revenueData = Array.from({ length: 12 }, (_, i) => ({
-                month: new Date(2000, i).toLocaleString("default", { month: "short" }),
-                value: 0,
-            }));
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const revenueData = monthNames.map((name) => ({ month: name, value: 0 }));
 
             for (const item of revenueByMonth) {
                 const index = item._id - 1; // month index (0-based)
