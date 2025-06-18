@@ -4,7 +4,7 @@ import {minerService} from "./miner.service";
 import {set} from "lodash";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {qrTokenService} from "../../modules/qrToken/qrToken.service";
-import {MinerStatuses} from "@/graphql/modules/miner/miner.model";
+import {MinerStatuses} from "../../modules/miner/miner.model";
 
 const Query = {
     getMyMiner: async (root: any, args: any, context: Context) => {
