@@ -47,27 +47,32 @@ class OrderService extends CrudService<typeof OrderModel> {
                 ]),
             ]);
 
-            let totalCryptoRevenue = 0;
-            let totalCashBankingRevenue = 0;
+            let totalUsdRevenue = 0;
+            let totalUsdtRevenue = 0;
+            let totalVndRevenue = 0;
             let totalOrder = 0;
 
-            for (const entry of ordersAggregation) {
-                totalOrder += entry.totalOrder || 0;
-
-                if (entry._id === OrderPaymentMethod.CRYPTO) {
-                    totalCryptoRevenue = entry.totalRevenue;
-                } else if (
-                    entry._id === OrderPaymentMethod.CASH ||
-                    entry._id === OrderPaymentMethod.BANKING
-                ) {
-                    totalCashBankingRevenue += entry.totalRevenue;
+            for (const record of ordersAggregation) {
+                switch (record._id) {
+                    case OrderCurrency.USDT:
+                        totalUsdtRevenue += record.totalRevenue;
+                        break;
+                    case OrderCurrency.USD:
+                        totalUsdRevenue += record.totalRevenue;
+                        break;
+                    case OrderCurrency.VND:
+                        totalVndRevenue += record.totalRevenue;
+                        break;
                 }
+
+                totalOrder += record.totalOrder;
             }
             const totalCommission = commissionsAggregation[0]?.totalCommission || 0;
 
             return {
-                totalCryptoRevenue,
-                totalCashBankingRevenue,
+                totalUsdRevenue,
+                totalUsdtRevenue,
+                totalVndRevenue,
                 totalCommission,
                 totalOrder,
             };
