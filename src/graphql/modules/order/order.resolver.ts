@@ -32,9 +32,21 @@ const Query = {
     return orderService.getOrderForMerchant(context.id);
   },
   getOneOrder: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER_MERCHANT);
     if (context.isMerchantOrSeller()) {
       set(args, "q.filter.userId", context.id);
+    } else if (context.isSuperAdmin()) {
+      // Filter orders for users in the same branch based on referenceId
+      const currentUser = await UserModel.findById(context.id);
+      if (currentUser && currentUser.referrenceId) {
+        // Get all users in the same branch (descendants)
+        const branchUsers = await UserModel.find({
+          referrenceId: currentUser.id
+        }).select("_id");
+
+        const branchUserIds = branchUsers.map((user) => user._id);
+        set(args, "q.filter.userId.$in", branchUserIds);
+      }
     }
     const { id } = args;
     return await orderService.findOne({ _id: id });
@@ -48,12 +60,12 @@ const Mutation = {
     return await orderService.createOrder(context.id, data);
   },
   updateOrder: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER);
     const { id, data } = args;
     return await orderService.updateOrder(id, data);
   },
   updateOrderForAdmin: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN_MEMBER);
     const { id, data } = args;
     return await orderService.updateOrderForAdmin(id, data);
   },
