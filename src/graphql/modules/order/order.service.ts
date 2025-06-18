@@ -15,7 +15,7 @@ class OrderService extends CrudService<typeof OrderModel> {
 
     async getOrderForMerchant(userId: string) {
         try {
-            const [ordersAggregation, commissionsAggregation] = await Promise.all([
+            const [ordersAggregation, commissionsAggregation, revenueByMonth] = await Promise.all([
                 OrderModel.aggregate([
                     {
                         $match: {
