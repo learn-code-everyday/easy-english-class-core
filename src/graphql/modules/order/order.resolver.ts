@@ -16,7 +16,7 @@ const Query = {
       if (currentUser && currentUser.referrenceId) {
         // Get all users in the same branch (descendants)
         const branchUsers = await UserModel.find({
-          referrenceId: currentUser.id
+          referrenceId: currentUser.id,
         }).select("_id");
 
         const branchUserIds = branchUsers.map((user) => user._id);
@@ -27,9 +27,15 @@ const Query = {
     console.log("args.q.filter", args.q.filter);
     return orderService.fetch(args.q);
   },
-  getOrderForMerchant: async (root: any, args: any, context: Context) => {
+  getOrderStatistics: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_MEMBER_EDITOR);
-    return orderService.getOrderForMerchant(context.id);
+    if (context.isMerchantOrSeller()) {
+      return orderService.getOrderStatisticsForMerchant(context.id);
+    } else if (context.isSuperAdmin()) {
+      return orderService.getOrderStatisticsForSuperAdmin(context.id);
+    } else {
+      return orderService.getOrderStatisticsForAdmin(context.id);
+    }
   },
   getOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_MEMBER_MERCHANT);
@@ -41,7 +47,7 @@ const Query = {
       if (currentUser && currentUser.referrenceId) {
         // Get all users in the same branch (descendants)
         const branchUsers = await UserModel.find({
-          referrenceId: currentUser.id
+          referrenceId: currentUser.id,
         }).select("_id");
 
         const branchUserIds = branchUsers.map((user) => user._id);

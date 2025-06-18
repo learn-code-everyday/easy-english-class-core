@@ -9,6 +9,7 @@ class MinerService extends CrudService<typeof MinerModel> {
     try {
       const totalMiners = await MinerModel.countDocuments();
       const activeMiners = await MinerModel.countDocuments({status: MinerStatuses.ACTIVE});
+      const totalMinersRegistered = await MinerModel.countDocuments({status: MinerStatuses.REGISTERED});
       const totalTokensResult = await MinerModel.aggregate([
         {
           $group: {
@@ -18,11 +19,14 @@ class MinerService extends CrudService<typeof MinerModel> {
         },
       ]);
       const totalTokensMined = totalTokensResult[0]?.totalTokensMined || 0;
+      const totalBonsaiMined = 0;
 
       return  {
+        totalMinersRegistered,
         totalMiners,
         activeMiners,
         totalTokensMined,
+        totalBonsaiMined
       };
     } catch (error) {
       console.error("Error fetch miner:", error);

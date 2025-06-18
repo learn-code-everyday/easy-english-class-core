@@ -3,7 +3,7 @@ import {gql} from "apollo-server-express";
 const schema = gql`
   extend type Query {
     getAllOrder(q: QueryGetListInput): OrderPageData
-    getOrderForMerchant(q: QueryGetListInput): OrderForMerchant
+    getOrderStatistics(q: QueryGetListInput): OrderStatistics
     getOneOrder(id: ID!): Order
     # Add Query
   }
@@ -84,11 +84,19 @@ const schema = gql`
     user: UserForOrder
   }
   
-  type OrderForMerchant {
-    totalCryptoRevenue: Float
-    totalCashBankingRevenue: Float
-    totalCommission: Float
+  type OrderStatistics {
+    totalUsdRevenue: Float
+    totalUsdtRevenue: Float
+    totalVndRevenue: Float
     totalOrder: Float
+    totalPaidCommission: Float
+    totalPendingCommission: Float
+    revenueData: [RevenueData]
+  }
+  
+  type RevenueData {
+    month: String
+    value: Float
   }
   
   type UserForOrder {

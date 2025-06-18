@@ -1,6 +1,6 @@
 import {CrudService} from "../../../base/crudService";
 import { Order, OrderCurrency, OrderModel, OrderPaymentMethod, OrderStatuses } from "./order.model";
-import {CommissionsModel} from "../../modules/commissions/commissions.model";
+import {CommissionsModel, CommissionsStatuses} from "../../modules/commissions/commissions.model";
 import mongoose from "mongoose";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {SettingModel} from "../../modules/setting/setting.model";
@@ -13,19 +13,28 @@ class OrderService extends CrudService<typeof OrderModel> {
         super(OrderModel);
     }
 
-    async getOrderForMerchant(userId: string) {
+    async getOrderStatisticsForMerchant(userId: string) {
         try {
-            const [ordersAggregation, commissionsAggregation] = await Promise.all([
+            console.log("Getting order statistics for merchant:", userId);
+            
+            // Validate userId
+            if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+                throw new Error("Invalid userId provided");
+            }
+
+            const userObjectId = new mongoose.Types.ObjectId(userId);
+            
+            const [ordersAggregation, commissionsAggregation, revenueByMonth] = await Promise.all([
                 OrderModel.aggregate([
                     {
                         $match: {
-                            userId: new mongoose.Types.ObjectId(userId),
-                            status: "SUCCESS",
+                            userId: userObjectId,
+                            status: OrderStatuses.SUCCESS,
                         },
                     },
                     {
                         $group: {
-                            _id: "$paymentMethod",
+                            _id: "$currency",
                             totalRevenue: {$sum: "$amount"},
                             totalOrder: {$sum: "$quantity"},
                         },
@@ -34,48 +43,325 @@ class OrderService extends CrudService<typeof OrderModel> {
                 CommissionsModel.aggregate([
                     {
                         $match: {
-                            userId: new mongoose.Types.ObjectId(userId),
-                            status: "PAID",
+                            userId: userObjectId,
+                            status: { $in: [CommissionsStatuses.PAID, CommissionsStatuses.PENDING] },
                         },
                     },
                     {
                         $group: {
-                            _id: null,
-                            totalCommission: {$sum: "$commission"},
+                            _id: "$status",
+                            totalCommission: { $sum: "$commission" },
+                        },
+                    },
+                ]),
+                OrderModel.aggregate([
+                    {
+                        $match: {
+                            userId: userObjectId,
+                            status: OrderStatuses.SUCCESS,
+                            paymentDate: { $exists: true, $ne: null },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: { $month: "$paymentDate" },
+                            value: { $sum: "$amount" },
                         },
                     },
                 ]),
             ]);
 
-            let totalCryptoRevenue = 0;
-            let totalCashBankingRevenue = 0;
+            console.log("Orders aggregation result:", ordersAggregation);
+            console.log("Commissions aggregation result:", commissionsAggregation);
+            console.log("Revenue by month result:", revenueByMonth);
+
+            let totalUsdRevenue = 0;
+            let totalUsdtRevenue = 0;
+            let totalVndRevenue = 0;
             let totalOrder = 0;
 
-            for (const entry of ordersAggregation) {
-                totalOrder += entry.totalOrder || 0;
+            for (const record of ordersAggregation) {
+                if (!record._id) continue; // Skip null currency records
+                
+                switch (record._id) {
+                    case OrderCurrency.USDT:
+                        totalUsdtRevenue += record.totalRevenue || 0;
+                        break;
+                    case OrderCurrency.USD:
+                        totalUsdRevenue += record.totalRevenue || 0;
+                        break;
+                    case OrderCurrency.VND:
+                        totalVndRevenue += record.totalRevenue || 0;
+                        break;
+                }
 
-                if (entry._id === OrderPaymentMethod.CRYPTO) {
-                    totalCryptoRevenue = entry.totalRevenue;
-                } else if (
-                    entry._id === OrderPaymentMethod.CASH ||
-                    entry._id === OrderPaymentMethod.BANKING
-                ) {
-                    totalCashBankingRevenue += entry.totalRevenue;
+                totalOrder += record.totalOrder || 0;
+            }
+            
+            let totalPaidCommission = 0;
+            let totalPendingCommission = 0;
+
+            for (const commission of commissionsAggregation) {
+                if (commission._id === CommissionsStatuses.PAID) {
+                    totalPaidCommission = commission.totalCommission || 0;
+                } else if (commission._id === CommissionsStatuses.PENDING) {
+                    totalPendingCommission = commission.totalCommission || 0;
                 }
             }
-            const totalCommission = commissionsAggregation[0]?.totalCommission || 0;
 
-            return {
-                totalCryptoRevenue,
-                totalCashBankingRevenue,
-                totalCommission,
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const revenueData = monthNames.map((name) => ({ month: name, value: 0 }));
+
+            for (const item of revenueByMonth) {
+                if (item._id && item._id >= 1 && item._id <= 12) {
+                    const index = item._id - 1; // month index (0-based)
+                    revenueData[index].value = item.value || 0;
+                }
+            }
+
+            const result = {
+                totalUsdRevenue,
+                totalUsdtRevenue,
+                totalVndRevenue,
                 totalOrder,
+                totalPaidCommission,
+                totalPendingCommission,
+                revenueData,
             };
+
+            console.log("Final result:", result);
+            return result;
         } catch (error) {
             console.error("Error get order for merchant:", error);
             throw error;
         }
     }
+
+    async getOrderStatisticsForSuperAdmin(userId: string) {
+        try {
+            // Lấy tất cả users dưới nhánh của superadmin
+            const subUsers = await UserModel.find({
+                $or: [
+                    { referrenceId: new mongoose.Types.ObjectId(userId) }, // Users trực tiếp
+                    { 
+                        referrenceId: { 
+                            $in: await UserModel.distinct('_id', { 
+                                referrenceId: new mongoose.Types.ObjectId(userId) 
+                            }) 
+                        } 
+                    } // Users gián tiếp (cấp 2)
+                ]
+            }).select('_id');
+
+            const userIds = [new mongoose.Types.ObjectId(userId), ...subUsers.map(u => u._id)];
+
+            const [ordersAggregation, commissionsAggregation, revenueByMonth] = await Promise.all([
+                OrderModel.aggregate([
+                    {
+                        $match: {
+                            userId: { $in: userIds },
+                            status: "SUCCESS",
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: "$currency",
+                            totalRevenue: {$sum: "$amount"},
+                            totalOrder: {$sum: "$quantity"},
+                        },
+                    },
+                ]),
+                CommissionsModel.aggregate([
+                    {
+                        $match: {
+                            userId: { $in: userIds },
+                            status: { $in: [CommissionsStatuses.PAID, CommissionsStatuses.PENDING] },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: "$status",
+                            totalCommission: { $sum: "$commission" },
+                        },
+                    },
+                ]),
+                OrderModel.aggregate([
+                    {
+                        $match: {
+                            userId: { $in: userIds },
+                            status: "SUCCESS",
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: { $month: "$paymentDate" },
+                            value: { $sum: "$amount" },
+                        },
+                    },
+                ]),
+            ]);
+
+            let totalUsdRevenue = 0;
+            let totalUsdtRevenue = 0;
+            let totalVndRevenue = 0;
+            let totalOrder = 0;
+
+            for (const record of ordersAggregation) {
+                switch (record._id) {
+                    case OrderCurrency.USDT:
+                        totalUsdtRevenue += record.totalRevenue;
+                        break;
+                    case OrderCurrency.USD:
+                        totalUsdRevenue += record.totalRevenue;
+                        break;
+                    case OrderCurrency.VND:
+                        totalVndRevenue += record.totalRevenue;
+                        break;
+                }
+
+                totalOrder += record.totalOrder;
+            }
+
+            let totalPaidCommission = 0;
+            let totalPendingCommission = 0;
+
+            for (const commission of commissionsAggregation) {
+                if (commission._id === CommissionsStatuses.PAID) {
+                    totalPaidCommission = commission.totalCommission;
+                } else if (commission._id === CommissionsStatuses.PENDING) {
+                    totalPendingCommission = commission.totalCommission;
+                }
+            }
+
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const revenueData = monthNames.map((name) => ({ month: name, value: 0 }));
+
+            for (const item of revenueByMonth) {
+                const index = item._id - 1; // month index (0-based)
+                if (index >= 0 && index < 12) {
+                    revenueData[index].value = item.value;
+                }
+            }
+
+            return {
+                totalUsdRevenue,
+                totalUsdtRevenue,
+                totalVndRevenue,
+                totalOrder,
+                totalPaidCommission,
+                totalPendingCommission,
+                revenueData,
+            };
+        } catch (error) {
+            console.error("Error get order statistics for super admin:", error);
+            throw error;
+        }
+    }
+
+    async getOrderStatisticsForAdmin(userId: string) {
+        try {
+            // Admin lấy thống kê toàn bộ hệ thống
+            const [ordersAggregation, commissionsAggregation, revenueByMonth] = await Promise.all([
+                OrderModel.aggregate([
+                    {
+                        $match: {
+                            status: "SUCCESS",
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: "$currency",
+                            totalRevenue: {$sum: "$amount"},
+                            totalOrder: {$sum: "$quantity"},
+                        },
+                    },
+                ]),
+                CommissionsModel.aggregate([
+                    {
+                        $match: {
+                            status: { $in: [CommissionsStatuses.PAID, CommissionsStatuses.PENDING] },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: "$status",
+                            totalCommission: { $sum: "$commission" },
+                        },
+                    },
+                ]),
+                OrderModel.aggregate([
+                    {
+                        $match: {
+                            status: "SUCCESS",
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: { $month: "$paymentDate" },
+                            value: { $sum: "$amount" },
+                        },
+                    },
+                ]),
+            ]);
+
+            let totalUsdRevenue = 0;
+            let totalUsdtRevenue = 0;
+            let totalVndRevenue = 0;
+            let totalOrder = 0;
+
+            for (const record of ordersAggregation) {
+                switch (record._id) {
+                    case OrderCurrency.USDT:
+                        totalUsdtRevenue += record.totalRevenue;
+                        break;
+                    case OrderCurrency.USD:
+                        totalUsdRevenue += record.totalRevenue;
+                        break;
+                    case OrderCurrency.VND:
+                        totalVndRevenue += record.totalRevenue;
+                        break;
+                }
+
+                totalOrder += record.totalOrder;
+            }
+
+            let totalPaidCommission = 0;
+            let totalPendingCommission = 0;
+
+            for (const commission of commissionsAggregation) {
+                if (commission._id === CommissionsStatuses.PAID) {
+                    totalPaidCommission = commission.totalCommission;
+                } else if (commission._id === CommissionsStatuses.PENDING) {
+                    totalPendingCommission = commission.totalCommission;
+                }
+            }
+
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const revenueData = monthNames.map((name) => ({ month: name, value: 0 }));
+
+            for (const item of revenueByMonth) {
+                const index = item._id - 1; // month index (0-based)
+                if (index >= 0 && index < 12) {
+                    revenueData[index].value = item.value;
+                }
+            }
+
+            return {
+                totalUsdRevenue,
+                totalUsdtRevenue,
+                totalVndRevenue,
+                totalOrder,
+                totalPaidCommission,
+                totalPendingCommission,
+                revenueData,
+            };
+        } catch (error) {
+            console.error("Error get order statistics for admin:", error);
+            throw error;
+        }
+    }
+
+
 
     async createOrder(userId: string, data: any) {
         try {

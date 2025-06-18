@@ -3,8 +3,9 @@ import { MainConnection } from "../../../loaders/database.loader";
 import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
 
 export enum MinerStatuses {
-    ACTIVE = "ACTIVE",
+  ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
+  REGISTERED = "REGISTERED",
 }
 
 export type Miner = {
