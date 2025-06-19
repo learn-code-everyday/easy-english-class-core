@@ -127,6 +127,4 @@ export class EmissionHelper {
             speedPerMiner: totalSpeed / days
         };
     }
-
-
 }
