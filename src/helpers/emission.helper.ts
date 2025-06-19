@@ -3,7 +3,7 @@ export class EmissionHelper {
     static readonly HALVING_INTERVAL_DAYS = 730;
     static readonly TOTAL_HALVING_PERIODS = 10;
     static readonly MAX_CLASSES = 5;
-    static readonly CLASS_CAPACITY = 2;
+    static readonly CLASS_CAPACITY = 2000;
     static readonly SECONDS_PER_DAY = 86400;
 
     static readonly A: number = (EmissionHelper.TOTAL_EMISSION * 1024) / 2046;
