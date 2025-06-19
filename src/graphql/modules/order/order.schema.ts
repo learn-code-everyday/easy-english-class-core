@@ -3,9 +3,27 @@ import {gql} from "apollo-server-express";
 const schema = gql`
   extend type Query {
     getAllOrder(q: QueryGetListInput): OrderPageData
-    getOrderStatistics(q: QueryGetListInput): OrderStatistics
     getOneOrder(id: ID!): Order
+    getMerchantSummaryStatistics: StatisticsData
+    getMerchantRevenueByRangeTime(fromDate: String!, toDate: String!): TimeData
+    getSuperAdminSummaryStatistics: StatisticsData
+    getSuperAdminRevenueByRangeTime(fromDate: String!, toDate: String!): TimeData
+    getAdminSummaryStatistics: StatisticsData
+    getAdminRevenueByRangeTime(fromDate: String!, toDate: String!): TimeData
     # Add Query
+  }
+
+  type StatisticsData {
+    totalUsdRevenue: Float
+    totalUsdtRevenue: Float
+    totalVndRevenue: Float
+    totalOrder: Float
+    totalPaidCommission: Float
+    totalPendingCommission: Float
+  }
+
+  type TimeData {
+    revenueData: Mixed
   }
 
   extend type Mutation {
@@ -82,21 +100,6 @@ const schema = gql`
     transactionInput: String
     customer: CustomerForOrder
     user: UserForOrder
-  }
-  
-  type OrderStatistics {
-    totalUsdRevenue: Float
-    totalUsdtRevenue: Float
-    totalVndRevenue: Float
-    totalOrder: Float
-    totalPaidCommission: Float
-    totalPendingCommission: Float
-    revenueData: [RevenueData]
-  }
-  
-  type RevenueData {
-    month: String
-    value: Float
   }
   
   type UserForOrder {

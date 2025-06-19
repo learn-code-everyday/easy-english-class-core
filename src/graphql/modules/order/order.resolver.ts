@@ -27,16 +27,6 @@ const Query = {
     console.log("args.q.filter", args.q.filter);
     return orderService.fetch(args.q);
   },
-  getOrderStatistics: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
-    if (context.isMerchantOrSeller()) {
-      return orderService.getOrderStatisticsForMerchant(context.id);
-    } else if (context.isSuperAdmin()) {
-      return orderService.getOrderStatisticsForSuperAdmin(context.id);
-    } else {
-      return orderService.getOrderStatisticsForAdmin(context.id);
-    }
-  },
   getOneOrder: async (root: any, args: any, context: Context) => {
     context.auth(ROLES.ADMIN_MEMBER_MERCHANT);
     if (context.isMerchantOrSeller()) {
