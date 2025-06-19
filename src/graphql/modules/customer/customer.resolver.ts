@@ -124,6 +124,30 @@ const Customer = {
 
     return Math.floor(total);
   },
+  speedMiner: async (parent: { id: any }) => {
+    const miners = await MinerModel.find({ customerId: parent.id })
+        .select('connectedDate')
+        .lean();
+
+    if (!miners || miners.length === 0) return 0;
+
+    const earliest = miners.reduce((min, miner) => {
+      const date = new Date(miner.connectedDate).getTime();
+      return Math.min(min, date);
+    }, Date.now());
+
+    const today = Date.now();
+    const uptimeInSeconds = Math.floor((today - earliest) / 1000);
+    const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));
+    const nodeCount = miners.length;
+
+    let total = 0;
+    for (let i = 0; i <= uptimeInDays; i++) {
+      const { rewardPerNode } = EmissionHelper.summary(i, nodeCount);
+      total += rewardPerNode * nodeCount;
+    }
+    return total / uptimeInSeconds;
+  },
   totalUptime: async (parent: { id: any; }) => {
     const earliestMiner = await MinerModel.findOne({ customerId: parent.id })
         .sort({ connectedDate: 1 }) // earliest date
