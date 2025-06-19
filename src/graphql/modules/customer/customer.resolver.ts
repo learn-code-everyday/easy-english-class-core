@@ -3,7 +3,7 @@ import {onActivity} from "../../../events/onActivity.event";
 import {Context} from "../../../core/context";
 import {customerService} from "./customer.service";
 import {ActivityTypes, ChangedFactors} from "../activity/activity.model";
-import {MinerModel} from "../../modules/miner/miner.model";
+import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
 import {UserModel} from "../../modules/user/user.model";
 import {OrderModel} from "../../modules/order/order.model";
 import {set} from "lodash";
@@ -100,53 +100,20 @@ const Mutation = {
 };
 
 const Customer = {
-  totalEmission: async (parent: { id: any }) => {
-    const miners = await MinerModel.find({ customerId: parent.id })
+  emission: async (parent: { id: any }) => {
+    const earliestMiner = await MinerModel.findOne({ registered: true })
         .select('connectedDate')
+        .sort({ connectedDate: -1 })
         .lean();
 
-    if (!miners || miners.length === 0) return 0;
-
-    const earliest = miners.reduce((min, miner) => {
-      const date = new Date(miner.connectedDate).getTime();
-      return Math.min(min, date);
-    }, Date.now());
-
+    if (!earliestMiner) return 0;
+    const earliest = new Date(earliestMiner.connectedDate).getTime();
     const today = Date.now();
     const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));
-    const nodeCount = miners.length;
+    const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
+    const nodeCustomerCount = await MinerModel.countDocuments({ customerId: parent.id,  status: MinerStatuses.REGISTERED });
 
-    let total = 0;
-    for (let i = 0; i <= uptimeInDays; i++) {
-      const { rewardPerNode } = EmissionHelper.summary(i, nodeCount);
-      total += rewardPerNode * nodeCount;
-    }
-
-    return Math.floor(total);
-  },
-  speedMiner: async (parent: { id: any }) => {
-    const miners = await MinerModel.find({ customerId: parent.id })
-        .select('connectedDate')
-        .lean();
-
-    if (!miners || miners.length === 0) return 0;
-
-    const earliest = miners.reduce((min, miner) => {
-      const date = new Date(miner.connectedDate).getTime();
-      return Math.min(min, date);
-    }, Date.now());
-
-    const today = Date.now();
-    const uptimeInSeconds = Math.floor((today - earliest) / 1000);
-    const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));
-    const nodeCount = miners.length;
-
-    let total = 0;
-    for (let i = 0; i <= uptimeInDays; i++) {
-      const { rewardPerNode } = EmissionHelper.summary(i, nodeCount);
-      total += rewardPerNode * nodeCount;
-    }
-    return total / uptimeInSeconds;
+    return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInDays, nodeCount, nodeCustomerCount);
   },
   totalUptime: async (parent: { id: any; }) => {
     const earliestMiner = await MinerModel.findOne({ customerId: parent.id })
