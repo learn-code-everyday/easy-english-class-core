@@ -69,6 +69,7 @@ type Customer {
   totalMiners: Float
   totalTokensMined: Float
   totalUptime: Float
+  totalEmission: Float
 
   status: String
 }

@@ -7,6 +7,7 @@ import {MinerModel} from "../../modules/miner/miner.model";
 import {UserModel} from "../../modules/user/user.model";
 import {OrderModel} from "../../modules/order/order.model";
 import {set} from "lodash";
+import {EmissionHelper} from "../../../helpers/emission.helper";
 
 const Query = {
   getAllCustomer: async (root: any, args: any, context: Context) => {
@@ -99,6 +100,43 @@ const Mutation = {
 };
 
 const Customer = {
+  totalEmission: async (parent: { id: any }) => {
+    const miners = await MinerModel.find({ customerId: parent.id })
+        .select('connectedDate')
+        .lean();
+
+    if (!miners || miners.length === 0) return 0;
+
+    const earliest = miners.reduce((min, miner) => {
+      const date = new Date(miner.connectedDate).getTime();
+      return Math.min(min, date);
+    }, Date.now());
+
+    const today = Date.now();
+    const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));
+    const nodeCount = miners.length;
+
+    let total = 0;
+    for (let i = 0; i <= uptimeInDays; i++) {
+      const { rewardPerNode } = EmissionHelper.summary(i, nodeCount);
+      total += rewardPerNode * nodeCount;
+    }
+
+    return Math.floor(total);
+  },
+  totalUptime: async (parent: { id: any; }) => {
+    const earliestMiner = await MinerModel.findOne({ customerId: parent.id })
+        .sort({ connectedDate: 1 }) // earliest date
+        .select('connectedDate')
+        .lean();
+
+    if (!earliestMiner?.connectedDate) return 0;
+    const connected = new Date(earliestMiner.connectedDate).getTime();
+    const now = Date.now();
+    const uptimeInMs = now - connected;
+
+    return Math.floor(uptimeInMs / (1000 * 60 * 60 * 24));
+  },
   totalMiners: async (parent: { id: any; }) => {
     return MinerModel.countDocuments({customerId: parent.id});
   },
@@ -109,18 +147,6 @@ const Customer = {
         $group: {
           _id: null,
           total: { $sum: '$totalTokensMined' }
-        }
-      }
-    ]);
-    return result[0]?.total || 0;
-  },
-  totalUptime: async (parent: { id: any; }) => {
-    const result = await MinerModel.aggregate([
-      { $match: { customerId: parent.id } },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: '$totalUptime' }
         }
       }
     ]);
