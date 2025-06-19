@@ -68,9 +68,14 @@ type Customer {
   referrenceId: String
   totalMiners: Float
   totalTokensMined: Float
+  emission: Emission
   totalUptime: Float
-
   status: String
+}
+
+type Emission {
+  speedPerMiner: Float
+  totalEmission: Float
 }
 
 type CustomerPageData {
