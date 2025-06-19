@@ -101,9 +101,9 @@ const Mutation = {
 
 const Customer = {
   emission: async (parent: { id: any }) => {
-    const earliestMiner = await MinerModel.findOne({ registered: true })
+    const earliestMiner = await MinerModel.findOne({ registered: true, connectedDate: {$exists: true} })
         .select('connectedDate')
-        .sort({ connectedDate: -1 })
+        .sort({ connectedDate: 1 })
         .lean();
 
     if (!earliestMiner) return 0;
@@ -111,7 +111,7 @@ const Customer = {
     const today = Date.now();
     const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));
     const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
-    const nodeCustomerCount = await MinerModel.countDocuments({ customerId: parent.id,  status: MinerStatuses.REGISTERED });
+    const nodeCustomerCount = await MinerModel.countDocuments({ customerId: parent.id, registered: true });
 
     return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInDays, nodeCount, nodeCustomerCount);
   },

@@ -103,10 +103,15 @@ const Miner = {
         }
         const earliestMiner = await MinerModel.findById(id)
             .select('connectedDate')
-            .sort({ connectedDate: -1 })
+            .sort({ connectedDate: 1 })
             .lean();
 
-        if (!earliestMiner) return 0;
+        if (!earliestMiner?.connectedDate) {
+            return {
+                speedPerMiner: 0,
+                totalEmission: 0
+            }
+        }
         const earliest = new Date(earliestMiner.connectedDate).getTime();
         const today = Date.now();
         const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));

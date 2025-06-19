@@ -97,11 +97,9 @@ export class EmissionHelper {
         N_total: number,
         customerMinerCount: number
     ): {
-        totalReward: number;
-        miningSpeedPerSecond: number;
+        totalEmission: number;
+        speedPerMiner: number;
     } {
-        customerMinerCount = 2;
-
         let totalReward = 0;
         let totalSpeed = 0;
 
@@ -109,13 +107,11 @@ export class EmissionHelper {
             const E_d = this.getDailyEmission(d);
             const minerCounts = this.getMinerCountPerClass(N_total);
             const classEmissions = this.calculateClassEmissions(E_d);
-
             let weightedSpeed = 0;
 
             for (let c = 1; c <= this.MAX_CLASSES; c++) {
                 const minersInClass = minerCounts[c];
                 if (minersInClass === 0) continue;
-
                 const classSpeed = classEmissions[c] / this.SECONDS_PER_DAY / minersInClass;
                 const classWeight = minersInClass / N_total;
 
@@ -127,8 +123,8 @@ export class EmissionHelper {
         }
 
         return {
-            totalReward,
-            miningSpeedPerSecond: totalSpeed / days
+            totalEmission: totalReward,
+            speedPerMiner: totalSpeed / days
         };
     }
 
