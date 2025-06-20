@@ -9,7 +9,7 @@ class MinerService extends CrudService<typeof MinerModel> {
     try {
       const totalMiners = await MinerModel.countDocuments();
       const activeMiners = await MinerModel.countDocuments({status: MinerStatuses.ACTIVE});
-      const totalMinersRegistered = await MinerModel.countDocuments({status: MinerStatuses.REGISTERED});
+      const totalMinersRegistered = await MinerModel.countDocuments({status: MinerStatuses.ACTIVE});
       const totalTokensResult = await MinerModel.aggregate([
         {
           $group: {
@@ -54,7 +54,7 @@ class MinerService extends CrudService<typeof MinerModel> {
         name: 'Miner' + Date.now().toString(36).toUpperCase(),
         blockChainAddress: Date.now().toString(36).toUpperCase(),
         customerId,
-        status: MinerStatuses.ACTIVE,
+        status: MinerStatuses.INACTIVE,
         registered: false,
         totalTokensMined: 0,
         totalUptime: 0,

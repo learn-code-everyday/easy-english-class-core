@@ -1,132 +1,174 @@
 export class EmissionHelper {
-    static readonly TOTAL_EMISSION = 5_000_000_000; // 5B total supply
+    static readonly TOTAL_EMISSION = 5_000_000_000;
     static readonly HALVING_INTERVAL_DAYS = 730;
     static readonly TOTAL_HALVING_PERIODS = 10;
     static readonly MAX_CLASSES = 5;
     static readonly CLASS_CAPACITY = 2000;
     static readonly SECONDS_PER_DAY = 86400;
 
-    static readonly A: number = (EmissionHelper.TOTAL_EMISSION * 1024) / 2046;
+    static readonly CLASS_WEIGHTS = [1, 2, 4, 8, 16];
+    static readonly TOTAL_WEIGHT = EmissionHelper.CLASS_WEIGHTS.reduce((a, b) => a + b, 0); // 31
 
-    // Step 1: Daily emission
-    static getDailyEmission(day: number): number {
-        const halvingIndex = Math.floor(day / this.HALVING_INTERVAL_DAYS);
-        if (halvingIndex >= this.TOTAL_HALVING_PERIODS) return 0;
-        const dailyBase = this.A / this.HALVING_INTERVAL_DAYS;
-        return dailyBase * Math.pow(0.5, halvingIndex);
-    }
-
-    // Step 2: Count miners per class
+    /**
+     * Returns how many miners are in each class (1 → 5)
+     */
     static getMinerCountPerClass(N_total: number): Record<number, number> {
-        const counts: Record<number, number> = {};
+        const result: Record<number, number> = {};
         for (let c = 1; c <= this.MAX_CLASSES; c++) {
             const lower = (c - 1) * this.CLASS_CAPACITY;
             const upper = c * this.CLASS_CAPACITY;
-            counts[c] = Math.max(0, Math.min(N_total, upper) - lower);
+            result[c] = Math.max(0, Math.min(N_total, upper) - lower);
         }
-        return counts;
+        return result;
     }
 
-    // Step 3: Calculate emissions per class
-    static calculateClassEmissions(E_d: number): Record<number, number> {
-        const emissions: Record<number, number> = {};
-        for (let c = 1; c <= this.MAX_CLASSES; c++) {
-            const base = 0.1 * E_d;
-            const variable = 0.9 * E_d / Math.pow(2, this.MAX_CLASSES - c);
-            emissions[c] = base + variable;
-        }
-        return emissions;
+    /**
+     * Returns the emission per day based on halving schedule
+     */
+    static getDailyEmission(day: number): number {
+        const period = Math.min(Math.floor(day / this.HALVING_INTERVAL_DAYS), this.TOTAL_HALVING_PERIODS);
+        const A = this.TOTAL_EMISSION / ((1 - Math.pow(0.5, this.TOTAL_HALVING_PERIODS + 1)) / (1 - 0.5));
+        return A * Math.pow(0.5, period) / this.HALVING_INTERVAL_DAYS;
     }
 
-    // Step 4: Calculate token/sec per miner per class
-    static getSpeedPerMiner(
+    /**
+     * Calculate class total emissions based on E_d and active miners
+     */
+    static calculateClassEmissions(
         E_d: number,
-        N_total: number
-    ): Record<number, number> {
-        const minerCounts = this.getMinerCountPerClass(N_total);
-        const classEmissions = this.calculateClassEmissions(E_d);
+        minerCounts: Record<number, number>
+    ): { classEmissions: Record<number, number>; reservePool: number } {
+        const baseTotal = 0.1 * E_d;
+        const variableTotal = 0.9 * E_d;
+        const basePerClass = baseTotal / this.MAX_CLASSES;
 
-        const speed: Record<number, number> = {};
+        const classEmissions: Record<number, number> = {};
+        let reservePool = 0;
+
+        for (let c = 1; c <= this.MAX_CLASSES; c++) {
+            const minersInClass = minerCounts[c];
+            const weight = this.CLASS_WEIGHTS[c - 1];
+
+            if (minersInClass > 0) {
+                const variablePart = (weight / this.TOTAL_WEIGHT) * variableTotal;
+                classEmissions[c] = basePerClass + variablePart;
+            } else {
+                const variablePart = (weight / this.TOTAL_WEIGHT) * variableTotal;
+                reservePool += basePerClass + variablePart;
+                classEmissions[c] = 0;
+            }
+        }
+
+        return { classEmissions, reservePool };
+    }
+
+    /**
+     * Get token/sec per miner for each class
+     */
+    static getSpeedPerMiner(E_d: number, N_total: number): Record<number, number> {
+        const minerCounts = this.getMinerCountPerClass(N_total);
+        const { classEmissions } = this.calculateClassEmissions(E_d, minerCounts);
+
+        const speeds: Record<number, number> = {};
         for (let c = 1; c <= this.MAX_CLASSES; c++) {
             const miners = minerCounts[c];
-            if (miners > 0) {
-                speed[c] = classEmissions[c] / this.SECONDS_PER_DAY / miners;
-            } else {
-                speed[c] = 0;
-            }
+            const emission = classEmissions[c];
+            speeds[c] = miners > 0 ? emission / this.SECONDS_PER_DAY / miners : 0;
         }
-        return speed;
+        return speeds;
     }
 
-    // ✅ Step 5: Simulate mining over multiple days
-    static simulateMining(
-        numDays: number,
-        N_total: number
-    ): Array<{
-        day: number;
+    /**
+     * Get token/sec per miner for each class
+     */
+    static getClassIndexByMinerPosition(position: number): number {
+        return Math.floor(position / this.CLASS_CAPACITY) + 1;
+    }
+
+    static calculateEmission(E_d: number, totalMiners: number): Array<{
+        class: number;
+        miners: number;
         emission: number;
-        rewardsPerMinerPerClass: Record<number, number>;
+        tokensPerSecondPerMiner: number;
     }> {
-        const results: Array<{
-            day: number;
+        const minerCounts = this.getMinerCountPerClass(totalMiners);
+        const { classEmissions } = this.calculateClassEmissions(E_d, minerCounts);
+
+        const result: Array<{
+            class: number;
+            miners: number;
             emission: number;
-            rewardsPerMinerPerClass: Record<number, number>;
+            tokensPerSecondPerMiner: number;
         }> = [];
 
-        for (let d = 0; d < numDays; d++) {
-            const E_d = this.getDailyEmission(d);
-            const speedPerMiner = this.getSpeedPerMiner(E_d, N_total);
+        for (let c = 1; c <= this.MAX_CLASSES; c++) {
+            const miners = minerCounts[c];
+            const emission = classEmissions[c];
+            const tokensPerSecondPerMiner = miners > 0 ? emission / this.SECONDS_PER_DAY / miners : 0;
 
-            const dailyRewardPerMiner: Record<number, number> = {};
-            for (let c = 1; c <= this.MAX_CLASSES; c++) {
-                dailyRewardPerMiner[c] = speedPerMiner[c] * this.SECONDS_PER_DAY;
-            }
+            result.push({
+                class: c,
+                miners,
+                emission: Math.round(emission),
+                tokensPerSecondPerMiner: parseFloat(tokensPerSecondPerMiner.toFixed(4))
+            });
+        }
+
+        return result;
+    }
+
+    static calculateMinerEmissions(
+        totalEmission: number,
+        totalMiners: number,
+    ): any {
+        const rewardMultipliers = Array.from({ length: this.MAX_CLASSES }, (_, i) => Math.pow(2, i));
+        const classMinerCounts = Array.from({ length: this.MAX_CLASSES }, (_, i) => {
+            const remaining = totalMiners - i * this.CLASS_CAPACITY;
+            return Math.max(0, Math.min(this.CLASS_CAPACITY, remaining));
+        });
+        const totalWeight = classMinerCounts.reduce(
+            (sum, miners, i) => sum + miners * rewardMultipliers[i],
+            0
+        );
+        const SECONDS_PER_DAY = 86400;
+        const DAYS = 365; // 1 year
+        const results: any = [];
+
+        for (let i = 0; i < this.MAX_CLASSES; i++) {
+            const miners = classMinerCounts[i];
+            const multiplier = rewardMultipliers[i];
+            const weight = miners * multiplier;
+            const emission = (weight / totalWeight) * totalEmission;
+            const tokensPerSecondPerMiner =
+                miners > 0 ? emission / (DAYS * SECONDS_PER_DAY * miners) : 0;
 
             results.push({
-                day: d,
-                emission: E_d,
-                rewardsPerMinerPerClass: dailyRewardPerMiner,
+                class: i + 1,
+                miners,
+                emission: Math.round(emission),
+                tokensPerSecondPerMiner: parseFloat(tokensPerSecondPerMiner.toFixed(4)),
             });
         }
 
         return results;
     }
 
-    static getTotalRewardAndSpeedForCustomer(seconds: number, N_total: number, customerMinerCount: number) {
-        const dayStart = 0;
-        const totalDays = Math.ceil(seconds / this.SECONDS_PER_DAY);
+    static getRewardPerSecond(position: number, totalMiners: number, days: number): number {
+        const E_d = this.getDailyEmission(days)
+        const classIndex = this.getClassIndexByMinerPosition(position);
+        if (classIndex > this.MAX_CLASSES) return 0;
 
-        let totalReward = 0;
-        let lastSpeedPerMiner = 0;
+        const minerCounts = this.getMinerCountPerClass(totalMiners);
+        const { classEmissions } = this.calculateClassEmissions(E_d, minerCounts);
+        const emission = classEmissions[classIndex];
+        const minersInClass = minerCounts[classIndex];
 
-        for (let d = dayStart; d < dayStart + totalDays; d++) {
-            const E_d = this.getDailyEmission(d);
-            const speedMap = this.getSpeedPerMiner(E_d, N_total);
+        if (!minersInClass || !emission) return 0;
 
-            // Giả sử customer nằm ở class đầu tiên có slot trống (theo phân bổ sequentially)
-            const classCounts = this.getMinerCountPerClass(N_total);
-            let assignedClass = 1;
-            for (let c = 1; c <= this.MAX_CLASSES; c++) {
-                const maxClassSize = this.CLASS_CAPACITY;
-                const currentCount = classCounts[c];
-                if (currentCount < maxClassSize) {
-                    assignedClass = c;
-                    break;
-                }
-            }
+        console.log(123123, emission )
+        console.log(123123, this.SECONDS_PER_DAY )
+        console.log(123123, minersInClass )
 
-            const speed = speedMap[assignedClass];
-            const secondsThisDay = (d === totalDays - 1 && seconds % this.SECONDS_PER_DAY !== 0)
-                ? seconds % this.SECONDS_PER_DAY
-                : this.SECONDS_PER_DAY;
-
-            totalReward += speed * secondsThisDay * customerMinerCount;
-            lastSpeedPerMiner = speed;
-        }
-
-        return {
-            totalEmission: totalReward,
-            speedPerMiner: lastSpeedPerMiner
-        };
+        return emission / this.SECONDS_PER_DAY / minersInClass;
     }
 }

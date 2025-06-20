@@ -48,16 +48,15 @@ const Mutation = {
         const {data} = args;
         const {code} = data;
 
-        const miner = await minerService.findOne({code});
-        if (!miner) {
+        const miner: any = await minerService.findOne({code})
+        if (!miner || miner?.customerId !== context.id) {
             throw new Error("miner is missing or invalid.");
         }
 
         return await minerService.updateOne(miner._id.toString(), {
-            customerId: context.id,
             registered: true,
-            status: MinerStatuses.REGISTERED,
-            connectedDate: new Date()
+            status: MinerStatuses.ACTIVE,
+            connectedDate: new Date(),
         });
     },
     disConnectMiner: async (root: any, args: any, context: Context) => {
@@ -65,11 +64,23 @@ const Mutation = {
         const {data} = args;
         const {code} = data;
 
-        const miner = await minerService.findOne({code});
+        const miner: any = await minerService.findOne({code});
+        if (!miner || miner.customerId !== context.id) {
+            throw new Error("miner is missing or invalid.");
+        }
+        const now = new Date();
+        const connectedDate = miner.connectedDate ? new Date(miner.connectedDate) : null;
+
+        let uptimeInSeconds = 0;
+        if (connectedDate) {
+            uptimeInSeconds = Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
+        }
+
         return await minerService.updateOne(miner._id.toString(), {
             customerId: null,
             status: MinerStatuses.ACTIVE,
             registered: false,
+            totalUptime: (miner.totalUptime || 0) + uptimeInSeconds,
         });
     },
     createMiner: async (root: any, args: any, context: Context) => {
@@ -93,9 +104,23 @@ const Miner = {
     customer: async (parent: { customerId: any; }) => {
         return CustomerModel.findById(parent.customerId);
     },
-    emission: async (parent: { id: any, customerId: any; }) => {
-        const {id, customerId} = parent;
-        if (!customerId) {
+    totalUptime: async (parent: { id: any, customerId: any; connectedDate: any; totalUptime: any; status: any}) => {
+        let {connectedDate, status} = parent;
+        if (!connectedDate || status !== MinerStatuses.ACTIVE) {
+            return 0
+        }
+        const dateCheck = new Date(connectedDate);
+        let uptimeInSeconds = 0;
+        const now = new Date();
+        if (dateCheck) {
+            uptimeInSeconds = Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
+        }
+
+        return uptimeInSeconds;
+    },
+    emission: async (parent: { id: any, customerId: any; connectedDate: any}) => {
+        let {id, customerId, connectedDate} = parent;
+        if (!customerId || !connectedDate) {
             return {
                 speedPerMiner: 0,
                 totalEmission: 0
@@ -114,13 +139,25 @@ const Miner = {
         }
         const earliest = new Date(earliestMiner.connectedDate).getTime();
         const today = Date.now();
-        // const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
-        const uptimeInSeconds = Math.floor((today - earliest) / 1000);
+        const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
+        const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
+        const position = await MinerModel.countDocuments({
+            registered: true,
+            connectedDate: { $lt: connectedDate },
+        });
+        const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
 
-        const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
-        const nodeCustomerCount = await MinerModel.countDocuments({ customerId,  status: MinerStatuses.REGISTERED });
+        const now = new Date();
+        const dateCheck = new Date(connectedDate);
+        let uptimeInSeconds = 0;
+        if (dateCheck) {
+            uptimeInSeconds = Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
+        }
 
-        return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInSeconds, nodeCount, nodeCustomerCount);
+        return {
+            speedPerMiner,
+            totalEmission: uptimeInSeconds * speedPerMiner,
+        }
     },
 };
 

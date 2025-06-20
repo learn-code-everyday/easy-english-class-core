@@ -5,7 +5,6 @@ import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
 export enum MinerStatuses {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
-  REGISTERED = "REGISTERED",
 }
 
 export type Miner = {
@@ -34,7 +33,7 @@ const minerSchema = new Schema(
     model: { type: String },
     code: { type: String, unique: true, sparse: true },
     blockChainAddress: { type: String },
-    status: { type: String, enum: MinerStatuses, default: MinerStatuses.ACTIVE },
+    status: { type: String, enum: MinerStatuses, default: MinerStatuses.INACTIVE },
     registered: { type: Boolean, default: false },
     totalTokensMined: { type: Number },
     totalUptime: { type: Number },
@@ -47,6 +46,8 @@ const minerSchema = new Schema(
   },
   { timestamps: true }
 );
+
+minerSchema.index({ connectedDate: 1 });
 
 export const MinerHook = new ModelHook<IMiner>(minerSchema);
 export const MinerModel: mongoose.Model<IMiner> = MainConnection.model(
