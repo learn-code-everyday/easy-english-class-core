@@ -105,7 +105,7 @@ const Miner = {
         return CustomerModel.findById(parent.customerId);
     },
     totalUptime: async (parent: { id: any, customerId: any; connectedDate: any; totalUptime: any; status: any}) => {
-        let {connectedDate, status} = parent;
+        let {connectedDate, status, totalUptime} = parent;
         if (!connectedDate || status !== MinerStatuses.ACTIVE) {
             return 0
         }
@@ -113,7 +113,7 @@ const Miner = {
         let uptimeInSeconds = 0;
         const now = new Date();
         if (dateCheck) {
-            uptimeInSeconds = Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
+            uptimeInSeconds = totalUptime + Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
         }
 
         return uptimeInSeconds;
@@ -126,7 +126,7 @@ const Miner = {
                 totalEmission: 0
             }
         }
-        const earliestMiner = await MinerModel.findById(id)
+        const earliestMiner = await MinerModel.findOne({status: MinerStatuses.ACTIVE})
             .select('connectedDate')
             .sort({ connectedDate: 1 })
             .lean();

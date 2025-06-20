@@ -105,12 +105,13 @@ const Customer = {
 
     let totalEmission = 0;
     const now = Date.now();
+    let speedPerMiner = 0;
 
     for (const miner of miners) {
       const { connectedDate } = miner;
       if (!connectedDate) continue;
 
-      const earliestMiner = await MinerModel.findById(miner._id)
+      const earliestMiner = await MinerModel.findOne({status: MinerStatuses.ACTIVE})
           .select('connectedDate')
           .sort({ connectedDate: 1 })
           .lean();
@@ -126,13 +127,16 @@ const Customer = {
         connectedDate: { $lt: connectedDate },
       });
 
-      const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
+      speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
 
       const uptimeInSeconds = Math.floor((now - new Date(connectedDate).getTime()) / 1000);
       totalEmission += uptimeInSeconds * speedPerMiner;
     }
 
-    return totalEmission;
+    return {
+      speedPerMiner,
+      totalEmission,
+    };
   },
 
   totalUptime: async (parent: { id: any }) => {
