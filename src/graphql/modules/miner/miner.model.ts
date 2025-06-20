@@ -14,7 +14,6 @@ export type Miner = {
   status?: MinerStatuses;
   registered?: boolean;
   totalTokensMined?: number;
-  totalEmission?: number;
   totalUptime?: number;
   currentHashRate?: number;
   lastActive?: string;
@@ -37,8 +36,7 @@ const minerSchema = new Schema(
     blockChainAddress: { type: String },
     status: { type: String, enum: MinerStatuses, default: MinerStatuses.INACTIVE },
     registered: { type: Boolean, default: false },
-    totalTokensMined: { type: Number },
-    totalEmission: { type: Number, default: 0 },
+    totalTokensMined: { type: Number, default: 0 },
     totalUptime: { type: Number },
     currentHashRate: { type: Number },
     lastActive: { type: Date },

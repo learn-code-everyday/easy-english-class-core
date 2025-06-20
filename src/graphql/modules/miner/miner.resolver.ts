@@ -84,7 +84,7 @@ const Mutation = {
     }
 
     // Tính emission cuối cùng trước khi disconnect
-    let finalEmission = miner.totalEmission || 0;
+    let finalEmission = miner.totalTokensMined || 0;
     if (miner.status === MinerStatuses.ACTIVE && connectedDate) {
       // Tính emission từ lastEmissionUpdate hoặc connectedDate
       const lastUpdate = miner.lastEmissionUpdate ? new Date(miner.lastEmissionUpdate) : connectedDate;
@@ -114,7 +114,7 @@ const Mutation = {
       status: MinerStatuses.INACTIVE,
       registered: false,
       totalUptime: (miner.totalUptime || 0) + uptimeInSeconds,
-      totalEmission: finalEmission,
+      totalTokensMined: finalEmission,
       lastEmissionUpdate: now,
     });
   },
@@ -150,12 +150,12 @@ const Miner = {
 
     return uptimeInSeconds;
   },
-  emission: async (parent: { id: any; customerId: any; connectedDate: any; status: any; totalEmission: any; lastEmissionUpdate: any }) => {
-    let { id, customerId, connectedDate, status, totalEmission, lastEmissionUpdate } = parent;
+  emission: async (parent: { id: any; customerId: any; connectedDate: any; status: any; totalTokensMined: any; lastEmissionUpdate: any }) => {
+    let { id, customerId, connectedDate, status, totalTokensMined, lastEmissionUpdate } = parent;
     if (!customerId || !connectedDate || status !== MinerStatuses.ACTIVE) {
       return {
         speedPerMiner: 0,
-        totalEmission: totalEmission || 0,
+        totalEmission: totalTokensMined || 0,
       };
     }
 
@@ -170,7 +170,7 @@ const Miner = {
     if (!earliestMiner?.connectedDate) {
       return {
         speedPerMiner: 0,
-        totalEmission: totalEmission || 0,
+        totalEmission: totalTokensMined || 0,
       };
     }
     
@@ -189,13 +189,13 @@ const Miner = {
     const lastUpdate = lastEmissionUpdate ? new Date(lastEmissionUpdate) : new Date(connectedDate);
     const secondsSinceLastUpdate = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000);
     const newEmission = secondsSinceLastUpdate * speedPerMiner;
-    const updatedTotalEmission = (totalEmission || 0) + newEmission;
+    const updatedTotalEmission = (totalTokensMined || 0) + newEmission;
 
     // Cập nhật database
     await MinerModel.updateOne(
       { _id: id },
       { 
-        totalEmission: updatedTotalEmission,
+        totalTokensMined: updatedTotalEmission,
         lastEmissionUpdate: now 
       }
     );
