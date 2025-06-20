@@ -1,168 +1,214 @@
-import {ROLES} from "../../../constants/role.const";
-import {Context} from "../../../core/context";
-import {minerService} from "./miner.service";
-import {set} from "lodash";
-import {CustomerModel} from "../../modules/customer/customer.model";
-import {qrTokenService} from "../../modules/qrToken/qrToken.service";
-import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
-import {EmissionHelper} from "../../../helpers/emission.helper";
+import { ROLES } from "../../../constants/role.const";
+import { Context } from "../../../core/context";
+import { minerService } from "./miner.service";
+import { set } from "lodash";
+import { CustomerModel } from "../../modules/customer/customer.model";
+import { qrTokenService } from "../../modules/qrToken/qrToken.service";
+import { MinerModel, MinerStatuses } from "../../modules/miner/miner.model";
+import { EmissionHelper } from "../../../helpers/emission.helper";
 
 const Query = {
-    getMyMiner: async (root: any, args: any, context: Context) => {
-        context.auth([ROLES.CUSTOMER]);
-        if (context.isCustomer()) {
-            set(args, "q.filter.customerId", context.id)
-        }
-        return minerService.fetch(args.q);
-    },
-    getAllMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        return minerService.fetch(args.q);
-    },
-    getOneMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {id} = args;
-        return await minerService.findOne({_id: id});
-    },
-    getDataMinerForAdmin: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_MEMBER_EDITOR);
-        return minerService.getDataMinerForAdmin();
-    },
+  getAllMiner: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_CUSTOMER);
+    if (context.isCustomer()) {
+      set(args, "q.filter.customerId", context.id);
+    }
+    return minerService.fetch(args.q);
+  },
+  getOneMiner: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_CUSTOMER);
+    const { id } = args;
+    const filter: any = { _id: id };
+    if (context.isCustomer()) {
+      set(filter, "customerId", context.id);
+    }
+    const miner = await minerService.findOne(filter);
+    console.log("Miner found:", miner);
+    return miner;
+  },
+  getDataMinerForAdmin: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
+    return minerService.getDataMinerForAdmin();
+  },
 };
 
 const Mutation = {
-    scanMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {code} = args.data;
-        const customerId = context.id;
+  scanMiner: async (root: any, args: any, context: Context) => {
+    context.auth([ROLES.CUSTOMER]);
+    const { code } = args.data;
+    const customerId = context.id;
 
-        const dataQr = await qrTokenService.findOne({token: code, customerId});
-        if (!dataQr) {
-            throw new Error("Qr is missing or invalid.");
-        }
+    const dataQr = await qrTokenService.findOne({ token: code, customerId });
+    if (!dataQr) {
+      throw new Error("Qr is missing or invalid.");
+    }
 
-        return minerService.generateMiner(customerId, code);
-    },
-    connectMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {data} = args;
-        const {code} = data;
+    return minerService.generateMiner(customerId, code);
+  },
+  connectMiner: async (root: any, args: any, context: Context) => {
+    context.auth([ROLES.CUSTOMER]);
+    const { data } = args;
+    const { code } = data;
 
-        const miner: any = await minerService.findOne({code})
-        if (!miner || miner?.customerId !== context.id) {
-            throw new Error("miner is missing or invalid.");
-        }
+    const customerId = context.id;
 
-        return await minerService.updateOne(miner._id.toString(), {
-            registered: true,
-            status: MinerStatuses.ACTIVE,
-            connectedDate: new Date(),
+    const miner = await minerService.findOne({ code, customerId });
+    if (!miner) {
+      throw new Error("miner is missing or invalid.");
+    }
+
+    return await minerService.updateOne(miner.id, {
+      registered: true,
+      status: MinerStatuses.ACTIVE,
+      connectedDate: new Date(),
+    });
+  },
+  disConnectMiner: async (root: any, args: any, context: Context) => {
+    context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
+    const { data } = args;
+    const { code } = data;
+
+    const customerId = context.id;
+
+    const miner: any = await minerService.findOne({ code, customerId });
+    if (!miner) {
+      throw new Error("miner is missing or invalid.");
+    }
+
+    const now = new Date();
+    const connectedDate = miner.connectedDate ? new Date(miner.connectedDate) : null;
+
+    let uptimeInSeconds = 0;
+    if (connectedDate) {
+      uptimeInSeconds = Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
+    }
+
+    // Tính emission cuối cùng trước khi disconnect
+    let finalEmission = miner.totalEmission || 0;
+    if (miner.status === MinerStatuses.ACTIVE && connectedDate) {
+      // Tính emission từ lastEmissionUpdate hoặc connectedDate
+      const lastUpdate = miner.lastEmissionUpdate ? new Date(miner.lastEmissionUpdate) : connectedDate;
+      const secondsSinceLastUpdate = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000);
+      
+      // Cần tính speedPerMiner (copy logic từ emission function)
+      const earliestMiner = await MinerModel.findOne({ status: MinerStatuses.ACTIVE })
+        .select("connectedDate")
+        .sort({ connectedDate: 1 })
+        .lean();
+
+      if (earliestMiner?.connectedDate) {
+        const earliest = new Date(earliestMiner.connectedDate).getTime();
+        const uptimeInDays = Math.floor((now.getTime() - earliest) / (1000 * 60 * 60 * 24)) || 1;
+        const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
+        const position = await MinerModel.countDocuments({
+          registered: true,
+          status: MinerStatuses.ACTIVE,
+          connectedDate: { $lt: connectedDate },
         });
-    },
-    disConnectMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {data} = args;
-        const {code} = data;
+        const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
+        finalEmission += secondsSinceLastUpdate * speedPerMiner;
+      }
+    }
 
-        const miner: any = await minerService.findOne({code});
-        if (!miner || miner.customerId !== context.id) {
-            throw new Error("miner is missing or invalid.");
-        }
-        const now = new Date();
-        const connectedDate = miner.connectedDate ? new Date(miner.connectedDate) : null;
-
-        let uptimeInSeconds = 0;
-        if (connectedDate) {
-            uptimeInSeconds = Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
-        }
-
-        return await minerService.updateOne(miner._id.toString(), {
-            customerId: null,
-            status: MinerStatuses.ACTIVE,
-            registered: false,
-            totalUptime: (miner.totalUptime || 0) + uptimeInSeconds,
-        });
-    },
-    createMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {data} = args;
-        return await minerService.create(data);
-    },
-    updateMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
-        const {id, data} = args;
-        return await minerService.updateOne(id, data);
-    },
-    deleteOneMiner: async (root: any, args: any, context: Context) => {
-        context.auth(ROLES.ADMIN_EDITOR);
-        const {id} = args;
-        return await minerService.deleteOne(id);
-    },
+    return await minerService.updateOne(miner._id.toString(), {
+      status: MinerStatuses.INACTIVE,
+      registered: false,
+      totalUptime: (miner.totalUptime || 0) + uptimeInSeconds,
+      totalEmission: finalEmission,
+      lastEmissionUpdate: now,
+    });
+  },
 };
 
 const Miner = {
-    customer: async (parent: { customerId: any; }) => {
-        return CustomerModel.findById(parent.customerId);
-    },
-    totalUptime: async (parent: { id: any, customerId: any; connectedDate: any; totalUptime: any; status: any}) => {
-        let {connectedDate, status, totalUptime} = parent;
-        if (!connectedDate || status !== MinerStatuses.ACTIVE) {
-            return 0
-        }
-        const dateCheck = new Date(connectedDate);
-        let uptimeInSeconds = 0;
-        const now = new Date();
-        if (dateCheck) {
-            uptimeInSeconds = totalUptime + Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
-        }
+  customer: async (parent: { customerId: any }) => {
+    return CustomerModel.findById(parent.customerId);
+  },
+  totalUptime: async (parent: {
+    id: any;
+    customerId: any;
+    connectedDate: any;
+    totalUptime: any;
+    status: any;
+  }) => {
+    let { connectedDate, status, totalUptime } = parent;
+    
+    // Nếu miner chưa bao giờ connect thì return 0
+    if (!totalUptime && !connectedDate) {
+      return 0;
+    }
+    
+    let uptimeInSeconds = totalUptime || 0;
+    
+    // Nếu đang ACTIVE và có connectedDate, thêm uptime hiện tại
+    if (status === MinerStatuses.ACTIVE && connectedDate) {
+      const dateCheck = new Date(connectedDate);
+      const now = new Date();
+      const currentUptime = Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
+      uptimeInSeconds += currentUptime;
+    }
 
-        return uptimeInSeconds;
-    },
-    emission: async (parent: { id: any, customerId: any; connectedDate: any}) => {
-        let {id, customerId, connectedDate} = parent;
-        if (!customerId || !connectedDate) {
-            return {
-                speedPerMiner: 0,
-                totalEmission: 0
-            }
-        }
-        const earliestMiner = await MinerModel.findOne({status: MinerStatuses.ACTIVE})
-            .select('connectedDate')
-            .sort({ connectedDate: 1 })
-            .lean();
+    return uptimeInSeconds;
+  },
+  emission: async (parent: { id: any; customerId: any; connectedDate: any; status: any; totalEmission: any; lastEmissionUpdate: any }) => {
+    let { id, customerId, connectedDate, status, totalEmission, lastEmissionUpdate } = parent;
+    if (!customerId || !connectedDate || status !== MinerStatuses.ACTIVE) {
+      return {
+        speedPerMiner: 0,
+        totalEmission: totalEmission || 0,
+      };
+    }
 
-        if (!earliestMiner?.connectedDate) {
-            return {
-                speedPerMiner: 0,
-                totalEmission: 0
-            }
-        }
-        const earliest = new Date(earliestMiner.connectedDate).getTime();
-        const today = Date.now();
-        const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
-        const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
-        const position = await MinerModel.countDocuments({
-            registered: true,
-            connectedDate: { $lt: connectedDate },
-        });
-        const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
+    const now = new Date();
+    
+    // Lấy thông tin để tính speedPerMiner
+    const earliestMiner = await MinerModel.findOne({ status: MinerStatuses.ACTIVE })
+      .select("connectedDate")
+      .sort({ connectedDate: 1 })
+      .lean();
 
-        const now = new Date();
-        const dateCheck = new Date(connectedDate);
-        let uptimeInSeconds = 0;
-        if (dateCheck) {
-            uptimeInSeconds = Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
-        }
+    if (!earliestMiner?.connectedDate) {
+      return {
+        speedPerMiner: 0,
+        totalEmission: totalEmission || 0,
+      };
+    }
+    
+    const earliest = new Date(earliestMiner.connectedDate).getTime();
+    const today = Date.now();
+    const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
+    const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
+    const position = await MinerModel.countDocuments({
+      registered: true,
+      status: MinerStatuses.ACTIVE,
+      connectedDate: { $lt: connectedDate },
+    });
+    const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
 
-        return {
-            speedPerMiner,
-            totalEmission: uptimeInSeconds * speedPerMiner,
-        }
-    },
+    // Tính emission từ lần update cuối (hoặc từ connectedDate nếu chưa update bao giờ)
+    const lastUpdate = lastEmissionUpdate ? new Date(lastEmissionUpdate) : new Date(connectedDate);
+    const secondsSinceLastUpdate = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000);
+    const newEmission = secondsSinceLastUpdate * speedPerMiner;
+    const updatedTotalEmission = (totalEmission || 0) + newEmission;
+
+    // Cập nhật database
+    await MinerModel.updateOne(
+      { _id: id },
+      { 
+        totalEmission: updatedTotalEmission,
+        lastEmissionUpdate: now 
+      }
+    );
+
+    return {
+      speedPerMiner,
+      totalEmission: updatedTotalEmission,
+    };
+  },
 };
 
 export default {
-    Query,
-    Mutation,
-    Miner,
+  Query,
+  Mutation,
+  Miner,
 };

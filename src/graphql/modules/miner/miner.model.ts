@@ -14,9 +14,11 @@ export type Miner = {
   status?: MinerStatuses;
   registered?: boolean;
   totalTokensMined?: number;
+  totalEmission?: number;
   totalUptime?: number;
   currentHashRate?: number;
   lastActive?: string;
+  lastEmissionUpdate?: string;
   manufactureDate?: string;
   customerId?: string;
   connectedDate?: string;
@@ -36,9 +38,11 @@ const minerSchema = new Schema(
     status: { type: String, enum: MinerStatuses, default: MinerStatuses.INACTIVE },
     registered: { type: Boolean, default: false },
     totalTokensMined: { type: Number },
+    totalEmission: { type: Number, default: 0 },
     totalUptime: { type: Number },
     currentHashRate: { type: Number },
     lastActive: { type: Date },
+    lastEmissionUpdate: { type: Date },
     manufactureDate: { type: Date },
     customerId: { type: Schema.Types.ObjectId, ref: "Customer" },
     connectedDate: { type: Date },

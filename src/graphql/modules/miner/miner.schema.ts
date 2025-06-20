@@ -2,7 +2,6 @@ import { gql } from "apollo-server-express";
 
 const schema = gql`
   extend type Query {
-    getMyMiner(q: QueryGetListInput): MinerPageData
     getAllMiner(q: QueryGetListInput): MinerPageData
     getOneMiner(id: ID!): Miner
     # Add Query
@@ -13,9 +12,6 @@ const schema = gql`
     scanMiner(data: ScanMinerInput!): Miner
     connectMiner(data: ConnectMinerInput!): Miner
     disConnectMiner(data: DisConnectMinerInput!): Miner
-    createMiner(data: CreateMinerInput!): Miner
-    updateMiner(id: ID!, data: UpdateMinerInput!): Miner
-    deleteOneMiner(id: ID!): Miner
     # Add Mutation
   }
   
@@ -29,26 +25,6 @@ const schema = gql`
   
   input DisConnectMinerInput {
     code: String
-  }
-
-  input CreateMinerInput {
-    name: String
-    model: String
-    code: String
-    status: String
-    blockChainAddress: String
-    currentHashRate: Float
-    lastActive: DateTime
-  }
-
-  input UpdateMinerInput {
-    name: String
-    model: String
-    code: String
-    status: String
-    blockChainAddress: String
-    currentHashRate: Float
-    lastActive: DateTime
   }
   
   type DataMinerForAdmin {
