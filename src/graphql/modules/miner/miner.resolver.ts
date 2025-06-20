@@ -114,11 +114,13 @@ const Miner = {
         }
         const earliest = new Date(earliestMiner.connectedDate).getTime();
         const today = Date.now();
-        const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
+        // const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
+        const uptimeInSeconds = Math.floor((today - earliest) / 1000);
+
         const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
         const nodeCustomerCount = await MinerModel.countDocuments({ customerId,  status: MinerStatuses.REGISTERED });
 
-        return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInDays, nodeCount, nodeCustomerCount);
+        return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInSeconds, nodeCount, nodeCustomerCount);
     },
 };
 

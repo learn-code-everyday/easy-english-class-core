@@ -92,39 +92,41 @@ export class EmissionHelper {
         return results;
     }
 
-    static getTotalRewardAndSpeedForCustomer(
-        days: number,
-        N_total: number,
-        customerMinerCount: number
-    ): {
-        totalEmission: number;
-        speedPerMiner: number;
-    } {
+    static getTotalRewardAndSpeedForCustomer(seconds: number, N_total: number, customerMinerCount: number) {
+        const dayStart = 0;
+        const totalDays = Math.ceil(seconds / this.SECONDS_PER_DAY);
+
         let totalReward = 0;
-        let totalSpeed = 0;
+        let lastSpeedPerMiner = 0;
 
-        for (let d = 0; d < days; d++) {
+        for (let d = dayStart; d < dayStart + totalDays; d++) {
             const E_d = this.getDailyEmission(d);
-            const minerCounts = this.getMinerCountPerClass(N_total);
-            const classEmissions = this.calculateClassEmissions(E_d);
-            let weightedSpeed = 0;
+            const speedMap = this.getSpeedPerMiner(E_d, N_total);
 
+            // Giả sử customer nằm ở class đầu tiên có slot trống (theo phân bổ sequentially)
+            const classCounts = this.getMinerCountPerClass(N_total);
+            let assignedClass = 1;
             for (let c = 1; c <= this.MAX_CLASSES; c++) {
-                const minersInClass = minerCounts[c];
-                if (minersInClass === 0) continue;
-                const classSpeed = classEmissions[c] / this.SECONDS_PER_DAY / minersInClass;
-                const classWeight = minersInClass / N_total;
-
-                weightedSpeed += classSpeed * classWeight;
+                const maxClassSize = this.CLASS_CAPACITY;
+                const currentCount = classCounts[c];
+                if (currentCount < maxClassSize) {
+                    assignedClass = c;
+                    break;
+                }
             }
-            totalSpeed += weightedSpeed;
 
-            totalReward += weightedSpeed * this.SECONDS_PER_DAY * customerMinerCount;
+            const speed = speedMap[assignedClass];
+            const secondsThisDay = (d === totalDays - 1 && seconds % this.SECONDS_PER_DAY !== 0)
+                ? seconds % this.SECONDS_PER_DAY
+                : this.SECONDS_PER_DAY;
+
+            totalReward += speed * secondsThisDay * customerMinerCount;
+            lastSpeedPerMiner = speed;
         }
 
         return {
             totalEmission: totalReward,
-            speedPerMiner: totalSpeed / days
+            speedPerMiner: lastSpeedPerMiner
         };
     }
 }
