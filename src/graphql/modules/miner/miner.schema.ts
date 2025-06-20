@@ -75,6 +75,7 @@ const schema = gql`
     totalUptime: Float
     currentHashRate: Float
     lastActive: DateTime
+    emission: Emission
   }
 
   type MinerPageData {

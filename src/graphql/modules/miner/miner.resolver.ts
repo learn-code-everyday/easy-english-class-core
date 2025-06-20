@@ -4,7 +4,8 @@ import {minerService} from "./miner.service";
 import {set} from "lodash";
 import {CustomerModel} from "../../modules/customer/customer.model";
 import {qrTokenService} from "../../modules/qrToken/qrToken.service";
-import {MinerStatuses} from "../../modules/miner/miner.model";
+import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
+import {EmissionHelper} from "../../../helpers/emission.helper";
 
 const Query = {
     getMyMiner: async (root: any, args: any, context: Context) => {
@@ -91,6 +92,35 @@ const Mutation = {
 const Miner = {
     customer: async (parent: { customerId: any; }) => {
         return CustomerModel.findById(parent.customerId);
+    },
+    emission: async (parent: { id: any, customerId: any; }) => {
+        const {id, customerId} = parent;
+        if (!customerId) {
+            return {
+                speedPerMiner: 0,
+                totalEmission: 0
+            }
+        }
+        const earliestMiner = await MinerModel.findById(id)
+            .select('connectedDate')
+            .sort({ connectedDate: 1 })
+            .lean();
+
+        if (!earliestMiner?.connectedDate) {
+            return {
+                speedPerMiner: 0,
+                totalEmission: 0
+            }
+        }
+        const earliest = new Date(earliestMiner.connectedDate).getTime();
+        const today = Date.now();
+        // const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
+        const uptimeInSeconds = Math.floor((today - earliest) / 1000);
+
+        const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
+        const nodeCustomerCount = await MinerModel.countDocuments({ customerId,  status: MinerStatuses.REGISTERED });
+
+        return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInSeconds, nodeCount, nodeCustomerCount);
     },
 };
 

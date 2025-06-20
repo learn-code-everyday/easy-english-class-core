@@ -31,6 +31,10 @@ export enum SettingKey {
   WALLET_ADDRESS = "WALLET_ADDRESS",
   CRYPTO_SCAN = "CRYPTO_SCAN",
   EXCHANGE_RATE = "EXCHANGE_RATE",
+
+  TOTAL_EMISSION = "TOTAL_EMISSION",
+  HALVING_INTERVAL_DAYS = "HALVING_INTERVAL_DAYS",
+  TOTAL_HALVING_PERIODS = "TOTAL_HALVING_PERIODS",
 }
 
 export const SETTING_DATA = [
@@ -181,6 +185,33 @@ export const SETTING_DATA = [
         name: "Crypto scan",
         key: SettingKey.CRYPTO_SCAN,
         value: "https://tronscan.org/#/",
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Total emission",
+        key: SettingKey.TOTAL_EMISSION,
+        value: 50000000000,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Halving interval days",
+        key: SettingKey.HALVING_INTERVAL_DAYS,
+        value: 730,
+        isActive: true,
+        isPrivate: false,
+        readOnly: false,
+      },
+      {
+        type: SettingTypes.number,
+        name: "Total halving periods",
+        key: SettingKey.TOTAL_HALVING_PERIODS,
+        value: 10,
         isActive: true,
         isPrivate: false,
         readOnly: false,

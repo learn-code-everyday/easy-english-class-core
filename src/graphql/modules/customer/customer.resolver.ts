@@ -3,10 +3,11 @@ import {onActivity} from "../../../events/onActivity.event";
 import {Context} from "../../../core/context";
 import {customerService} from "./customer.service";
 import {ActivityTypes, ChangedFactors} from "../activity/activity.model";
-import {MinerModel} from "../../modules/miner/miner.model";
+import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
 import {UserModel} from "../../modules/user/user.model";
 import {OrderModel} from "../../modules/order/order.model";
 import {set} from "lodash";
+import {EmissionHelper} from "../../../helpers/emission.helper";
 
 const Query = {
   getAllCustomer: async (root: any, args: any, context: Context) => {
@@ -99,6 +100,35 @@ const Mutation = {
 };
 
 const Customer = {
+  emission: async (parent: { id: any }) => {
+    const earliestMiner = await MinerModel.findOne({ registered: true, connectedDate: {$exists: true} })
+        .select('connectedDate')
+        .sort({ connectedDate: 1 })
+        .lean();
+
+    if (!earliestMiner) return 0;
+    const earliest = new Date(earliestMiner.connectedDate).getTime();
+    const today = Date.now();
+    // const uptimeInDays = Math.floor((today - earliest) / 1000) || 1;
+    const uptimeInSeconds = Math.floor((today - earliest) / 1000);
+    const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
+    const nodeCustomerCount = await MinerModel.countDocuments({ customerId: parent.id, registered: true });
+
+    return EmissionHelper.getTotalRewardAndSpeedForCustomer(uptimeInSeconds, nodeCount, nodeCustomerCount);
+  },
+  totalUptime: async (parent: { id: any; }) => {
+    const earliestMiner = await MinerModel.findOne({ customerId: parent.id })
+        .sort({ connectedDate: 1 }) // earliest date
+        .select('connectedDate')
+        .lean();
+
+    if (!earliestMiner?.connectedDate) return 0;
+    const connected = new Date(earliestMiner.connectedDate).getTime();
+    const now = Date.now();
+    const uptimeInMs = now - connected;
+
+    return Math.floor(uptimeInMs / (1000 * 60 * 60 * 24));
+  },
   totalMiners: async (parent: { id: any; }) => {
     return MinerModel.countDocuments({customerId: parent.id});
   },
@@ -109,18 +139,6 @@ const Customer = {
         $group: {
           _id: null,
           total: { $sum: '$totalTokensMined' }
-        }
-      }
-    ]);
-    return result[0]?.total || 0;
-  },
-  totalUptime: async (parent: { id: any; }) => {
-    const result = await MinerModel.aggregate([
-      { $match: { customerId: parent.id } },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: '$totalUptime' }
         }
       }
     ]);
