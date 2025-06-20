@@ -54,7 +54,7 @@ class MinerService extends CrudService<typeof MinerModel> {
         name: 'Miner' + Date.now().toString(36).toUpperCase(),
         blockChainAddress: Date.now().toString(36).toUpperCase(),
         customerId,
-        status: MinerStatuses.ACTIVE,
+        status: MinerStatuses.INACTIVE,
         registered: false,
         totalTokensMined: 0,
         totalUptime: 0,

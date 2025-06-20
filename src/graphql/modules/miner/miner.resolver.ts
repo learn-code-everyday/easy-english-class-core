@@ -67,8 +67,8 @@ const Mutation = {
 
         const miner = await minerService.findOne({code});
         return await minerService.updateOne(miner._id.toString(), {
-            customerId: null,
-            status: MinerStatuses.ACTIVE,
+            // customerId: null,
+            status: MinerStatuses.INACTIVE,
             registered: false,
         });
     },
