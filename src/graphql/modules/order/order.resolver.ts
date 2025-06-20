@@ -56,7 +56,7 @@ const Mutation = {
     return await orderService.createOrder(context.id, data);
   },
   updateOrder: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER);
+    context.auth(ROLES.ADMIN_MEMBER_MERCHANT);
     const { id, data } = args;
     return await orderService.updateOrder(id, data);
   },
