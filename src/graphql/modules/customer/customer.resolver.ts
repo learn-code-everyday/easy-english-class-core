@@ -109,7 +109,7 @@ const Customer = {
     if (!earliestMiner) return 0;
     const earliest = new Date(earliestMiner.connectedDate).getTime();
     const today = Date.now();
-    const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24));
+    const uptimeInDays = Math.floor((today - earliest) / (1000 * 60 * 60 * 24)) || 1;
     const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.REGISTERED });
     const nodeCustomerCount = await MinerModel.countDocuments({ customerId: parent.id, registered: true });
 
