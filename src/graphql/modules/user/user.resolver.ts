@@ -9,7 +9,6 @@ import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
 import { UserModel, UserRoles, UserStatuses } from "./user.model";
 import { OrderModel } from "../../modules/order/order.model";
-import mongoose from "mongoose";
 
 const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {

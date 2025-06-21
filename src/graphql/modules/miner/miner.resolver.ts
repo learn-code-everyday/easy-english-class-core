@@ -23,7 +23,6 @@ const Query = {
       set(filter, "customerId", context.id);
     }
     const miner = await minerService.findOne(filter);
-    console.log("Miner found:", miner);
     return miner;
   },
   getDataMinerForAdmin: async (root: any, args: any, context: Context) => {
@@ -152,6 +151,7 @@ const Miner = {
   },
   emission: async (parent: { id: any; customerId: any; connectedDate: any; status: any; totalTokensMined: any; lastEmissionUpdate: any }) => {
     let { id, customerId, connectedDate, status, totalTokensMined, lastEmissionUpdate } = parent;
+    
     if (!customerId || !connectedDate || status !== MinerStatuses.ACTIVE) {
       return {
         speedPerMiner: 0,
@@ -161,8 +161,11 @@ const Miner = {
 
     const now = new Date();
     
-    // Lấy thông tin để tính speedPerMiner
-    const earliestMiner = await MinerModel.findOne({ status: MinerStatuses.ACTIVE })
+    // Lấy thông tin để tính speedPerMiner - CHỈ LẤY MINERS CÓ connectedDate
+    const earliestMiner = await MinerModel.findOne({ 
+      status: MinerStatuses.ACTIVE,
+      connectedDate: { $exists: true, $ne: null }
+    })
       .select("connectedDate")
       .sort({ connectedDate: 1 })
       .lean();

@@ -9,22 +9,22 @@ export const seedingAdmin = async () => {
     const myUsername = process.env.ADMIN_USERNAME;
     const myPassword = process.env.ADMIN_PASSWORD;
     await UserModel.deleteMany({});
-    const user: User = {
-      code: await UserHelper.generateCode(),
-      name: "Admin",
-      email: myUsername,
-      role: UserRoles.ADMIN,
-      status: UserStatuses.ACTIVE,
-    };
+    // const user: User = {
+    //   // code: await UserHelper.generateCode(),
+    //   name: "Admin",
+    //   gmail: myUsername,
+    //   role: UserRoles.ADMIN,
+    //   status: UserStatuses.ACTIVE,
+    // };
 
-    const userCreating = new UserModel(user);
-    const password = md5(myPassword).toString();
+    // const userCreating = new UserModel(user);
+    // const password = md5(myPassword).toString();
 
-    const hashPassword = encryptionHelper.createPassword(password, userCreating.id);
-    set(userCreating, "password", hashPassword);
+    // const hashPassword = encryptionHelper.createPassword(password, userCreating.id);
+    // set(userCreating, "password", hashPassword);
 
-    await userCreating.save().then(() => {
-      console.log("🚣 Admin created");
-    });
+    // await userCreating.save().then(() => {
+    //   console.log("🚣 Admin created");
+    // });
   }
 }
