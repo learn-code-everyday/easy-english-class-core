@@ -106,24 +106,33 @@ const Customer = {
     let totalEmission = 0;
     const now = Date.now();
     let speedPerMiner = 0;
-
     let totalSpeedAllMiner = 0;
 
+    // Lấy earliestMiner một lần cho toàn bộ, chỉ lấy miners có connectedDate
+    const earliestMiner = await MinerModel.findOne({ 
+      status: MinerStatuses.ACTIVE,
+      connectedDate: { $exists: true, $ne: null }
+    })
+      .select('connectedDate')
+      .sort({ connectedDate: 1 })
+      .lean();
+
+    if (!earliestMiner?.connectedDate) {
+      return {
+        speedPerMiner: 0,
+        totalSpeedAllMiner: 0,
+        totalEmission: 0,
+      };
+    }
+
+    const earliest = new Date(earliestMiner.connectedDate).getTime();
+    const uptimeInDays = Math.floor((now - earliest) / (1000 * 60 * 60 * 24)) || 1;
+    const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
+
     for (const miner of miners) {
-      const { connectedDate } = miner;
+      const { connectedDate, registered } = miner;
       if (!connectedDate) continue;
 
-      const earliestMiner = await MinerModel.findOne({ status: MinerStatuses.ACTIVE })
-        .select('connectedDate')
-        .sort({ connectedDate: 1 })
-        .lean();
-
-      if (!earliestMiner?.connectedDate) continue;
-
-      const earliest = new Date(earliestMiner.connectedDate).getTime();
-      const uptimeInDays = Math.floor((now - earliest) / (1000 * 60 * 60 * 24)) || 1;
-
-      const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
       const position = await MinerModel.countDocuments({
         registered: true,
         status: MinerStatuses.ACTIVE,
@@ -131,12 +140,11 @@ const Customer = {
       });
 
       speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
-
-      //TODO: Total speed per miner should be calculated based on the total number of miners
       totalSpeedAllMiner += speedPerMiner;
 
       const uptimeInSeconds = Math.floor((now - new Date(connectedDate).getTime()) / 1000);
-      totalEmission += uptimeInSeconds * speedPerMiner;
+      const minerEmission = uptimeInSeconds * speedPerMiner;
+      totalEmission += minerEmission;
     }
 
     return {

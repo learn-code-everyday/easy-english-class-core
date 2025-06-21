@@ -1,5 +1,4 @@
 import { Logger } from "../core/logger";
-import { EventErrorModel } from "../graphql/modules/eventError/eventError.model";
 import { EventErrorTypeEnum } from "../constants/event.const";
 import { Subject } from "rxjs";
 
@@ -13,7 +12,7 @@ interface MapEvent<T> {
 export abstract class BaseEvent<T> {
   static mapEvent: MapEvent<any> = {};
 
-  constructor() { }
+  constructor() {}
   private subject = new Subject<T>();
 
   next(data: T) {
@@ -46,13 +45,13 @@ export abstract class BaseEvent<T> {
         message: error.message,
       },
     });
-    EventErrorModel.create({
-      type: type,
-      errorStack: error.stack,
-      errorName: error.name,
-      errorMessage: error.message,
-      data: await this.toJSON(data),
-    });
+    // EventErrorModel.create({
+    //   type: type,
+    //   errorStack: error.stack,
+    //   errorName: error.name,
+    //   errorMessage: error.message,
+    //   data: await this.toJSON(data),
+    // });
   }
 
   async parseData(data: any) {

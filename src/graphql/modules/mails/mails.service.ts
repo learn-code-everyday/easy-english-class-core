@@ -14,7 +14,7 @@ class MailService {
     };
 
     constructor() {
-        this.transporter = nodemailer.createTransport({
+        this.transporter = (nodemailer as any).createTransport({
             host: `${configs.smtpHost}`,
             port: `${configs.smtpPort}`,
             secure: false,
