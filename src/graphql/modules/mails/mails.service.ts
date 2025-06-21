@@ -193,13 +193,31 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword, language =
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="color: #ff7125; margin-top: 0;">${isVi ? "Thông tin đăng nhập của bạn" : "Your Login Credentials"}</h3>
             <p><strong>Email:</strong> ${email}</p>
-            <p><strong>${isVi ? "Mật khẩu tạm thời" : "Temporary Password"}:</strong> <code style="background-color: #e9ecef; padding: 2px 6px; border-radius: 3px;">${tempPassword}</code></p>
+            <div style="margin: 20px 0;">
+                <p style="margin-bottom: 15px;"><strong>${isVi ? "Đăng nhập tự động" : "Auto Login"}:</strong></p>
+                <div style="text-align: center;">
+                    <a href="${generateAutoLoginUrl(email, tempPassword)}" 
+                       style="display: inline-block; padding: 15px 30px; background-color: #ff7125; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 10px 0;">
+                        ${isVi ? "🔐 Đăng nhập ngay" : "🔐 Login Now"}
+                    </a>
+                    <p style="color: #666; font-size: 12px; margin: 8px 0 0 0; font-style: italic;">
+                        ${isVi ? "Click vào nút trên để đăng nhập tự động" : "Click the button above to login automatically"}
+                    </p>
+                </div>
+            </div>
             <p style="color: #dc3545; font-size: 14px;"><strong>${isVi ? "Quan trọng" : "Important"}:</strong> ${isVi ? "Vui lòng thay đổi mật khẩu sau lần đăng nhập đầu tiên để đảm bảo bảo mật." : "Please change your password after your first login for security purposes."}</p>
         </div>
         `
     : "";
 
   const loginUrl = "https://merchant.botanika.ai";
+
+  // Function to generate auto-login URL with base64 encoded credentials
+  function generateAutoLoginUrl(userEmail, password) {
+    const credentials = `${userEmail}:${password}`;
+    const encodedCredentials = Buffer.from(credentials).toString('base64');
+    return `${loginUrl}?auth=${encodedCredentials}`;
+  }
 
   const roleMessages = {
     vi: {
@@ -258,9 +276,17 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword, language =
     
             <div style="text-align: center; margin: 30px 0;">
                 <p style="color: #555; margin-bottom: 15px;">${isVi ? "Vui lòng đăng nhập vào tài khoản của bạn tại:" : "Please login to your account at:"}</p>
-                <a href="${loginUrl}" 
+                ${tempPassword ? `
+                <a href="${generateAutoLoginUrl(email, tempPassword)}" 
                    style="display: inline-block; padding: 12px 30px; background-color: #ff7125; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 10px;">
-                    ${isVi ? "Đăng nhập vào tài khoản" : "Login to Your Account"}
+                    ${isVi ? "🔐 Đăng nhập tự động" : "🔐 Auto Login"}
+                </a>
+                <br>
+                <span style="color: #666; font-size: 12px; margin: 5px 0; display: block;">${isVi ? "hoặc" : "or"}</span>
+                ` : ''}
+                <a href="${loginUrl}" 
+                   style="display: inline-block; padding: 12px 30px; background-color: ${tempPassword ? '#6c757d' : '#ff7125'}; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 10px;">
+                    ${isVi ? "Đăng nhập thủ công" : "Manual Login"}
                 </a>
                 <br>
                 <a href="${loginUrl}" style="color: #ff7125; text-decoration: none; font-size: 14px;">
@@ -307,10 +333,15 @@ const buildResetPasswordOTPTemplate = ({
             
             <div style="text-align: center; margin: 30px 0;">
                 <div style="background-color: #fff; border: 2px solid #ff7125; border-radius: 8px; padding: 20px; display: inline-block;">
-                    <p style="color: #555; font-size: 14px; margin: 0 0 10px 0;">${isVi ? "Mã OTP của bạn:" : "Your OTP Code:"}</p>
-                    <div style="font-size: 32px; font-weight: bold; color: #ff7125; letter-spacing: 8px; font-family: 'Courier New', monospace;">
-                        ${otp}
+                    <p style="color: #555; font-size: 14px; margin: 0 0 15px 0;">${isVi ? "Mã OTP của bạn:" : "Your OTP Code:"}</p>
+                    <div style="background-color: #f8f9fa; border-radius: 6px; padding: 15px; margin: 10px 0;">
+                        <div style="font-size: 32px; font-weight: bold; color: #ff7125; letter-spacing: 8px; font-family: 'Courier New', monospace; user-select: all; -webkit-user-select: all; -moz-user-select: all; -ms-user-select: all; cursor: text;">
+                            ${otp}
+                        </div>
                     </div>
+                    <p style="color: #666; font-size: 12px; margin: 8px 0 0 0; font-style: italic;">
+                        ${isVi ? "Nhấn và giữ để chọn mã OTP, sau đó copy" : "Tap and hold to select OTP code, then copy"}
+                    </p>
                 </div>
             </div>
             
