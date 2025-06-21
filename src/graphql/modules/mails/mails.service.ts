@@ -187,14 +187,20 @@ const buildContactEmailTemplate = ({ name, phone, email, notice, language = "vi"
 
 const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword, language = "vi" }) => {
   const isVi = language === "vi";
+  const loginUrl = "https://merchant.botanika.ai";
+
+  // Function to generate auto-login URL with base64 encoded credentials
+  function generateAutoLoginUrl(userEmail, password) {
+    const credentials = `${userEmail}:${password}`;
+    const encodedCredentials = Buffer.from(credentials).toString('base64');
+    return `${loginUrl}?auth=${encodedCredentials}`;
+  }
 
   const passwordSection = tempPassword
     ? `
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="color: #ff7125; margin-top: 0;">${isVi ? "Thông tin đăng nhập của bạn" : "Your Login Credentials"}</h3>
-            <p><strong>Email:</strong> ${email}</p>
+            <h3 style="color: #ff7125; margin-top: 0;">${isVi ? "Đăng nhập tự động" : "Auto Login"}</h3>
             <div style="margin: 20px 0;">
-                <p style="margin-bottom: 15px;"><strong>${isVi ? "Đăng nhập tự động" : "Auto Login"}:</strong></p>
                 <div style="text-align: center;">
                     <a href="${generateAutoLoginUrl(email, tempPassword)}" 
                        style="display: inline-block; padding: 15px 30px; background-color: #ff7125; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 10px 0;">
@@ -209,15 +215,6 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword, language =
         </div>
         `
     : "";
-
-  const loginUrl = "https://merchant.botanika.ai";
-
-  // Function to generate auto-login URL with base64 encoded credentials
-  function generateAutoLoginUrl(userEmail, password) {
-    const credentials = `${userEmail}:${password}`;
-    const encodedCredentials = Buffer.from(credentials).toString('base64');
-    return `${loginUrl}?auth=${encodedCredentials}`;
-  }
 
   const roleMessages = {
     vi: {
@@ -275,20 +272,7 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword, language =
             </div>
     
             <div style="text-align: center; margin: 30px 0;">
-                <p style="color: #555; margin-bottom: 15px;">${isVi ? "Vui lòng đăng nhập vào tài khoản của bạn tại:" : "Please login to your account at:"}</p>
-                ${tempPassword ? `
-                <a href="${generateAutoLoginUrl(email, tempPassword)}" 
-                   style="display: inline-block; padding: 12px 30px; background-color: #ff7125; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 10px;">
-                    ${isVi ? "🔐 Đăng nhập tự động" : "🔐 Auto Login"}
-                </a>
-                <br>
-                <span style="color: #666; font-size: 12px; margin: 5px 0; display: block;">${isVi ? "hoặc" : "or"}</span>
-                ` : ''}
-                <a href="${loginUrl}" 
-                   style="display: inline-block; padding: 12px 30px; background-color: ${tempPassword ? '#6c757d' : '#ff7125'}; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 10px;">
-                    ${isVi ? "Đăng nhập thủ công" : "Manual Login"}
-                </a>
-                <br>
+                <p style="color: #555; margin-bottom: 15px;">${isVi ? "Truy cập tài khoản của bạn tại:" : "Access your account at:"}</p>
                 <a href="${loginUrl}" style="color: #ff7125; text-decoration: none; font-size: 14px;">
                     ${loginUrl}
                 </a>
