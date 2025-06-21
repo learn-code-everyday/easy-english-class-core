@@ -107,7 +107,7 @@ const Customer = {
     const now = Date.now();
     let speedPerMiner = 0;
 
-    let totalSpeedPerMiner = 0;
+    let totalSpeedAllMiner = 0;
 
     for (const miner of miners) {
       const { connectedDate } = miner;
@@ -133,7 +133,7 @@ const Customer = {
       speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
 
       //TODO: Total speed per miner should be calculated based on the total number of miners
-      totalSpeedPerMiner += speedPerMiner;
+      totalSpeedAllMiner += speedPerMiner;
 
       const uptimeInSeconds = Math.floor((now - new Date(connectedDate).getTime()) / 1000);
       totalEmission += uptimeInSeconds * speedPerMiner;
@@ -141,7 +141,7 @@ const Customer = {
 
     return {
       speedPerMiner,
-      totalSpeedPerMiner,
+      totalSpeedAllMiner,
       totalEmission,
     };
   },

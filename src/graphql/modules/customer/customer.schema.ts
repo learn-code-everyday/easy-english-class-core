@@ -75,6 +75,7 @@ type Customer {
 
 type Emission {
   speedPerMiner: Float
+  totalSpeedAllMiner: Float
   totalEmission: Float
 }
 
