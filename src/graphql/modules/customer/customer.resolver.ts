@@ -1,13 +1,13 @@
-import {ROLES} from "../../../constants/role.const";
-import {onActivity} from "../../../events/onActivity.event";
-import {Context} from "../../../core/context";
-import {customerService} from "./customer.service";
-import {ActivityTypes, ChangedFactors} from "../activity/activity.model";
-import {MinerModel, MinerStatuses} from "../../modules/miner/miner.model";
-import {UserModel} from "../../modules/user/user.model";
-import {OrderModel} from "../../modules/order/order.model";
-import {set} from "lodash";
-import {EmissionHelper} from "../../../helpers/emission.helper";
+import { ROLES } from "../../../constants/role.const";
+import { onActivity } from "../../../events/onActivity.event";
+import { Context } from "../../../core/context";
+import { customerService } from "./customer.service";
+import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
+import { MinerModel, MinerStatuses } from "../../modules/miner/miner.model";
+import { UserModel } from "../../modules/user/user.model";
+import { OrderModel } from "../../modules/order/order.model";
+import { set } from "lodash";
+import { EmissionHelper } from "../../../helpers/emission.helper";
 
 const Query = {
   getAllCustomer: async (root: any, args: any, context: Context) => {
@@ -32,13 +32,13 @@ const Query = {
         }).select("_id");
 
         const branchUserIds = branchUsers.map((user) => user._id);
-        
+
         // Get customers from orders created by users in the branch
-        const orders = await OrderModel.find({ 
-          userId: { $in: branchUserIds } 
+        const orders = await OrderModel.find({
+          userId: { $in: branchUserIds }
         }).select("customerId");
         const customerIds = orders.map(order => order.customerId).filter(Boolean);
-        
+
         if (customerIds.length > 0) {
           set(args, "q.filter._id.$in", customerIds);
         } else {
@@ -107,14 +107,16 @@ const Customer = {
     const now = Date.now();
     let speedPerMiner = 0;
 
+    let totalSpeedPerMiner = 0;
+
     for (const miner of miners) {
       const { connectedDate } = miner;
       if (!connectedDate) continue;
 
-      const earliestMiner = await MinerModel.findOne({status: MinerStatuses.ACTIVE})
-          .select('connectedDate')
-          .sort({ connectedDate: 1 })
-          .lean();
+      const earliestMiner = await MinerModel.findOne({ status: MinerStatuses.ACTIVE })
+        .select('connectedDate')
+        .sort({ connectedDate: 1 })
+        .lean();
 
       if (!earliestMiner?.connectedDate) continue;
 
@@ -130,12 +132,16 @@ const Customer = {
 
       speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
 
+      //TODO: Total speed per miner should be calculated based on the total number of miners
+      totalSpeedPerMiner += speedPerMiner;
+
       const uptimeInSeconds = Math.floor((now - new Date(connectedDate).getTime()) / 1000);
       totalEmission += uptimeInSeconds * speedPerMiner;
     }
 
     return {
       speedPerMiner,
+      totalSpeedPerMiner,
       totalEmission,
     };
   },
@@ -160,7 +166,7 @@ const Customer = {
     return total;
   },
   totalMiners: async (parent: { id: any; }) => {
-    return MinerModel.countDocuments({customerId: parent.id});
+    return MinerModel.countDocuments({ customerId: parent.id });
   },
   totalTokensMined: async (parent: { id: any; }) => {
     const result = await MinerModel.aggregate([
