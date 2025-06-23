@@ -130,7 +130,7 @@ const Customer = {
     const nodeCount = await MinerModel.countDocuments({ status: MinerStatuses.ACTIVE });
 
     for (const miner of miners) {
-      const { connectedDate, registered } = miner;
+      const { connectedDate } = miner;
       if (!connectedDate) continue;
 
       const position = await MinerModel.countDocuments({
