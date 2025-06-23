@@ -66,7 +66,6 @@ const Mutation = {
         context.auth(ROLES.ADMIN_EDITOR_CUSTOMER);
         const {data} = args;
         const {code} = data;
-
         const customerId = context.id;
 
         const miner: any = await minerService.findOne({code, customerId});
@@ -79,17 +78,11 @@ const Mutation = {
 
         let uptimeInSeconds = 0;
         if (connectedDate) {
-            uptimeInSeconds = Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
+            uptimeInSeconds = (miner?.totalUptime || 0) + Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
         }
 
-        // Tính emission cuối cùng trước khi disconnect
         let finalEmission = miner.totalTokensMined || 0;
         if (miner.status === MinerStatuses.ACTIVE && connectedDate) {
-            // Tính emission từ lastEmissionUpdate hoặc connectedDate
-            const lastUpdate = miner.lastEmissionUpdate ? new Date(miner.lastEmissionUpdate) : connectedDate;
-            const secondsSinceLastUpdate = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000);
-
-            // Cần tính speedPerMiner (copy logic từ emission function)
             const earliestMiner = await MinerModel.findOne({status: MinerStatuses.ACTIVE})
                 .select("connectedDate")
                 .sort({connectedDate: 1})
@@ -105,7 +98,7 @@ const Mutation = {
                     connectedDate: {$lt: connectedDate},
                 });
                 const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
-                finalEmission += secondsSinceLastUpdate * speedPerMiner;
+                finalEmission += uptimeInSeconds * speedPerMiner;
             }
         }
 
@@ -114,7 +107,6 @@ const Mutation = {
             registered: false,
             totalUptime: (miner.totalUptime || 0) + uptimeInSeconds,
             totalTokensMined: finalEmission,
-            lastEmissionUpdate: now,
         });
     },
 };
@@ -156,7 +148,6 @@ const Miner = {
         status: any;
         totalTokensMined: any;
         totalUptime: any;
-        lastEmissionUpdate: any
     }) => {
         let {id, customerId, connectedDate, totalUptime, status} = parent;
         if (!customerId || !connectedDate) {
