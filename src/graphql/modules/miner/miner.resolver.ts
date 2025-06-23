@@ -194,7 +194,7 @@ const Miner = {
         const dateCheck = new Date(connectedDate);
         let uptimeInSeconds = 0;
         if (dateCheck) {
-            if (status === MinerStatuses.ACTIVE) {
+            if (status === MinerStatuses.INACTIVE) {
                 uptimeInSeconds = totalUptime;
             } else {
                 uptimeInSeconds = (totalUptime || 0) + Math.floor((now.getTime() - dateCheck.getTime()) / 1000);
