@@ -111,15 +111,15 @@ const Query = {
         revenueData = [];
         
         while (current <= toDateObj) {
-          const dateStr = `${current.getDate().toString().padStart(2, "0")}/${(current.getMonth() + 1).toString().padStart(2, "0")}`;
+          const dateStr = `${current.getDate().toString().padStart(2, "0")}/${(current.getMonth() + 1).toString().padStart(2, "0")}/${current.getFullYear()}`;
           revenueData.push({ time: dateStr, value: 0 });
           current.setDate(current.getDate() + 1);
         }
-
+      
         // Fill in actual values
         for (const item of revenueByTime) {
           if (item._id) {
-            const dateStr = `${item._id.day.toString().padStart(2, "0")}/${item._id.month.toString().padStart(2, "0")}`;
+            const dateStr = `${item._id.day.toString().padStart(2, "0")}/${item._id.month.toString().padStart(2, "0")}/${item._id.year}`;
             const found = revenueData.find((d) => d.time === dateStr);
             if (found) {
               // Convert currency to USDT before adding
