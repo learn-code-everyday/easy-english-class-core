@@ -78,7 +78,7 @@ const Mutation = {
 
         let uptimeInSeconds = 0;
         if (connectedDate) {
-            uptimeInSeconds = (miner?.totalUptime || 0) + Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
+            uptimeInSeconds = Math.floor((now.getTime() - connectedDate.getTime()) / 1000);
         }
 
         let finalEmission = miner.totalTokensMined || 0;
@@ -105,7 +105,7 @@ const Mutation = {
         return await minerService.updateOne(miner._id.toString(), {
             status: MinerStatuses.INACTIVE,
             registered: false,
-            totalUptime: (miner.totalUptime || 0) + uptimeInSeconds,
+            totalUptime: (miner?.totalUptime || 0) + uptimeInSeconds,
             totalTokensMined: finalEmission,
         });
     },
@@ -139,7 +139,7 @@ const Miner = {
             uptimeInSeconds += currentUptime;
         }
 
-        return uptimeInSeconds;
+        return uptimeInSeconds || 0;
     },
     emission: async (parent: {
         id: any;
@@ -149,15 +149,14 @@ const Miner = {
         totalTokensMined: any;
         totalUptime: any;
     }) => {
-        let {id, customerId, connectedDate, totalUptime, status} = parent;
-        if (!customerId || !connectedDate) {
+        let {id, customerId, connectedDate, totalTokensMined, totalUptime, status} = parent;
+        if (!customerId || !connectedDate || status === MinerStatuses.INACTIVE) {
             return {
                 speedPerMiner: 0,
-                totalEmission: 0
+                totalEmission: totalTokensMined
             }
         }
         const earliestMiner = await MinerModel.findOne({
-            status: MinerStatuses.ACTIVE,
             connectedDate: { $exists: true, $ne: null }
         })
             .select('connectedDate')
@@ -179,7 +178,6 @@ const Miner = {
             status: MinerStatuses.ACTIVE,
             connectedDate: {$lt: connectedDate},
         });
-
         const speedPerMiner = EmissionHelper.getRewardPerSecond(position, nodeCount, uptimeInDays) || 0;
         const now = new Date();
         const dateCheck = new Date(connectedDate);
