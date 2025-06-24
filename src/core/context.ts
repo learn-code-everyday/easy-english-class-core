@@ -48,25 +48,8 @@ export class Context {
   isAdmin() {
     return _.get(this.tokenData, "role") === ROLES.ADMIN;
   }
-  isMember() {
-    return _.get(this.tokenData, "role") === ROLES.MEMBER;
-  }
   isCustomer() {
     return _.get(this.tokenData, "role") === ROLES.CUSTOMER;
-  }
-
-  isMerchant() {
-    return _.get(this.tokenData, "role") === ROLES.MERCHANT;
-  }
-
-  isMerchantOrSeller() {
-    const role = _.get(this.tokenData, "role");
-    return role === ROLES.MERCHANT;
-  }
-
-  isSuperAdmin() {
-    const role = _.get(this.tokenData, "role");
-    return role === ROLES.MEMBER;
   }
 
   get id() {

@@ -4,11 +4,11 @@ import { counterService } from "./counter.service";
 
 const Query = {
   getAllCounter: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     return counterService.fetch(args.q);
   },
   getOneCounter: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await counterService.findOne({ _id: id });
   },

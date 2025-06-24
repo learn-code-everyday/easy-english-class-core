@@ -14,7 +14,7 @@ export class UserHelper {
   constructor(public user: IUser) {}
 
   static async fromContext(context: Context) {
-    if (!ROLES.ADMIN_MEMBER_EDITOR.includes(context.tokenData.role)) return null;
+    if (!ROLES.ADMIN.includes(context.tokenData.role)) return null;
     const user = await UserModel.findById(context.tokenData._id);
     if (!user) throw ErrorHelper.permissionDeny();
     return new UserHelper(user);
@@ -57,7 +57,7 @@ export class UserHelper {
 
   static createUserWithRole = async (data: any, context: Context) => {
     let level = 1;
-    if (context.tokenData.role === UserRoles.MERCHANT) {
+    if (context.tokenData.role === UserRoles.CUSTOMER) {
       level = (context.tokenData.level || 0) + 1;
     }
 

@@ -5,11 +5,11 @@ import { UserLoader } from "../user/user.model";
 import { activityService } from "./activity.service";
 const Query = {
   getAllActivity: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     return activityService.fetch(args.q);
   },
   getOneActivity: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth([ROLES.ADMIN]);
     const { id } = args;
     return await activityService.findOne({ _id: id });
   },

@@ -6,7 +6,7 @@ import { Context } from "../../../../core/context";
 
 const Query = {
   <%= h.inflection.camelize(f, true) %>: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN);
     //code here
     return {}
   },

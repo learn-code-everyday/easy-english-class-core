@@ -7,11 +7,11 @@ import { <%= h.inflection.camelize(name, true) %>Service } from "./<%= h.inflect
 
 const Query = {
   getAll<%= h.inflection.camelize(name) %>: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN);
     return <%= h.inflection.camelize(name, true) %>Service.fetch(args.q);
   },
   getOne<%= h.inflection.camelize(name) %>: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN);
     const { id } = args;
     return await <%= h.inflection.camelize(name, true) %>Service.findOne({ _id: id });
   },
@@ -19,17 +19,17 @@ const Query = {
 
 const Mutation = {
   create<%= h.inflection.camelize(name) %>: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN);
     const { data } = args;
     return await <%= h.inflection.camelize(name, true) %>Service.create(data);
   },
   update<%= h.inflection.camelize(name) %>: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN);
     const { id, data } = args;
     return await <%= h.inflection.camelize(name, true) %>Service.updateOne(id, data);
   },
   deleteOne<%= h.inflection.camelize(name) %>: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_EDITOR);
+    context.auth(ROLES.ADMIN);
     const { id } = args;
     return await <%= h.inflection.camelize(name, true) %>Service.deleteOne(id);
   },

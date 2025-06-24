@@ -1,4 +1,3 @@
-import { set } from "lodash";
 import md5 from "md5";
 import { ROLES } from "../../../constants/role.const";
 import { onActivity } from "../../../events/onActivity.event";
@@ -8,44 +7,25 @@ import { UserHelper } from "./user.helper";
 import { userService } from "./user.service";
 import { ActivityTypes, ChangedFactors } from "../activity/activity.model";
 import { UserModel, UserRoles, UserStatuses } from "./user.model";
-import { OrderModel } from "../../modules/order/order.model";
 
 const Query = {
   getAllUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.MEMBER, ROLES.MERCHANT]);
-    if (context.tokenData.role === ROLES.MERCHANT) {
-      args.q.filter = {
-        ...args.q.filter,
-        role: UserRoles.MERCHANT,
-        status: UserStatuses.ACTIVE,
-        referrenceId: context.tokenData._id,
-      };
-    }
+    context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
+    // if (context.tokenData.role === ROLES.MERCHANT) {
+    //   args.q.filter = {
+    //     ...args.q.filter,
+    //     role: UserRoles.MERCHANT,
+    //     status: UserStatuses.ACTIVE,
+    //     referrenceId: context.tokenData._id,
+    //   };
+    // }
 
     return userService.fetch(args.q);
   },
-  getReferralTree: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER_EDITOR);
-    const { id } = args;
-    return await userService.getReferralTree(id || context.id);
-  },
   getOneUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.EDITOR]);
+    context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
     const { id } = args;
     return await userService.findOne({ _id: id });
-  },
-  getUsersByRole: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN]);
-    const { role, q } = args;
-    if (!role || role !== UserRoles.MERCHANT) {
-      throw new Error("Invalid role. Only MERCHANT or SALES allowed.");
-    }
-    const query = {
-      ...q,
-      role: role,
-    };
-
-    return userService.fetch(query);
   },
 };
 
@@ -66,27 +46,27 @@ const Mutation = {
     return await userService.confirmPasswordReset(gmail, code, newPassword);
   },
   createUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.MERCHANT, ROLES.MEMBER]);
+    context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
     const { data } = args;
 
     await UserHelper.validateCreateUser(data, context);
     return await UserHelper.createUserWithRole(data, context);
   },
   updateUser: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER);
+    context.auth([ROLES.ADMIN]);
     const { id, data } = args;
 
     return await userService.updateOne(id, data);
   },
   updateUserMyProfile: async (root: any, args: any, context: Context) => {
-    context.auth(ROLES.ADMIN_MEMBER);
+    context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
     const { data } = args;
     if (context.tokenData.role != ROLES.ADMIN) context.isOwner(context.id);
 
     return await userService.updateOne(context.id, data);
   },
   updatePassword: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.MEMBER, ROLES.MERCHANT]);
+    context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
     const { currentPassword, newPassword } = args;
 
     if (!newPassword || newPassword.length < 6) {
@@ -137,70 +117,6 @@ const User = {
   infoReferrence: async (parent: { referrenceId: any }) => {
     return UserModel.findById(parent.referrenceId);
   },
-  sold: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      { $match: { userId: parent._id } },
-      {
-        $group: {
-          _id: null,
-          totalQuantity: { $sum: "$quantity" },
-        },
-      },
-    ]);
-
-    return result[0]?.totalQuantity || 0;
-  },
-  usd: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      {
-        $match: {
-          userId: parent._id,
-          currency: "USD",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$amount" },
-        },
-      },
-    ]);
-    return result[0]?.totalAmount || 0;
-  },
-  usdt: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      {
-        $match: {
-          userId: parent._id,
-          currency: "USDT",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$amount" },
-        },
-      },
-    ]);
-    return result[0]?.totalAmount || 0;
-  },
-  vnd: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      {
-        $match: {
-          userId: parent._id,
-          currency: "VND",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$amount" },
-        },
-      },
-    ]);
-    return result[0]?.totalAmount || 0;
-  },
   countReferrence: async (parent: { _id: any }) => {
     return UserModel.estimatedDocumentCount({
       referrenceId: parent._id,
@@ -210,70 +126,6 @@ const User = {
 const UserReferral = {
   infoReferrence: async (parent: { referrenceId: any }) => {
     return UserModel.findById(parent.referrenceId);
-  },
-  sold: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      { $match: { userId: parent._id } },
-      {
-        $group: {
-          _id: null,
-          totalQuantity: { $sum: "$quantity" },
-        },
-      },
-    ]);
-
-    return result[0]?.totalQuantity || 0;
-  },
-  usd: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      {
-        $match: {
-          userId: parent._id,
-          currency: "USD",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$amount" },
-        },
-      },
-    ]);
-    return result[0]?.totalAmount || 0;
-  },
-  usdt: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      {
-        $match: {
-          userId: parent._id,
-          currency: "USDT",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$amount" },
-        },
-      },
-    ]);
-    return result[0]?.totalAmount || 0;
-  },
-  vnd: async (parent: { _id: any }) => {
-    const result = await OrderModel.aggregate([
-      {
-        $match: {
-          userId: parent._id,
-          currency: "VND",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$amount" },
-        },
-      },
-    ]);
-    return result[0]?.totalAmount || 0;
   },
   countReferrence: async (parent: { _id: any }) => {
     return UserModel.countDocuments({
