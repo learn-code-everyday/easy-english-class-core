@@ -60,8 +60,11 @@ jobs:
               docker rm -f english-class-core || true
               docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod || true
 
-              # Dùng docker compose v2 nếu có, nếu không thì dùng docker-compose legacy
-              (docker compose pull || docker-compose pull)
-              (docker compose up -d || docker-compose up -d)
+              # Chạy lại container mới
+              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod
+              docker run -d --restart always --name english-class-core \
+                -p 3000:3000 \
+                --env-file .env \
+                ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod
             '
 
