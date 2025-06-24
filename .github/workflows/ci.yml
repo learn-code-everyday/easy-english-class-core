@@ -2,6 +2,7 @@ name: Build PROD
 on:
   push:
     branches: [ main ]
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -24,7 +25,6 @@ jobs:
         with:
           context: ./
           file: ./Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod
 
@@ -46,11 +46,20 @@ jobs:
           chmod 400 ~/.ssh/english-class.pem
           ssh-keyscan -H ${{ secrets.ENGLISH_CLASS_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy
+      - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/english-class.pem \
-            ${{ secrets.ENGLISH_CLASS_SSH_USERNAME }}@${{ secrets.ENGLISH_CLASS_IP }} \
-            "cd home/www/english-class && \
-            docker rm -f english-class-core || true && \
-            docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod || true && \
-            docker-compose up -d"
+            ${{ secrets.ENGLISH_CLASS_SSH_USERNAME }}@${{ secrets.ENGLISH_CLASS_IP }} '
+              set -e
+              # Tạo thư mục nếu chưa có
+              mkdir -p /home/www/english-class
+              cd /home/www/english-class
+
+              # Xóa container và image cũ (không lỗi nếu không tồn tại)
+              docker rm -f english-class-core || true
+              docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod || true
+
+              # Dùng docker compose v2 nếu có, nếu không thì dùng docker-compose legacy
+              (docker compose pull || docker-compose pull)
+              (docker compose up -d || docker-compose up -d)
+            '
