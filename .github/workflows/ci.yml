@@ -52,8 +52,8 @@ jobs:
             ${{ secrets.ENGLISH_CLASS_SSH_USERNAME }}@${{ secrets.ENGLISH_CLASS_IP }} '
               cd /home/www/english-class
               docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod
-              docker-compose down || true
-              docker-compose up -d
+              docker compose down || true
+              docker compose up -d
             '
 
 
