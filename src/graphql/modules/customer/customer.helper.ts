@@ -1,35 +1,14 @@
 import md5 from "md5";
-import base from "../../../configs/base";
 import { ROLES } from "../../../constants/role.const";
 import { ErrorHelper, KeycodeHelper } from "../../../helpers";
 import { randomNumberHelper } from "../../../helpers/randomNumber.helper";
 import { TokenHelper } from "../../../helpers/token.helper";
 import { Context } from "../../../core/context";
 import { counterService } from "../counter/counter.service";
-import { google } from "googleapis";
 import { CustomerModel, CustomerStatuses, ICustomer } from "./customer.model";
 
 export class CustomerHelper {
   constructor(public customer: ICustomer) {}
-
-  static async getEmailByOAUTH2(idToken: string) {
-    try {
-      const { googleClientId, googleClientSecret } = base;
-
-      const oauth2Client = new google.auth.OAuth2(googleClientId, googleClientSecret);
-
-      const ticket = await oauth2Client.verifyIdToken({
-        idToken,
-      });
-
-      const payload = ticket.getPayload();
-      const { email } = payload;
-
-      return email;
-    } catch (error) {
-      throw ErrorHelper.error("Google authentication error.");
-    }
-  }
 
   static async fromContext(context: Context) {
     if (!ROLES.CUSTOMER.includes(context.tokenData.role)) return null;

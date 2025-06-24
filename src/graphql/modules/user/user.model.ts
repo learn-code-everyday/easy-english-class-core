@@ -18,8 +18,6 @@ export type User = {
     gmail?: string;
     address?: string;
     phone?: string;
-    wallet?: string;
-    telegramLink?: string;
     password?: string;
     role?: UserRoles;
     avatar?: string;
@@ -45,8 +43,6 @@ const userSchema = new Schema(
         gmail: {type: String, unique: true, sparse: true},
         address: {type: String},
         phone: {type: String},
-        wallet: {type: String},
-        telegramLink: {type: String},
         password: {type: String},
         level: {type: Number},
         role: {type: String, enum: Object.values(UserRoles)},

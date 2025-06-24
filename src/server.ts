@@ -37,5 +37,5 @@ class Server {
 
 // Usage
 new Server();
-import "./init";
+// import "./init";
 import "./scheduler";
