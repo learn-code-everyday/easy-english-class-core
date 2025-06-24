@@ -51,11 +51,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/english-class.pem \
             ${{ secrets.ENGLISH_CLASS_SSH_USERNAME }}@${{ secrets.ENGLISH_CLASS_IP }} '
               set -e
-              # Tạo thư mục nếu chưa có
-              mkdir -p /home/www/english-class
+              # Tạo thư mục với quyền root (nếu chưa có)
+              sudo mkdir -p /home/www/english-class
+              sudo chown $USER:$USER /home/www/english-class
               cd /home/www/english-class
 
-              # Xóa container và image cũ (không lỗi nếu không tồn tại)
+              # Xóa container và image cũ
               docker rm -f english-class-core || true
               docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_APPNAME }}:prod || true
 
@@ -63,3 +64,4 @@ jobs:
               (docker compose pull || docker-compose pull)
               (docker compose up -d || docker-compose up -d)
             '
+
