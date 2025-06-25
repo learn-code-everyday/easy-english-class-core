@@ -4,7 +4,7 @@ services:
     image: beenguyen0601/english-class-core:prod
     container_name: english-class-app
     expose:
-      - "127.0.0.1:5555:5555"
+      - "5555"
     networks:
       - app-net
 networks:
