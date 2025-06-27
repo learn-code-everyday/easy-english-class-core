@@ -1,3 +1,4 @@
+import "module-alias/register";
 import express from "express";
 import { LogHelper, Logger } from "./core/logger";
 import ExpressLoader from "./loaders/express.loader";
@@ -25,13 +26,11 @@ class Server {
 
       LogHelper.logString(
         `\n🚀 Apis Services is running in ${app.get("env")} mode at`,
-        `http://localhost:${app.get("port")}/api-docs \n`
+        `http://localhost:${app.get("port")}/api-docs \n`,
       );
 
       console.log("  Press CTRL-C to stop\n");
     });
-    
-
   }
 }
 

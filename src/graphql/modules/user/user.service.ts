@@ -1,10 +1,10 @@
 import { CrudService } from "../../../base/crudService";
-import {UserModel} from "./user.model";
+import { UserModel } from "./user.model";
 import mongoose from "mongoose";
 import * as crypto from "crypto";
-import {mailService} from "../../modules/mails/mails.service";
-import {OtpModel, OtpStatuses} from "../../modules/otp/otp.model";
-import {encryptionHelper} from "../../../helpers";
+import { mailService } from "../../modules/mails/mails.service";
+import { OtpModel, OtpStatuses } from "../../modules/otp/otp.model";
+import { encryptionHelper } from "../../../helpers";
 import md5 from "md5";
 
 class UserService extends CrudService<typeof UserModel> {
@@ -12,8 +12,8 @@ class UserService extends CrudService<typeof UserModel> {
     super(UserModel);
   }
 
-  async resetPassword(gmail: string) {
-    const user = await UserModel.findOne({gmail});
+  async resetPassword(email: string) {
+    const user = await UserModel.findOne({ email });
     if (!user) {
       throw new Error("user not found.");
     }
@@ -30,14 +30,14 @@ class UserService extends CrudService<typeof UserModel> {
 
     await mailService.sendResetPassword({
       name: user.name,
-      gmail: user.gmail,
+      email: user.email,
       otp,
     });
 
     return { success: true, message: "OTP sent to email" };
-  };
-  async verifyResetCode(gmail: string, otp: string) {
-    const user = await UserModel.findOne({ gmail });
+  }
+  async verifyResetCode(email: string, otp: string) {
+    const user = await UserModel.findOne({ email });
     if (!user) throw new Error("User not found");
 
     const now = new Date();
@@ -52,9 +52,9 @@ class UserService extends CrudService<typeof UserModel> {
     if (!validOtp) throw new Error("Invalid or expired OTP");
 
     return { success: true, message: "OTP" };
-  };
-  async confirmPasswordReset(gmail: string, otp: string, newPassword: string) {
-    const user = await UserModel.findOne({ gmail });
+  }
+  async confirmPasswordReset(email: string, otp: string, newPassword: string) {
+    const user = await UserModel.findOne({ email });
     if (!user) throw new Error("User not found");
 
     const now = new Date();
@@ -68,23 +68,24 @@ class UserService extends CrudService<typeof UserModel> {
 
     if (!validOtp) throw new Error("Invalid or expired OTP");
 
-    const hashedNewPassword = encryptionHelper.createPassword(md5(newPassword).toString(), String(user._id));
+    const hashedNewPassword = encryptionHelper.createPassword(
+      md5(newPassword).toString(),
+      String(user._id),
+    );
     await UserModel.updateOne({ _id: user._id }, { password: hashedNewPassword });
 
     validOtp.status = OtpStatuses.INACTIVE;
     await validOtp.save();
 
     return { success: true, message: "Pass" };
-  };
+  }
 
-  async updatePassword(userId: string) {
-
-  };
+  async updatePassword(userId: string) {}
 
   async getReferralTree(userId: string) {
     const result = await UserModel.aggregate([
       {
-        $match: { _id: new mongoose.Types.ObjectId(userId) }
+        $match: { _id: new mongoose.Types.ObjectId(userId) },
       },
       {
         $graphLookup: {
@@ -92,16 +93,16 @@ class UserService extends CrudService<typeof UserModel> {
           startWith: "$referrenceId",
           connectFromField: "referrenceId",
           connectToField: "_id",
-          as: "referredByChain"
-        }
+          as: "referredByChain",
+        },
       },
       {
         $lookup: {
           from: "users",
           localField: "_id",
           foreignField: "referrenceId",
-          as: "referrals"
-        }
+          as: "referrals",
+        },
       },
       {
         $project: {
@@ -112,11 +113,11 @@ class UserService extends CrudService<typeof UserModel> {
             $filter: {
               input: "$referredByChain",
               as: "user",
-              cond: { $eq: ["$$user.role", "MERCHANT"] }
-            }
-          }
-        }
-      }
+              cond: { $eq: ["$$user.role", "MERCHANT"] },
+            },
+          },
+        },
+      },
     ]);
     return result[0] ?? { referredByChain: [], referrals: [] };
   }

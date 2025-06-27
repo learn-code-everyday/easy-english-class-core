@@ -7,9 +7,9 @@ import { ActivityTypes, ChangedFactors } from "../../activity/activity.model";
 
 const Mutation = {
   signInUserByEmail: async (root: any, args: any, context: Context) => {
-    let { gmail } = args;
+    let { email } = args;
     const password = context.passwordToken;
-    const user = await UserModel.findOne({ gmail });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       throw ErrorHelper.userNotExist();

@@ -8,7 +8,7 @@ import { userService } from "./user.service";
 import { set } from "lodash";
 import md5 from "md5";
 import { mailService } from "../mails/mails.service";
-import { randomBytes } from 'crypto';
+import { randomBytes } from "crypto";
 
 export class UserHelper {
   constructor(public user: IUser) {}
@@ -34,22 +34,18 @@ export class UserHelper {
     });
   }
   static async validateCreateUser(data: any, context: Context) {
-    const existingUserByEmail = await userService.findOne({ gmail: data.gmail });
+    const existingUserByEmail = await userService.findOne({ email: data.email });
     if (existingUserByEmail) {
       throw new Error("Email already exists");
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.gmail)) {
-      throw new Error("Invalid gmail format");
+    if (!emailRegex.test(data.email)) {
+      throw new Error("Invalid email format");
     }
 
     if (data.name.length < 2 || data.name.length > 50) {
       throw new Error("Name must be between 2-50 characters");
-    }
-
-    if (data.role && !Object.values(UserRoles).includes(data.role)) {
-      throw new Error("Invalid user role");
     }
 
     return true;
@@ -57,8 +53,8 @@ export class UserHelper {
 
   static createUserWithRole = async (data: any, context: Context) => {
     let level = 1;
-    if (context.tokenData.role === UserRoles.CUSTOMER) {
-      level = (context.tokenData.level || 0) + 1;
+    if (context?.tokenData?.role === UserRoles.CUSTOMER) {
+      level = (context?.tokenData?.level || 0) + 1;
     }
 
     const userData = {
@@ -80,7 +76,7 @@ export class UserHelper {
       try {
         await mailService.sendWelcomeEmail({
           name: result.name,
-          gmail: result.gmail,
+          email: result.email,
           role: result.role,
           tempPassword: plainPassword,
         });

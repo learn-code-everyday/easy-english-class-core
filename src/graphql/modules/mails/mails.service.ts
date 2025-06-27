@@ -75,7 +75,7 @@ class MailService {
 
   async sendWelcomeEmail(data: {
     name: string;
-    gmail: string;
+    email: string;
     role?: string;
     tempPassword?: string;
     language?: "vi" | "en";
@@ -83,14 +83,14 @@ class MailService {
     try {
       const lang = data.language || "vi";
       const template = {
-        to: data.gmail,
+        to: data.email,
         subject:
           lang === "vi"
             ? `Chào mừng đến với Botanika - Tài khoản của bạn đã sẵn sàng!`
             : `Welcome to Botanika - Your Account is Ready!`,
         html: buildWelcomeEmailTemplate({
           name: data.name,
-          email: data.gmail,
+          email: data.email,
           role: data.role || "User",
           tempPassword: data.tempPassword,
           language: lang,
@@ -106,14 +106,14 @@ class MailService {
 
   async sendResetPassword(data: {
     name: string;
-    gmail: string;
+    email: string;
     otp: string;
     language?: "vi" | "en";
   }) {
     try {
       const lang = data.language || "vi";
       const template = {
-        to: data.gmail,
+        to: data.email,
         subject:
           lang === "vi"
             ? `Đặt lại mật khẩu tài khoản Botanika của bạn`
@@ -192,7 +192,7 @@ const buildWelcomeEmailTemplate = ({ name, email, role, tempPassword, language =
   // Function to generate auto-login URL with base64 encoded credentials
   function generateAutoLoginUrl(userEmail, password) {
     const credentials = `${userEmail}:${password}`;
-    const encodedCredentials = Buffer.from(credentials).toString('base64');
+    const encodedCredentials = Buffer.from(credentials).toString("base64");
     return `${loginUrl}?auth=${encodedCredentials}`;
   }
 

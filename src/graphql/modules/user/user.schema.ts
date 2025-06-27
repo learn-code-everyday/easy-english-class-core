@@ -12,15 +12,15 @@ extend type Query {
 }
 
 extend type Mutation {
-  resetPassword(gmail: String!): SendResetPassword
-  verifyResetCode(gmail: String!, code:String!): SendResetPassword
-  confirmPasswordReset(gmail: String!, code:String!, newPassword: String!): SendResetPassword
+  resetPassword(email: String!): SendResetPassword
+  verifyResetCode(email: String!, code:String!): SendResetPassword
+  confirmPasswordReset(email: String!, code:String!, newPassword: String!): SendResetPassword
   createUser(data: CreateUserInput!): User
   updateUser(id: ID!, data: UpdateUserInput!): User
   updateUserMyProfile(data: UpdateUserInput!): User
   deleteOneUser(id: ID!): User
     # Add Mutation
-  signInUserByEmail(gmail: String!): UserLoginData
+  signInUserByEmail(email: String!): UserLoginData
   updatePassword(currentPassword: String, newPassword: String!): User
 }
 
@@ -40,7 +40,7 @@ type ReferralTree {
 }
 
 input ConfirmPasswordResetInput {
-  gmail: String
+  email: String
   code: String
   newPassword: String
 }
@@ -61,7 +61,7 @@ type PaymentInfo {
 
 input CreateUserInput {
   name: String
-  gmail: String
+  email: String
   password: String
   phone: String
   address: String
@@ -74,7 +74,7 @@ input CreateUserInput {
 
 input UpdateUserInput {
   name: String
-  gmail: String
+  email: String
   password: String
   phone: String
   address: String
@@ -101,7 +101,7 @@ input UserUpdateMeInput {
 type UserReferral {
   _id: String
   countReferrence: Int
-  gmail: String
+  email: String
   referralCode: String
   referrenceId: String
   role: String
@@ -126,7 +126,7 @@ type UserReferral {
 
 type User {
   id: String
-  gmail: String
+  email: String
   referralCode: String
   referrenceId: String
   countReferrence: Int
@@ -152,7 +152,7 @@ type User {
 
 type InfoReferrence {
   id: String
-  gmail: String
+  email: String
   name: String
   phone: String
 }

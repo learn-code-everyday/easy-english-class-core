@@ -31,22 +31,22 @@ const Query = {
 
 const Mutation = {
   resetPassword: async (root: any, args: any, context: Context) => {
-    const { gmail } = args;
+    const { email } = args;
 
-    return await userService.resetPassword(gmail);
+    return await userService.resetPassword(email);
   },
   verifyResetCode: async (root: any, args: any, context: Context) => {
-    const { gmail, code } = args;
+    const { email, code } = args;
 
-    return await userService.verifyResetCode(gmail, code);
+    return await userService.verifyResetCode(email, code);
   },
   confirmPasswordReset: async (root: any, args: any, context: Context) => {
-    const { gmail, code, newPassword } = args;
+    const { email, code, newPassword } = args;
 
-    return await userService.confirmPasswordReset(gmail, code, newPassword);
+    return await userService.confirmPasswordReset(email, code, newPassword);
   },
   createUser: async (root: any, args: any, context: Context) => {
-    context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
+    // context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
     const { data } = args;
 
     await UserHelper.validateCreateUser(data, context);

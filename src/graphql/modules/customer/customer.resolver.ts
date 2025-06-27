@@ -16,8 +16,8 @@ const Query = {
   },
   getCustomerForAdmin: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.ADMIN, ROLES.CUSTOMER]);
-    const { gmail, referralCode } = args.data;
-    return await customerService.findOne({ gmail, referralCode });
+    const { email, referralCode } = args.data;
+    return await customerService.findOne({ email, referralCode });
   },
   customerGetMe: async (root: any, args: any, context: Context) => {
     context.auth([ROLES.CUSTOMER]);

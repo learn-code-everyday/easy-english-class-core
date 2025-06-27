@@ -21,9 +21,9 @@ export type Customer = {
   ward?: string;
   city?: string;
   location?: string;
-  gmail?: string
+  email?: string;
+  googleId?: string;
   status?: CustomerStatuses;
-
 };
 
 export type ICustomer = BaseDocument & Customer;
@@ -37,24 +37,27 @@ const customerSchema = new Schema(
     referrenceId: { type: Schema.Types.ObjectId, ref: "Customer" },
     role: { type: String },
     avatarUrl: { type: String, default: "/images/customer/avatar.png" },
-    gmail: { type: String },
+    email: { type: String },
     phoneNumber: { type: String },
     address: { type: String },
-    district:{type: String},
-    ward:{type: String},
+    district: { type: String },
+    ward: { type: String },
     city: { type: String },
     location: { type: String },
     status: { type: String, enum: CustomerStatuses, default: CustomerStatuses.ACTIVE },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-customerSchema.index({firstname: "text", lastname: "text", referralCode: "text", gmail: "text", phone: "text"}, {weights: {gmail: 2}});
+customerSchema.index(
+  { firstname: "text", lastname: "text", referralCode: "text", email: "text", phone: "text" },
+  { weights: { email: 2 } },
+);
 
 export const CustomerHook = new ModelHook<ICustomer>(customerSchema);
 export const CustomerModel: mongoose.Model<ICustomer> = MainConnection.model(
   "Customer",
-  customerSchema
+  customerSchema,
 );
 
 export const CustomerLoader = ModelLoader<ICustomer>(CustomerModel, CustomerHook);

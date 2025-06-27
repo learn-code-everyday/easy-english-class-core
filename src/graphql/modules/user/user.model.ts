@@ -1,68 +1,71 @@
 import mongoose from "mongoose";
-import {MainConnection} from "../../../loaders/database.loader";
-import {BaseDocument, ModelLoader, ModelHook} from "../../../base/baseModel";
+import { MainConnection } from "../../../loaders/database.loader";
+import { BaseDocument, ModelLoader, ModelHook } from "../../../base/baseModel";
 
 const Schema = mongoose.Schema;
 
 export enum UserRoles {
-    ADMIN = "ADMIN",
-    CUSTOMER = "CUSTOMER",
+  ADMIN = "ADMIN",
+  CUSTOMER = "CUSTOMER",
 }
 export enum UserStatuses {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
 }
 
 export type User = {
-    name?: string;
-    gmail?: string;
-    address?: string;
-    phone?: string;
-    password?: string;
-    role?: UserRoles;
-    avatar?: string;
-    level?: number;
-    lastLoginAt?: Date;
-    status?: UserStatuses;
-    isFirstLogin?: boolean;
-    referralCode?: string;
-    referrenceId?: mongoose.Types.ObjectId;
-    payment: {
-        bankName?: string;
-        accountBankName?: string;
-        bankNumber?: string;
-        walletAddress?: string;
-    };
+  name?: string;
+  email?: string;
+  address?: string;
+  phone?: string;
+  password?: string;
+  role?: UserRoles;
+  avatar?: string;
+  level?: number;
+  lastLoginAt?: Date;
+  status?: UserStatuses;
+  isFirstLogin?: boolean;
+  referralCode?: string;
+  referrenceId?: mongoose.Types.ObjectId;
+  payment: {
+    bankName?: string;
+    accountBankName?: string;
+    bankNumber?: string;
+    walletAddress?: string;
+  };
 };
 
 export type IUser = BaseDocument & User;
 
 const userSchema = new Schema(
-    {
-        name: {type: String},
-        gmail: {type: String, unique: true, sparse: true},
-        address: {type: String},
-        phone: {type: String},
-        password: {type: String},
-        level: {type: Number},
-        role: {type: String, enum: Object.values(UserRoles)},
-        avatar: {type: String},
-        lastLoginAt: {type: Date},
-        referralCode: {type: String, unique: true},
-        referrenceId: {type: Schema.Types.ObjectId, ref: "User"},
-        status: {type: String, enum: Object.values(UserStatuses), default: UserStatuses.ACTIVE},
-        isFirstLogin: {type: Boolean, default: false},
-        payment: {
-            bankName: {type: String},
-            accountBankName: {type: String},
-            bankNumber: {type: String},
-            walletAddress: {type: String},
-        },
+  {
+    name: { type: String },
+    email: { type: String, unique: true, sparse: true },
+    address: { type: String },
+    phone: { type: String },
+    password: { type: String },
+    level: { type: Number },
+    role: { type: String, enum: Object.values(UserRoles) },
+    avatar: { type: String },
+    lastLoginAt: { type: Date },
+    referralCode: { type: String, unique: true },
+    referrenceId: { type: Schema.Types.ObjectId, ref: "User" },
+    status: { type: String, enum: Object.values(UserStatuses), default: UserStatuses.ACTIVE },
+    isFirstLogin: { type: Boolean, default: false },
+    payment: {
+      bankName: { type: String },
+      accountBankName: { type: String },
+      bankNumber: { type: String },
+      walletAddress: { type: String },
     },
-    {timestamps: true, collation: {locale: "vi"}},
+  },
+  { timestamps: true, collation: { locale: "vi" } },
 );
 
-userSchema.index({name: "text", gmail: "text", phone: "text", referralCode: "text"}, {weights: {gmail: 2}});
+userSchema.index(
+  { name: "text", email: "text", phone: "text", referralCode: "text" },
+  { weights: { email: 2 } },
+);
 
 export const UserHook = new ModelHook<IUser>(userSchema);
 export const UserModel: mongoose.Model<IUser> = MainConnection.model("User", userSchema);
